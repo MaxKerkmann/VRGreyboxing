@@ -1,0 +1,26 @@
+{
+  "name": "com.bcatstudio.vrgreyboxing",
+  "version": "0.1.0",
+  "displayName": "VRGreyboxing",
+  "description": "This is an example package",
+  "unity": "6000.0",
+  "unityRelease": "25f1",
+  "dependencies": {
+    "com.unity.inputsystem": "1.11.2",
+    "com.unity.xr.core-utils": "2.2.3",
+    "com.unity.xr.openxr": "1.13.2",
+    "com.unity.xr.interaction.toolkit": "3.0.5",
+    "com.unity.probuilder": "6.0.5"
+  },
+  "keywords": [
+    "keyword1",
+    "keyword2",
+    "keyword3"
+  ],
+  "author": {
+    "name": "Unity",
+    "email": "unity@example.com",
+    "url": "https://www.unity3d.com"
+  },
+  "hideInEditor": false
+}
