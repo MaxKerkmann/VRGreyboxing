@@ -197,6 +197,7 @@ namespace VRGreyboxing
             }
 
             SaveDrawing(drawingContainer);
+            _currentDrawingObjects.Clear();
             ActionManager.Instance.CloseConfirmMenu();
         }
         
@@ -250,6 +251,7 @@ namespace VRGreyboxing
             EncapsulateDrawing(parentCollider,childColliders);
             
             parentCollider.enabled = false;
+            ResetDrawing();
             PlayModeManager.Instance.RegisterObjectChange(drawing,false,-1,false,false,"",new List<Vector3>(),false,drawingpoints,colliderCenters,colliderSizes,drawingColors,lineWidths);
         }
 

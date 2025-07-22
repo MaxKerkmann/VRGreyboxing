@@ -257,6 +257,10 @@ namespace VRGreyboxing
                 {
                     PerformGestureZoom();
                 }
+                else
+                {
+                    ActionManager.Instance.DisplayZoomMenu();
+                }
             }
         }
 
@@ -371,7 +375,6 @@ namespace VRGreyboxing
             {
                 l.startWidth = sizeValue * _lineSizePlayerRatio;
                 l.endWidth = sizeValue * _lineSizePlayerRatio;
-                Debug.Log(l.startWidth);
             }
 
             _leftControllerZoomOrigin = _leftController.transform.position;

@@ -1468,7 +1468,7 @@ namespace VRGreyboxing
 
         public void DisplayZoomMenu()
         {
-            if(_sceneMenuInstance != null)
+            if(_scaleMenuInstance != null)
             {
                 CloseZoomMenu();
                 return;

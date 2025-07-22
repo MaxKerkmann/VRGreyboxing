@@ -14,17 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefabSaveDirectory: {fileID: 102900000, guid: 9849c14007a48ff468124923f344da01, type: 3}
   availablePrefabs:
+  - {fileID: 532905774368977377, guid: 41a30abcafe37234a93c703182f79b9c, type: 3}
+  - {fileID: 7990256629529080593, guid: 65647a78d4cf9af4f81f0b333f7501da, type: 3}
+  - {fileID: 6104924563686646878, guid: 1c56965bc78fc6549b35b16addd156ca, type: 3}
+  - {fileID: 3841199886107054436, guid: 8dcde1e039a02d146a97f3bd5da535d0, type: 3}
   - {fileID: 6329100999940102789, guid: c5ff4bbe20b990a45bb5ace0252f7379, type: 3}
-  - {fileID: 3341018629951446637, guid: c39d08a6a64b91f408463ab374dfd9d5, type: 3}
-  - {fileID: 1318760139498352524, guid: 042a5b95eba919b43a4d3d20bd266df3, type: 3}
   - {fileID: 2381034826839843033, guid: 65ea0cb3f14ff8c4590efab2c98361cb, type: 3}
-  - {fileID: 1318760139498352524, guid: 26de9fab6d2c6cf42b87059572b26d24, type: 3}
+  - {fileID: 4101415864012724335, guid: 9509b79ef3c9a1944a4979f71a12828a, type: 3}
   - {fileID: 3769683026937319967, guid: 57ccdc639eb25d84eac6d2850b9aba60, type: 3}
-  - {fileID: 8005772924220660678, guid: 189985e723ebe2d4fa7f8b5c6b70d487, type: 3}
+  - {fileID: 1115197594339449303, guid: eb9ed222853ca3542b2e2677d717016d, type: 3}
   - {fileID: 8429981633443581377, guid: 6c8af5c8012f01440af6cb2bc3eb987c, type: 3}
-  - {fileID: 6633183498948813012, guid: ed6de342cc483934a84e46eb1cfdbe6a, type: 3}
-  - {fileID: 1318760139498352524, guid: ff91fb273198b9249847e06acaa026dd, type: 3}
-  setupTags: 0
+  setupTags: 1
   tags:
   - VRG
   - VRG_CameraFigure
@@ -39,12 +39,11 @@ MonoBehaviour:
   sceneCleanUpPrefab: {fileID: 6608961106011826283, guid: a5bc67c07d0321d419192b2cdd856d23, type: 3}
   lastOpenScene: Assets/Scenes/TestScene.unity
   sceneNames:
-  - EditorBaseScene
   - TestScene
   objectStates: []
-  zoomMode: 0
+  zoomMode: 1
   rotationMode: 0
   minimumZoom: 0.05
-  maximumZoom: 1
+  maximumZoom: 3
   zoomStep: 0.01
   startingSize: 1
