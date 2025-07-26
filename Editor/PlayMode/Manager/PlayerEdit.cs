@@ -81,6 +81,7 @@ namespace VRGreyboxing
                         {
                             hit.collider.gameObject.AddComponent<VertexEditPoint>();
                             ActionManager.Instance.CopyComponent(vertexEditPointPrefab.GetComponent<LineRenderer>(), hit.collider.gameObject);
+                            hit.collider.gameObject.GetComponent<LineRenderer>().material = vertexEditPointPrefab.GetComponent<LineRenderer>().material;
                         }
                     }
                 }
@@ -191,9 +192,12 @@ namespace VRGreyboxing
         {
             GameObject usedController = handedness == Handedness.Left ? _leftController : _rightController;
             Vector3 center = Vector3.zero;
+            GameObject connectedToExistingObject = null;
             foreach (VertexEditPoint vertexEditPoint in vertexEditPoints)
             {
                 center += vertexEditPoint.transform.position;
+                if(vertexEditPoint.gameObject.GetComponent<EditWidgetEditPoint>() != null)
+                    connectedToExistingObject = vertexEditPoint.gameObject.GetComponent<EditWidgetEditPoint>().assignedObject;
             }
             center /= vertexEditPoints.Count;
             
@@ -225,171 +229,21 @@ namespace VRGreyboxing
             {
                 pbm.CreateShapeFromPolygon(vertices, controllerHeight, false);
                 ActionManager.Instance.SetCurrentPolyShape(polyShape);
+                if(connectedToExistingObject != null)
+                    polyShape.gameObject.transform.parent = connectedToExistingObject.transform;
                 flipVertices = !(controllerHeight > 0);
             }
         }
-        
-        /*
-        public GameObject CreateMesh(List<VertexEditPoint> editPoints)
-        {
-            List<Vector3> polygonPoints = editPoints.Select(p => p.transform.position).ToList();
-            
-            // 1. Compute center
-            Vector3 center = Vector3.zero;
-            foreach (var pt in polygonPoints)
-                center += pt;
-            center /= polygonPoints.Count;
-
-            // 2. Surface normal
-            Vector3 normal = Vector3.Cross(polygonPoints[1] - polygonPoints[0], polygonPoints[2] - polygonPoints[0]).normalized;
-
-            // 3. Create GameObject
-            GameObject go = new GameObject("GeneratedMesh");
-            go.transform.position = center;
-
-            var pb = go.AddComponent<ProBuilderMesh>();
-            pb.Clear();
-
-            go.GetComponent<Renderer>().material = meshMaterial;
-
-            int count = polygonPoints.Count;
-            List<Vector3> vertices = new List<Vector3>();
-
-            // 4. Front and back vertices
-            for (int i = 0; i < count; i++)
-                vertices.Add(polygonPoints[i] - center); // front
-            for (int i = 0; i < count; i++)
-                vertices.Add((polygonPoints[i] - center) - normal * 0.001f); // back
-
-            pb.positions = vertices;
-
-            // 5. Triangulate front and back
-            int[] frontTris = TriangulateIndices(0, count);
-            int[] backTris = new int[frontTris.Length];
-            for (int i = 0; i < frontTris.Length; i += 3)
-            {
-                backTris[i] = frontTris[i] + count;
-                backTris[i + 1] = frontTris[i + 2] + count;
-                backTris[i + 2] = frontTris[i + 1] + count;
-            }
-
-            // 6. Create faces
-            List<Face> faces = new List<Face>
-            {
-                new Face(frontTris),
-                new Face(backTris)
-            };
-
-            // 7. Add side faces
-            for (int i = 0; i < count; i++)
-            {
-                int next = (i + 1) % count;
-
-                int v0 = i;
-                int v1 = next;
-                int v2 = next + count;
-                int v3 = i + count;
-
-                // Triangle 1: v0, v1, v2
-                faces.Add(new Face(new int[] { v0, v1, v2 }));
-
-                // Triangle 2: v0, v2, v3
-                faces.Add(new Face(new int[] { v0, v2, v3 }));
-            }
-
-            pb.faces = faces;
-
-            foreach (var face in pb.faces)
-                face.smoothingGroup = 0;
-            
-            pb.ToMesh();
-            pb.Optimize();
-            pb.Refresh();
-
-            return go;
-        }
-        private int[] TriangulateIndices(int startIndex, int count)
-        {
-            List<int> tris = new List<int>();
-            for (int i = 1; i < count - 1; i++)
-            {
-                tris.Add(startIndex);
-                tris.Add(startIndex + i);
-                tris.Add(startIndex + i + 1);
-            }
-            return tris.ToArray();
-        }
-        public GameObject CombineMeshes(ProBuilderMesh pb1, ProBuilderMesh pb2)
-        {
-            var combinedVertices = new List<Vector3>();
-            var combinedFaces = new List<Face>();
-            var vertexMap = new Dictionary<Vector3, int>();
-
-            // Local helper to add or reuse existing vertex index
-            int GetOrAddVertex(Vector3 vertex)
-            {
-                if (vertexMap.TryGetValue(vertex, out int index))
-                    return index;
-
-                index = combinedVertices.Count;
-                combinedVertices.Add(vertex);
-                vertexMap[vertex] = index;
-                return index;
-            }
-
-            // Transform vertices to world space so they align correctly
-            void AddMesh(ProBuilderMesh pb)
-            {
-                foreach (var face in pb.faces)
-                {
-                    var newIndices = new List<int>();
-                    foreach (int i in face.indexes)
-                    {
-                        Vector3 worldPos = pb.transform.TransformPoint(pb.positions[i]);
-                        int index = GetOrAddVertex(worldPos);
-                        newIndices.Add(index);
-                    }
-                    combinedFaces.Add(new Face(newIndices));
-                }
-            }
-
-            AddMesh(pb1);
-            AddMesh(pb2);
-
-            Vector3 center = Vector3.zero;
-            foreach (var pt in combinedVertices)
-                center += pt;
-            center /= combinedVertices.Count;
-            
-            for (int i = 0; i < combinedVertices.Count; i++)
-                combinedVertices[i] -= center;
-            
-            // Create new GameObject for the combined mesh
-            GameObject combinedGO = new GameObject("CombinedMesh");
-            combinedGO.transform.position = center;
-            var combinedPB = combinedGO.AddComponent<ProBuilderMesh>();
-            combinedPB.GetComponent<MeshRenderer>().material = meshMaterial;
-            combinedPB.Clear();
-            combinedPB.positions = combinedVertices;
-            combinedPB.faces = combinedFaces;
-            combinedPB.ToMesh();
-            combinedPB.Refresh();
-            Destroy(pb1.gameObject);
-            Destroy(pb2.gameObject);
-            return combinedGO;
-        }
-        */
-        
-        
         public void SelectObject(Handedness handedness, GameObject obj)
         {
             var constrainGrabTransformer = obj.GetComponent<NoneConstrainGrabTransformer>();
             if (constrainGrabTransformer != null)
             {
                 EditWidgetEditPoint editWidgetEditPoint = constrainGrabTransformer.editWidgetEditPoint;
-                if (editWidgetEditPoint != null && !_justSelected)
+                    
+                if (!_justSelected)
                 {
-                    currentSelectedEditWidgetPoint = editWidgetEditPoint.gameObject;
+                    currentSelectedEditWidgetPoint = editWidgetEditPoint != null ? editWidgetEditPoint.gameObject : null;
                     _selectEditHandedness = handedness;
                     GameObject usedController = handedness == Handedness.Right ? _rightController : _leftController;
                     var interactor = usedController.GetComponentInChildren<IXRSelectInteractor>();
@@ -418,7 +272,6 @@ namespace VRGreyboxing
             _justSelected = true;
             ApplyTransWidgetToSelectedObject();
         }
-
         public void EndSelection(GameObject obj)
         {
             if (_selectEditHandedness != Handedness.None)
@@ -430,8 +283,11 @@ namespace VRGreyboxing
                 var interactable = obj.GetComponent<XRGrabInteractable>();
                 xrInteractionManager.SelectExit(interactor, interactable);
                 _selectEditHandedness = Handedness.None;
-                currentSelectedEditWidgetPoint = null;
-                ApplyTransWidgetToSelectedObject();
+                if (currentSelectedEditWidgetPoint != null)
+                {
+                    currentSelectedEditWidgetPoint = null;
+                    ApplyTransWidgetToSelectedObject();
+                }
             }
             else
             {
@@ -492,10 +348,12 @@ namespace VRGreyboxing
                     else if (!edgeMarkersByRoundedCenter.ContainsKey(key))
                     {
                         GameObject widgetPoint = Instantiate(editWidgetPointPrefab, _currentEditWidget.transform);
+                        widgetPoint.transform.localScale *= ActionManager.Instance.GetCurrentSizeRatio();
                         widgetPoint.transform.position = center;
                         var editPoint = widgetPoint.GetComponent<EditWidgetEditPoint>();
                         editPoint.playerEdit = this;
                         editPoint.handledPositionIndices = handledIndices;
+                        editPoint.assignedObject = selectedObject;
 
                         edgeMarkersByRoundedCenter[key] = editPoint;
                     }
@@ -519,17 +377,18 @@ namespace VRGreyboxing
                 {
                     GameObject widgetPoint = Instantiate(editWidgetPointPrefab, _currentEditWidget.transform);
                     widgetPoint.transform.position = worldPos;
+                    widgetPoint.transform.localScale *= ActionManager.Instance.GetCurrentSizeRatio();
+
                     var editPoint = widgetPoint.GetComponent<EditWidgetEditPoint>();
                     editPoint.playerEdit = this;
                     editPoint.handledPositionIndices = new List<List<int>> { shared.ToList() };
+                    editPoint.assignedObject = selectedObject;
 
+                    
                     cornerMarkers[key] = editPoint;
                 }
             }
         }
-
-
-
         private Vector3Int RoundedPositionKey(Vector3 pos, float precision = 0.001f)
         {
             return new Vector3Int(

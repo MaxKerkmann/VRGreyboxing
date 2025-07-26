@@ -15,6 +15,7 @@ namespace VRGreyboxing
         public bool Untouched;
         public bool justCreated;
         public bool disabled;
+        public string newParentID;
         public List<Vector3> alteredPositions;
         public ObjectBaseState prevState;
         public ObjectBaseState nextState;

@@ -42,8 +42,8 @@ MonoBehaviour:
   - TestScene
   objectStates: []
   zoomMode: 1
-  rotationMode: 0
-  minimumZoom: 0.05
+  rotationMode: 1
+  minimumZoom: 0.1
   maximumZoom: 3
   zoomStep: 0.01
   startingSize: 1

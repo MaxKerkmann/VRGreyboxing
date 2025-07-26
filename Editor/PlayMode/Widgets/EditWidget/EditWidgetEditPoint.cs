@@ -5,7 +5,9 @@ namespace VRGreyboxing
 {
     public class EditWidgetEditPoint : MonoBehaviour
     {
-        [HideInInspector] public PlayerEdit playerEdit;
+        [HideInInspector] 
+        public PlayerEdit playerEdit;
+        public GameObject assignedObject;
         public List<List<int>> handledPositionIndices;
     }
 }

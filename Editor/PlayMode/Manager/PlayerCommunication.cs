@@ -44,7 +44,7 @@ namespace VRGreyboxing
                 _currentDrawing.gameObject.tag = "VRG_Mark";
                 _currentDrawing.material = drawingMaterial;
                 _currentDrawing.startColor = _currentDrawing.endColor = _currentColor;
-                _currentDrawing.startWidth = _currentDrawing.endWidth = lineWidth;
+                _currentDrawing.startWidth = _currentDrawing.endWidth = lineWidth*ActionManager.Instance.GetCurrentSizeRatio();
                 _currentDrawing.positionCount = 1;
                 _currentDrawing.SetPosition(0, pos);
                 _currentDrawingObjects.Add(_currentDrawing.gameObject);
@@ -52,7 +52,7 @@ namespace VRGreyboxing
             else
             {
                 var currentPos = _currentDrawing.GetPosition(_currentIndex);
-                if (Vector3.Distance(currentPos, pos) > lineWidth)
+                if (Vector3.Distance(currentPos, pos) > lineWidth*ActionManager.Instance.GetCurrentSizeRatio())
                 {
                     _currentIndex++;
                     _currentDrawing.positionCount = _currentIndex+1;
@@ -104,7 +104,7 @@ namespace VRGreyboxing
                     Vector3 b = pointList[i + 1];
 
                     float distance = DistancePointToSegment(pos, a, b);
-                    if (distance < lineWidth*3)
+                    if (distance < lineWidth*ActionManager.Instance.GetCurrentSizeRatio()*3)
                     {
                         SplitLine(line, i + 1);
                         return;

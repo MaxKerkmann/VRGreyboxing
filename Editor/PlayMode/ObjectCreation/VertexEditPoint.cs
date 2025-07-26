@@ -18,6 +18,15 @@ namespace VRGreyboxing
             _lineRenderer.SetPosition(1, transform.position);
         }
 
+        private void Update()
+        {
+            if (connectedObject != null)
+            {
+                _lineRenderer.SetPosition(0, transform.position);
+                _lineRenderer.SetPosition(1, connectedObject.transform.position);
+            }
+        }
+
         public List<VertexEditPoint> Connect(VertexEditPoint obj, Handedness handedness,PlayerEdit playerEdit)
         {
             connectedObject = obj;

@@ -175,18 +175,17 @@ namespace VRGreyboxing
                     {
                         _displayInstance = Instantiate(navigationInputDisplay);
                         _displayBorderInstance = Instantiate(navigationInputDisplayBorder);
-                        _displayBorderInstance.transform.localScale = new Vector3(freeRotationCenterDistance*2,
-                            freeRotationCenterDistance*2, freeRotationCenterDistance*2);
-                    }
 
+                    }
+                    _displayBorderInstance.transform.localScale = new Vector3(freeRotationCenterDistance*2, freeRotationCenterDistance*2, freeRotationCenterDistance*2) * ActionManager.Instance.GetCurrentSizeRatio();
+                    _displayInstance.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f) * ActionManager.Instance.GetCurrentSizeRatio();
                     Vector3 controllerCenter = (leftControllerPosition + rightControllerPosition) / 2;
                     _displayInstance.transform.position = controllerCenter;
                     _displayBorderInstance.transform.position = _originControllerCenter;
                     // Get the movement delta from the initial controller center
                     Vector3 movementInput = controllerCenter - _originControllerCenter;
                     Debug.DrawLine(_originControllerCenter, controllerCenter, Color.red);
-                    Debug.Log(movementInput.magnitude);
-                    if (movementInput.magnitude > freeRotationCenterDistance)
+                    if (movementInput.magnitude > freeRotationCenterDistance*ActionManager.Instance.GetCurrentSizeRatio())
                     {
                         _startedRotation = true;
 
@@ -257,10 +256,6 @@ namespace VRGreyboxing
                 {
                     PerformGestureZoom();
                 }
-                else
-                {
-                    ActionManager.Instance.DisplayZoomMenu();
-                }
             }
         }
 
@@ -284,9 +279,10 @@ namespace VRGreyboxing
             {
                 _displayInstance = Instantiate(navigationInputDisplay);
                 _displayBorderInstance = Instantiate(navigationInputDisplayBorder);
-                _displayBorderInstance.transform.localScale = new Vector3(teleportationRotationDistance*2,
-                    teleportationRotationDistance*2, teleportationRotationDistance*2);
+
             }
+            _displayBorderInstance.transform.localScale = new Vector3(freeRotationCenterDistance*2, freeRotationCenterDistance*2, freeRotationCenterDistance*2) * ActionManager.Instance.GetCurrentSizeRatio();
+            _displayInstance.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f) * ActionManager.Instance.GetCurrentSizeRatio();
 
             Vector3 controllerCenter = (_leftController.transform.position + _rightController.transform.position) / 2;
             _displayInstance.transform.position = controllerCenter;
@@ -294,7 +290,7 @@ namespace VRGreyboxing
 
             // Get the movement delta from the initial controller center
             Vector3 movementInput = controllerCenter - _originControllerCenter;
-            if (movementInput.magnitude > teleportationRotationDistance)
+            if (movementInput.magnitude > teleportationRotationDistance*ActionManager.Instance.GetCurrentSizeRatio())
             {
                 Vector3 anchorToCenter = _originControllerCenter - _turnAnchorObject.transform.position;
                 Transform originTransform = ActionManager.Instance.xROrigin.transform;

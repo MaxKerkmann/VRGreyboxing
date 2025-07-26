@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using VRGreyboxing;
 
 public class RadialSelection : MonoBehaviour
 {
@@ -33,7 +34,7 @@ public class RadialSelection : MonoBehaviour
     {
         Vector3 centerToHand = _handTransform.position-mainMenuCanvas.position;
         Vector3 centerToHandProjected = Vector3.ProjectOnPlane(centerToHand, mainMenuCanvas.forward);
-        if (centerToHandProjected.magnitude < optionRadius * mainMenuCanvas.localScale.x)
+        if (centerToHandProjected.magnitude < optionRadius * ActionManager.Instance.GetCurrentSizeRatio() * mainMenuCanvas.localScale.x)
         {
             for (int i = 0; i < _radialParts.Count; i++)
             {
@@ -99,7 +100,7 @@ public class RadialSelection : MonoBehaviour
             
             Vector3 partVector = Quaternion.AngleAxis(angle - 360/_numberOfParts/2 + angleSpacing/2, transform.forward) * transform.up;
             GameObject optionIcon = Instantiate(optionIconPrefab, radialPart.transform);
-            optionIcon.transform.position = transform.position + new Vector3(0,0,-1)* mainMenuCanvas.localScale.x + partVector * (optionRadius * mainMenuCanvas.localScale.x);
+            optionIcon.transform.position = transform.position + new Vector3(0,0,-1)* mainMenuCanvas.localScale.x + partVector * (optionRadius * ActionManager.Instance.GetCurrentSizeRatio() * mainMenuCanvas.localScale.x);
             optionIcon.transform.eulerAngles = Vector3.zero;
             optionIcon.GetComponent<Image>().sprite = optionImages[i];
             optionIcon.transform.forward = -usedController.transform.forward;

@@ -20,13 +20,15 @@ public class NoneConstrainGrabTransformer : XRBaseGrabTransformer, IFarAttachPro
     public override void OnGrab(XRGrabInteractable grabInteractable)
     {
         base.OnGrab(grabInteractable);
-        editWidgetEditPoint.playerEdit.DisableEditWidget(gameObject);
+        if(editWidgetEditPoint != null)
+            editWidgetEditPoint.playerEdit.DisableEditWidget(gameObject);
     }
 
     public override void OnUnlink(XRGrabInteractable grabInteractable)
     {
         base.OnUnlink(grabInteractable);
-        editWidgetEditPoint.playerEdit.currentEditPoint = null;
+        if(editWidgetEditPoint != null)
+            editWidgetEditPoint.playerEdit.currentEditPoint = null;
     }
 
     public override void Process(XRGrabInteractable grabInteractable, XRInteractionUpdateOrder.UpdatePhase updatePhase, ref Pose targetPose, ref Vector3 localScale)
@@ -35,7 +37,7 @@ public class NoneConstrainGrabTransformer : XRBaseGrabTransformer, IFarAttachPro
         Vector3 movement = targetPose.position - objectPos;
 
         targetPose.position = objectPos+movement;
-        
-        editWidgetEditPoint.playerEdit.EditSelectedObjectVertices(targetPose.position,editWidgetEditPoint.handledPositionIndices);
+        if(editWidgetEditPoint != null)
+            editWidgetEditPoint.playerEdit.EditSelectedObjectVertices(targetPose.position,editWidgetEditPoint.handledPositionIndices);
     }
 }

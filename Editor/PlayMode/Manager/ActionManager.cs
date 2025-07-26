@@ -117,7 +117,7 @@ namespace VRGreyboxing
         private float _undoTimeLeft;
         private float _redoTimeRight;
         private bool _performedUndoRedo;
-        public bool allowStickMovement;
+        public int allowStickMovement;
 
         private List<VertexEditPoint> _currentPolyShapePoints;
         private GameObject _currentPolyShape;
@@ -246,12 +246,18 @@ namespace VRGreyboxing
             _redoTimeRight = _redoInput ? _redoTimeRight - Time.deltaTime : _redoTimeRight;
             
             if(HandleZoomRotation()) return;
-            HandleTeleport();
+            
+            if(allowStickMovement == 0)
+                HandleTeleport();
+            
             HandleGrabMove();
-            if (allowStickMovement)
+            if (allowStickMovement>5)
                 _playerNavigation.PerformLinearMovement(i_LeftStick.ReadValue<Vector2>());
             else if(leaningEnabled)
                 _playerNavigation.PerformLeaning(i_LeftStick.ReadValue<Vector2>());
+            
+            if (allowStickMovement > 0) allowStickMovement++;
+
             
             if (_playerTransformation.currentCameraFigure == null)
             {
@@ -1115,7 +1121,7 @@ namespace VRGreyboxing
 
         public Vector3 GetUIPosition()
         {
-            return xROrigin.transform.position+xROrigin.GetComponentInChildren<Camera>().transform.localPosition+xROrigin.GetComponentInChildren<Camera>().transform.forward*2;
+            return xROrigin.transform.position+xROrigin.GetComponentInChildren<Camera>().transform.localPosition*GetCurrentSizeRatio()+xROrigin.GetComponentInChildren<Camera>().transform.forward*2*GetCurrentSizeRatio();
         }
         
         private void CloseAllMenus()
@@ -1135,6 +1141,7 @@ namespace VRGreyboxing
             _inventoryInstance = Instantiate(inventoryMenuPrefab,GetUIPosition(), Quaternion.identity);
             _inventoryInstance.transform.forward = xROrigin.GetComponentInChildren<Camera>().gameObject.transform.forward;
             _inventoryInstance.GetComponent<InventoryMenu>().FillInventoryMenu();
+            _inventoryInstance.transform.localScale *= GetCurrentSizeRatio();
         }
    
         public void CloseInventory()
@@ -1170,6 +1177,7 @@ namespace VRGreyboxing
             _selectionMenuInstance = Instantiate(selectionMenuPrefab,GetUIPosition(), Quaternion.identity);
             _selectionMenuInstance.transform.forward = xROrigin.GetComponentInChildren<Camera>().gameObject.transform.forward;
             _selectionMenuInstance.GetComponentInChildren<Button>().onClick.AddListener(CloseSelectionMenu);
+            _selectionMenuInstance.transform.localScale *= GetCurrentSizeRatio();
             GameObject content = _selectionMenuInstance.GetComponentInChildren<GridLayoutGroup>().gameObject;
             
             //Deletion
@@ -1219,6 +1227,7 @@ namespace VRGreyboxing
             {
                 _selectionMenuLoadingProgressInstance = Instantiate(selectionMenuLoadingProgressPrefab,GetUIPosition(), Quaternion.identity);
                 _selectionMenuLoadingProgressInstance.transform.forward = xROrigin.GetComponentInChildren<Camera>().gameObject.transform.forward;
+                _selectionMenuLoadingProgressInstance.transform.localScale *= GetCurrentSizeRatio();
             }
             _selectionMenuLoadingProgressInstance.GetComponent<SelectionMenuLoadingInfo>().DisplayLoadingProgress(currentTime,maxTime);
         }
@@ -1257,6 +1266,7 @@ namespace VRGreyboxing
         {
             _colorPickerInstance = Instantiate(colorPickerPrefab, GetUIPosition(), Quaternion.identity);
             _colorPickerInstance.transform.forward = xROrigin.GetComponentInChildren<Camera>().gameObject.transform.forward;
+            _colorPickerInstance.transform.localScale *= GetCurrentSizeRatio();
         }
 
         private void CloseColorPickerMenu()
@@ -1278,7 +1288,9 @@ namespace VRGreyboxing
             GameObject input = Instantiate(inputFieldPrefab,GetUIPosition(), Quaternion.identity);
             GameObject keyboard = Instantiate(keyboardPrefab,GetUIPosition()-Vector3.down, Quaternion.identity);
             input.transform.forward  = xROrigin.GetComponentInChildren<Camera>().gameObject.transform.forward;
+            input.transform.localScale *= GetCurrentSizeRatio();
             keyboard.transform.forward  = -xROrigin.GetComponentInChildren<Camera>().gameObject.transform.forward;
+            keyboard.transform.localScale *= GetCurrentSizeRatio();
             TMP_InputField inputText = input.GetComponentInChildren<TMP_InputField>();
             _keyCaps = new List<KeyboardKey>();
             foreach (var keyboardKey in keyboard.GetComponentsInChildren<KeyboardKey>())
@@ -1348,6 +1360,7 @@ namespace VRGreyboxing
         {
             _confirmMenuInstance = Instantiate(confirmMenuPrefab,GetUIPosition(), Quaternion.identity);
             _confirmMenuInstance.transform.forward = xROrigin.GetComponentInChildren<Camera>().gameObject.transform.forward;
+            _confirmMenuInstance.transform.localScale *= GetCurrentSizeRatio();
             GameObject content = _confirmMenuInstance.GetComponentInChildren<GridLayoutGroup>().gameObject;
             _confirmMenuInstance.GetComponentInChildren<Text>().text = confirmText;
 
@@ -1379,7 +1392,7 @@ namespace VRGreyboxing
         private void DisplayMainMenu(GameObject controller)
         {
             _mainMenuInstance = Instantiate(mainMenuPrefab,controller.transform.position,controller.transform.rotation);
-            
+            _mainMenuInstance.transform.localScale *= GetCurrentSizeRatio();
             _sceneMenuIndex = mainMenuOptionNames.IndexOf("Scenes");
             _closeIndex = mainMenuOptionNames.IndexOf("Close");
             
@@ -1437,6 +1450,7 @@ namespace VRGreyboxing
             _sceneMenuInstance = Instantiate(sceneMenuPrefab,GetUIPosition(), Quaternion.identity);
             _sceneMenuInstance.transform.position += offset;
             _sceneMenuInstance.transform.forward = xROrigin.GetComponentInChildren<Camera>().gameObject.transform.forward;
+            _sceneMenuInstance.transform.localScale *= GetCurrentSizeRatio();
             _sceneMenuInstance.GetComponentInChildren<Button>().onClick.AddListener(CloseSceneSelectionMenu);
             GameObject content = _sceneMenuInstance.GetComponentInChildren<GridLayoutGroup>().gameObject;
             foreach (var sceneName in PlayModeManager.Instance.editorDataSO.sceneNames)
@@ -1475,6 +1489,7 @@ namespace VRGreyboxing
             }
             _scaleMenuInstance = Instantiate(scaleMenuPrefab,GetUIPosition(), Quaternion.identity);
             _scaleMenuInstance.transform.forward = xROrigin.GetComponentInChildren<Camera>().gameObject.transform.forward;
+            _scaleMenuInstance.transform.localScale *= GetCurrentSizeRatio();
         }
 
         public void CloseZoomMenu()
@@ -1614,6 +1629,11 @@ namespace VRGreyboxing
             var fields = type.GetFields();
             foreach (var field in fields) field.SetValue(copy, field.GetValue(original));
             return copy as T;
+        }
+
+        public float GetCurrentSizeRatio()
+        {
+            return xROrigin.transform.localScale.x / PlayModeManager.Instance.editorDataSO.startingSize;
         }
         
         #endregion

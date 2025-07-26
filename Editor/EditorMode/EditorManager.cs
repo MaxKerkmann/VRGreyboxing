@@ -274,7 +274,7 @@ namespace VRGreyboxing
             }
             pbm.ToMesh();
             pbm.Refresh();
-            EditorMeshUtility.Optimize(pbm);
+            pbm.Optimize();
         }
 
         private static void DrawObject(MarkerObject markerObject, Scene scene)
