@@ -27,6 +27,7 @@ namespace VRGreyboxing
         public GameObject navigationInputDisplayBorder;
         private GameObject _displayInstance;
         private GameObject _displayBorderInstance;
+        private GameObject _previewInstance;
 
         private Handedness _currentHandedness;
         [HideInInspector] public int movementCounter;
@@ -81,6 +82,8 @@ namespace VRGreyboxing
                     Destroy(_displayInstance);
                 if(_displayBorderInstance != null)
                     Destroy(_displayBorderInstance);
+                if(_previewInstance != null)
+                    Destroy(_previewInstance);
             }
         }
 
@@ -143,6 +146,9 @@ namespace VRGreyboxing
 
             if (!_startedZoom)
             {
+                
+                Vector3 startUp = ActionManager.Instance.xROrigin.transform.up;
+
                 if (PlayModeManager.Instance.editorDataSO.rotationMode == 0)
                 {
                     leftControllerPosition.y = 0;
@@ -175,13 +181,15 @@ namespace VRGreyboxing
                     {
                         _displayInstance = Instantiate(navigationInputDisplay);
                         _displayBorderInstance = Instantiate(navigationInputDisplayBorder);
+                        _previewInstance = Instantiate(_turnAnchorObject);
+                        _previewInstance.transform.localScale *= 0.01f * ActionManager.Instance.GetCurrentSizeRatio();
 
                     }
                     _displayBorderInstance.transform.localScale = new Vector3(freeRotationCenterDistance*2, freeRotationCenterDistance*2, freeRotationCenterDistance*2) * ActionManager.Instance.GetCurrentSizeRatio();
                     _displayInstance.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f) * ActionManager.Instance.GetCurrentSizeRatio();
                     Vector3 controllerCenter = (leftControllerPosition + rightControllerPosition) / 2;
                     _displayInstance.transform.position = controllerCenter;
-                    _displayBorderInstance.transform.position = _originControllerCenter;
+                    _displayBorderInstance.transform.position = _previewInstance.transform.position = _originControllerCenter;
                     // Get the movement delta from the initial controller center
                     Vector3 movementInput = controllerCenter - _originControllerCenter;
                     Debug.DrawLine(_originControllerCenter, controllerCenter, Color.red);
@@ -243,6 +251,8 @@ namespace VRGreyboxing
 
                         return;
                     }
+                    if(!PlayModeManager.Instance.editorDataSO.enableRotationLeaning)
+                        ActionManager.Instance.xROrigin.transform.up = startUp;
                 }
                 else if (PlayModeManager.Instance.editorDataSO.rotationMode == 2)
                 {
@@ -450,6 +460,14 @@ namespace VRGreyboxing
             Vector3 rightDir = Vector3.Cross(Vector3.up, forwardDir);
             Vector3 moveDirection = forwardDir * movement.y + rightDir * movement.x;
             xrOrigin.GetComponent<CharacterController>().Move(moveDirection * movementSpeed * Time.deltaTime);
+        }
+        
+        public void PerformFlyingMovement(Vector2 movement)
+        {
+            GameObject xrOrigin = ActionManager.Instance.xROrigin;
+            Vector3 upDir = xrOrigin.transform.up;
+            Vector3 moveDirection = upDir * movement.y;
+            xrOrigin.GetComponent<CharacterController>().Move(moveDirection * PlayModeManager.Instance.editorDataSO.movementSpeed * Time.deltaTime);
         }
     }
 }

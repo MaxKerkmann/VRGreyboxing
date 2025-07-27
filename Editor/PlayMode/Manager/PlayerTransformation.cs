@@ -45,6 +45,7 @@ namespace VRGreyboxing
         public GameObject selectedObject;
         private bool _justSelected;
         private GameObject _currentTransWidget;
+        public Vector3 currentWidgetCenter;
         private Handedness _selectTransformHandedness;
         public GameObject currentSelectedTransWidgetPoint;
         public Quaternion currentStartRotation;
@@ -250,7 +251,7 @@ namespace VRGreyboxing
             int cornerScaleCounter = 0;
             Transform t = _currentTransWidget.transform;
             Vector3 e = objBounds.extents;
-            
+            currentWidgetCenter = objBounds.center;
             foreach (var editPoint in _currentTransWidget.GetComponentsInChildren<TransWidgetEditPoint>())
             {
                 editPoint.playerTransformation = this;
@@ -259,64 +260,64 @@ namespace VRGreyboxing
                 switch (editPoint.transWidgetTransformType)
                 {
                     case TransWidgetTransformType.MoveUp:
-                        editPoint.transform.position = objBounds.center + t.up * e.y;
+                        editPoint.transform.position += t.up * e.y;
                         break;
                     case TransWidgetTransformType.MoveDown:
-                        editPoint.transform.position = objBounds.center - t.up * e.y;
+                        editPoint.transform.position -= t.up * e.y;
                         break;
                     case TransWidgetTransformType.MoveForward:
-                        editPoint.transform.position = objBounds.center + t.forward * e.z;
+                        editPoint.transform.position += t.forward * e.z;
                         break;
                     case TransWidgetTransformType.MoveBackward:
-                        editPoint.transform.position = objBounds.center - t.forward * e.z;
+                        editPoint.transform.position -= t.forward * e.z;
                         break;
                     case TransWidgetTransformType.MoveLeft:
-                        editPoint.transform.position = objBounds.center - t.right * e.x;
+                        editPoint.transform.position -= t.right * e.x;
                         break;
                     case TransWidgetTransformType.MoveRight:
-                        editPoint.transform.position = objBounds.center + t.right * e.x;
+                        editPoint.transform.position += t.right * e.x;
                         break;
                     case TransWidgetTransformType.ScaleUp:
-                        editPoint.transform.position = objBounds.center + t.up * e.y;
+                        editPoint.transform.position += t.up * e.y;
                         editPoint.transform.up = t.up;
                         break;
                     case TransWidgetTransformType.ScaleDown:
-                        editPoint.transform.position = objBounds.center - t.up * e.y;
+                        editPoint.transform.position -= t.up * e.y;
                         editPoint.transform.up = -t.up;
                         break;
                     case TransWidgetTransformType.ScaleForward:
-                        editPoint.transform.position = objBounds.center + t.forward * e.z;
+                        editPoint.transform.position += t.forward * e.z;
                         editPoint.transform.up = t.forward;
                         break;
                     case TransWidgetTransformType.ScaleBackward:
-                        editPoint.transform.position = objBounds.center - t.forward * e.z;
+                        editPoint.transform.position -= t.forward * e.z;
                         editPoint.transform.up = -t.forward;
                         break;
                     case TransWidgetTransformType.ScaleLeft:
-                        editPoint.transform.position = objBounds.center - t.right * e.x;
+                        editPoint.transform.position -= t.right * e.x;
                         editPoint.transform.up = -t.right;
                         break;
                     case TransWidgetTransformType.ScaleRight:
-                        editPoint.transform.position = objBounds.center + t.right * e.x;
+                        editPoint.transform.position += t.right * e.x;
                         editPoint.transform.up = t.right;
                         break;
                     case TransWidgetTransformType.RotationY:
                         switch (rotationWidgetPointCounter.y)
                         {
                             case 0:
-                                editPoint.transform.position = objBounds.center + t.right * e.x + t.forward * e.z;
+                                editPoint.transform.position += t.right * e.x + t.forward * e.z;
                                 rotationWidgetPointCounter.y++;
                                 break;
                             case 1:
-                                editPoint.transform.position = objBounds.center + t.right * e.x - t.forward * e.z;
+                                editPoint.transform.position += t.right * e.x - t.forward * e.z;
                                 rotationWidgetPointCounter.y++;
                                 break;
                             case 2:
-                                editPoint.transform.position = objBounds.center - t.right * e.x + t.forward * e.z;
+                                editPoint.transform.position -= t.right * e.x + t.forward * e.z;
                                 rotationWidgetPointCounter.y++;
                                 break;
                             case 3:
-                                editPoint.transform.position = objBounds.center - t.right * e.x - t.forward * e.z;
+                                editPoint.transform.position -= t.right * e.x - t.forward * e.z;
                                 rotationWidgetPointCounter.y++;
                                 break;
                         }
@@ -325,19 +326,19 @@ namespace VRGreyboxing
                         switch (rotationWidgetPointCounter.z)
                         {
                             case 0:
-                                editPoint.transform.position = objBounds.center + t.right * e.x + t.up * e.y;
+                                editPoint.transform.position += t.right * e.x + t.up * e.y;
                                 rotationWidgetPointCounter.z++;
                                 break;
                             case 1:
-                                editPoint.transform.position = objBounds.center + t.right * e.x - t.up * e.y;
+                                editPoint.transform.position += t.right * e.x - t.up * e.y;
                                 rotationWidgetPointCounter.z++;
                                 break;
                             case 2:
-                                editPoint.transform.position = objBounds.center - t.right * e.x + t.up * e.y;
+                                editPoint.transform.position -= t.right * e.x + t.up * e.y;
                                 rotationWidgetPointCounter.z++;
                                 break;
                             case 3:
-                                editPoint.transform.position = objBounds.center - t.right * e.x - t.up * e.y;
+                                editPoint.transform.position -= t.right * e.x - t.up * e.y;
                                 rotationWidgetPointCounter.z++;
                                 break;
                         }
@@ -346,19 +347,19 @@ namespace VRGreyboxing
                         switch (rotationWidgetPointCounter.x)
                         {
                             case 0:
-                                editPoint.transform.position = objBounds.center + t.forward * e.z + t.up * e.y;
+                                editPoint.transform.position += t.forward * e.z + t.up * e.y;
                                 rotationWidgetPointCounter.x++;
                                 break;
                             case 1:
-                                editPoint.transform.position = objBounds.center + t.forward * e.z - t.up * e.y;
+                                editPoint.transform.position += t.forward * e.z - t.up * e.y;
                                 rotationWidgetPointCounter.x++;
                                 break;
                             case 2:
-                                editPoint.transform.position = objBounds.center - t.forward * e.z + t.up * e.y;
+                                editPoint.transform.position -= t.forward * e.z + t.up * e.y;
                                 rotationWidgetPointCounter.x++;
                                 break;
                             case 3:
-                                editPoint.transform.position = objBounds.center - t.forward * e.z - t.up * e.y;
+                                editPoint.transform.position -= t.forward * e.z - t.up * e.y;
                                 rotationWidgetPointCounter.x++;
                                 break;
                         }
@@ -367,35 +368,35 @@ namespace VRGreyboxing
                         switch (cornerScaleCounter)
                         {
                             case 0://LUF
-                                editPoint.transform.position = objBounds.center - t.right * e.x + t.up * e.y+t.forward * e.z;
+                                editPoint.transform.position -= t.right * e.x + t.up * e.y+t.forward * e.z;
                                 cornerScaleCounter++;
                                 break;
                             case 1://RUF
-                                editPoint.transform.position = objBounds.center + t.right * e.x + t.up * e.y+t.forward * e.z;
+                                editPoint.transform.position += t.right * e.x + t.up * e.y+t.forward * e.z;
                                 cornerScaleCounter++;
                                 break;
                             case 2://RUB
-                                editPoint.transform.position = objBounds.center + t.right * e.x + t.up * e.y-t.forward * e.z;
+                                editPoint.transform.position += t.right * e.x + t.up * e.y-t.forward * e.z;
                                 cornerScaleCounter++;   
                                 break;
                             case 3://LLF
-                                editPoint.transform.position = objBounds.center - t.right * e.x - t.up * e.y+t.forward * e.z;
+                                editPoint.transform.position -= t.right * e.x - t.up * e.y+t.forward * e.z;
                                 cornerScaleCounter++;
                                 break;
                             case 4://RLF
-                                editPoint.transform.position = objBounds.center + t.right * e.x - t.up * e.y+t.forward * e.z;
+                                editPoint.transform.position += t.right * e.x - t.up * e.y+t.forward * e.z;
                                 cornerScaleCounter++;
                                 break;
                             case 5://LLB
-                                editPoint.transform.position = objBounds.center - t.right * e.x - t.up * e.y-t.forward * e.z;
+                                editPoint.transform.position -= t.right * e.x - t.up * e.y-t.forward * e.z;
                                 cornerScaleCounter++;
                                 break;
                             case 6://RLB
-                                editPoint.transform.position = objBounds.center + t.right * e.x - t.up * e.y-t.forward * e.z;
+                                editPoint.transform.position += t.right * e.x - t.up * e.y-t.forward * e.z;
                                 cornerScaleCounter++;
                                 break;
                             case 7://LUB
-                                editPoint.transform.position = objBounds.center - t.right * e.x + t.up * e.y-t.forward * e.z;
+                                editPoint.transform.position -= t.right * e.x + t.up * e.y-t.forward * e.z;
                                 cornerScaleCounter++;
                                 break;
                         }
@@ -444,9 +445,13 @@ namespace VRGreyboxing
                 rotatedOldVector.y = 0;
             if (Math.Abs(rotatedOldVector.z) <= 0.01)
                 rotatedOldVector.z = 0;
+            
+            Debug.Log(oldVector);
+
             float oldDiagonal = Vector3.Distance(fixedCornerWS,cornerPointWS);
             float newDiagonal = Vector3.Distance(fixedCornerWS, transWidgetPointWS);
             float ratio = newDiagonal / oldDiagonal;
+
             if (rotatedOldVector.x == 0 || rotatedOldVector.y == 0 || rotatedOldVector.z == 0)
             {
                 if (rotatedOldVector.x != 0)
@@ -550,8 +555,8 @@ namespace VRGreyboxing
             xrorigin.transform.GetComponentInChildren<Camera>().transform.position = Vector3.Scale(currentCameraFigure.transform.GetChild(0).transform.position, Vector3.up);
             xrorigin.transform.localScale = currentCameraFigure.transform.localScale;
             
-            ActionManager.Instance.leaningEnabled = false;
-            ActionManager.Instance.allowStickMovement = 1;
+            ActionManager.Instance.leaningPossible = false;
+            ActionManager.Instance.cameraFigureMovement = 1;
             
             xrorigin.GetComponentInChildren<TextMeshPro>(true).enabled = true;
             foreach (var comp in xrorigin.GetComponentsInChildren<GrabMoveProvider>())
@@ -580,8 +585,8 @@ namespace VRGreyboxing
             Transform cam = xrorigin.transform.GetComponentInChildren<Camera>().transform;
             xrorigin.transform.GetComponentInChildren<Camera>().transform.position = new Vector3(cam.position.x,_originalHeight,cam.position.z);
             
-            ActionManager.Instance.leaningEnabled = true;
-            ActionManager.Instance.allowStickMovement = 0;
+            ActionManager.Instance.leaningPossible = true;
+            ActionManager.Instance.cameraFigureMovement = 0;
             
             xrorigin.GetComponentInChildren<TextMeshPro>(true).enabled = false;
             foreach (var comp in xrorigin.GetComponentsInChildren<GrabMoveProvider>(true))

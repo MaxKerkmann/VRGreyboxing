@@ -59,6 +59,14 @@ namespace VRGreyboxing
             }
         }
 
+        private void Update()
+        {
+            if (editorDataSO.restrictToStickMovement)
+            {
+                editorDataSO.enableStickLeaning = false;
+            }
+        }
+
         private void EnterGreyboxingScene(string sceneName)
         {
             SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
@@ -159,7 +167,7 @@ namespace VRGreyboxing
             return result;
         }
 
-        public void RegisterObjectChange(GameObject obj,bool firstSelection = false, int prefabIndex = -1, bool objectCreation = false, bool objectDeletion = false, string basePersistentID = "",List<Vector3> basePositions = null,bool flipVertices = false,List<List<Vector3>> markPoints = null,List<Vector3> colliderCenters = null,List<Vector3> colliderSizes = null,List<Color> colors = null,List<float> lineWidths = null)
+        public void RegisterObjectChange(GameObject obj,bool firstSelection = false, int prefabIndex = -1, bool objectCreation = false, bool objectDeletion = false, string basePersistentID = "",string parentPersitendID = "",List<Vector3> basePositions = null,bool flipVertices = false,List<List<Vector3>> markPoints = null,List<Vector3> colliderCenters = null,List<Vector3> colliderSizes = null,List<Color> colors = null,List<float> lineWidths = null)
         {
 
             if (objectCreation)
@@ -168,7 +176,31 @@ namespace VRGreyboxing
                 var scene = SceneManager.GetActiveScene();
                 List<Vector3> positions = obj.GetComponent<ProBuilderMesh>().positions.ToList();
                 var createdObj = new CreatedObject(obj, persitentID.uniqueId, obj.transform.position, obj.transform.rotation, obj.transform.lossyScale, basePositions, positions,flipVertices, scene.path, true);
-                editorDataSO.objectStates.Add(createdObj);
+                createdObj.newParentID = parentPersitendID;
+                if (parentPersitendID == "" && editorDataSO.objectStates.Count > 0)
+                {
+                    for (int i = editorDataSO.objectStates.Count - 1; i >= 0; i--)
+                    {
+                        if (string.IsNullOrEmpty(editorDataSO.objectStates[i].newParentID))
+                        {
+                            if (i == editorDataSO.objectStates.Count - 1)
+                            {
+                                editorDataSO.objectStates.Add(createdObj);
+                                break;
+                            }
+
+                            {
+                                editorDataSO.objectStates.Insert(i, createdObj);
+                                break;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    editorDataSO.objectStates.Add(createdObj);
+                }
+
                 _actionStack.Add(createdObj);
                 _actionStackIndex++;
                 _actionStack[_actionStackIndex] = createdObj;

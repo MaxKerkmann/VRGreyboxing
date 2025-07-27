@@ -182,6 +182,8 @@ namespace VRGreyboxing
         {
             _scenePaths = AssetDatabase.FindAssets("t:Scene").ToList();
             List<Scene> scenes = GetScenesFromGUIDs(_scenePaths,editorDataSo.usingGreyboxingEditor);
+            
+            
             foreach (Scene scene in scenes)
             {
                 SceneManager.LoadScene(scene.path,LoadSceneMode.Single);
@@ -261,10 +263,8 @@ namespace VRGreyboxing
                 createdObject.alteredPositions[i] -= center;
             }
             pbm.positions = createdObject.alteredPositions.ToArray();
+            go.transform.position += center;
             go.GetComponent<MeshRenderer>().material = editorDataSo.createdObjectMaterial;
-            Transform tf = go.transform;
-            tf.SetPositionAndRotation(createdObject.Position, createdObject.Rotation);
-            tf.localScale = createdObject.Scale;
             if (createdObject.flippedVertices)
             {
                 foreach (var face in pbm.faces)
@@ -275,6 +275,11 @@ namespace VRGreyboxing
             pbm.ToMesh();
             pbm.Refresh();
             pbm.Optimize();
+            if (createdObject.newParentID != "")
+            {
+                GameObject obj = Object.FindObjectsOfType<PersistentID>().FirstOrDefault(id => id.uniqueId == createdObject.newParentID)?.gameObject;
+                if (obj != null) go.transform.SetParent(obj.transform);
+            }
         }
 
         private static void DrawObject(MarkerObject markerObject, Scene scene)
@@ -473,6 +478,7 @@ namespace VRGreyboxing
                 .ToList().First();
             Object.DestroyImmediate(go);
         }
+        
     }
 }
 #endif

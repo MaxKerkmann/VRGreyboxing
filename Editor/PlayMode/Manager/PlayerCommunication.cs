@@ -252,7 +252,7 @@ namespace VRGreyboxing
             
             parentCollider.enabled = false;
             ResetDrawing();
-            PlayModeManager.Instance.RegisterObjectChange(drawing,false,-1,false,false,"",new List<Vector3>(),false,drawingpoints,colliderCenters,colliderSizes,drawingColors,lineWidths);
+            PlayModeManager.Instance.RegisterObjectChange(drawing,false,-1,false,false,"","",new List<Vector3>(),false,drawingpoints,colliderCenters,colliderSizes,drawingColors,lineWidths);
         }
 
         public void EncapsulateDrawing(BoxCollider parentCollider, Collider[] drawingColliders)

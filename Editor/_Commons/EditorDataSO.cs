@@ -24,13 +24,24 @@ namespace VRGreyboxing
         public string lastOpenScene;
         public List<string> sceneNames;
         public List<ObjectBaseState> objectStates;
+        
+        [Header("Usage Modes")]
         public int zoomMode;
         public int rotationMode;
+        public bool restrictToStickMovement;
+        public bool restrictToTeleport;
+        public bool enableStickLeaning;
+        public bool enableRotationLeaning;
+        public bool oneHandGrabRotation;
         
+        [Header("Navigation Settings")]
         public float minimumZoom;
         public float maximumZoom;
         public float zoomStep;
         public float startingSize;
+        public float rotationSpeed;
+        public float movementSpeed;
+
 
     }
 }

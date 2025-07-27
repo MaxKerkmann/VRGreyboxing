@@ -14,6 +14,7 @@ using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
+using UnityEngine.XR.Interaction.Toolkit.Locomotion.Movement;
 using UnityEngine.XR.Interaction.Toolkit.Transformers;
 using UnityEngine.XR.Interaction.Toolkit.UI;
 using Object = UnityEngine.Object;
@@ -81,7 +82,7 @@ namespace VRGreyboxing
 
         private bool _performedTeleport;
         
-        public bool leaningEnabled;
+        public bool leaningPossible;
 
         public Transform sceneMenuAnchor;
         //PlayerInputs
@@ -117,7 +118,7 @@ namespace VRGreyboxing
         private float _undoTimeLeft;
         private float _redoTimeRight;
         private bool _performedUndoRedo;
-        public int allowStickMovement;
+        public int cameraFigureMovement;
 
         private List<VertexEditPoint> _currentPolyShapePoints;
         private GameObject _currentPolyShape;
@@ -228,7 +229,7 @@ namespace VRGreyboxing
         public void Start()
         {
             DisplaySceneSelectionMenu(new Vector3(0,1,0));
-            leaningEnabled = true;
+            leaningPossible = true;
         }
 
         private void Update()
@@ -246,17 +247,43 @@ namespace VRGreyboxing
             _redoTimeRight = _redoInput ? _redoTimeRight - Time.deltaTime : _redoTimeRight;
             
             if(HandleZoomRotation()) return;
+
+            if (PlayModeManager.Instance.editorDataSO.restrictToStickMovement)
+            {
+                foreach (var grabMoveProvider in xROrigin.GetComponentsInChildren<GrabMoveProvider>())
+                {
+                    grabMoveProvider.enabled = false;
+                }
+                _playerNavigation.PerformLinearMovement(i_LeftStick.ReadValue<Vector2>());
+                _playerNavigation.PerformFlyingMovement(i_RightStick.ReadValue<Vector2>());
+            }
+
+            if (PlayModeManager.Instance.editorDataSO.restrictToTeleport)
+            {
+                foreach (var grabMoveProvider in xROrigin.GetComponentsInChildren<GrabMoveProvider>())
+                {
+                    grabMoveProvider.enabled = false;
+                }
+            }
             
-            if(allowStickMovement == 0)
+            if(cameraFigureMovement == 0 && !PlayModeManager.Instance.editorDataSO.restrictToStickMovement)
                 HandleTeleport();
+
+            if (cameraFigureMovement == 0 && !PlayModeManager.Instance.editorDataSO.restrictToStickMovement)
+            {
+                foreach (var grabMoveProvider in xROrigin.GetComponentsInChildren<GrabMoveProvider>())
+                {
+                    grabMoveProvider.enabled = true;
+                }
+            }
             
             HandleGrabMove();
-            if (allowStickMovement>5)
+            if (cameraFigureMovement>5)
                 _playerNavigation.PerformLinearMovement(i_LeftStick.ReadValue<Vector2>());
-            else if(leaningEnabled)
+            else if(leaningPossible && PlayModeManager.Instance.editorDataSO.enableStickLeaning)
                 _playerNavigation.PerformLeaning(i_LeftStick.ReadValue<Vector2>());
             
-            if (allowStickMovement > 0) allowStickMovement++;
+            if (cameraFigureMovement > 0 && !PlayModeManager.Instance.editorDataSO.restrictToStickMovement) cameraFigureMovement++;
 
             
             if (_playerTransformation.currentCameraFigure == null)
@@ -648,7 +675,10 @@ namespace VRGreyboxing
                     if (_currentPolyShape != null)
                     {
                         SelectObject(Handedness.Left, _currentPolyShape);
-                        PlayModeManager.Instance.RegisterObjectChange(_currentPolyShape,false,-1,true,false,"",_currentPolyShapePoints.Select(p => p.transform.position).ToList(),_playerEdit.flipVertices);
+                        string parentID = "";
+                        if (_currentPolyShape.transform.parent != null)
+                            parentID = _currentPolyShape.transform.parent.GetComponent<PersistentID>().uniqueId;
+                        PlayModeManager.Instance.RegisterObjectChange(_currentPolyShape,false,-1,true,false,"",parentID,_currentPolyShapePoints.Select(p => p.transform.position).ToList(),_playerEdit.flipVertices);
                         _currentPolyShape = null;
                         _playerEdit.flipVertices = false;
                         foreach (var vertexEdit in _currentPolyShapePoints.ToList())      
@@ -677,7 +707,10 @@ namespace VRGreyboxing
                     if (_currentPolyShape != null)
                     {
                         SelectObject(Handedness.Right, _currentPolyShape);
-                        PlayModeManager.Instance.RegisterObjectChange(_currentPolyShape,false,-1,true,false,"",_currentPolyShapePoints.Select(p => p.transform.position).ToList());
+                        string parentID = "";
+                        if (_currentPolyShape.transform.parent != null)
+                            parentID = _currentPolyShape.transform.parent.GetComponent<PersistentID>().uniqueId;
+                        PlayModeManager.Instance.RegisterObjectChange(_currentPolyShape,false,-1,true,false,"",parentID,_currentPolyShapePoints.Select(p => p.transform.position).ToList());
                         _currentPolyShape = null;
                         foreach (var vertexEdit in _currentPolyShapePoints.ToList())      
                         {
@@ -1598,6 +1631,7 @@ namespace VRGreyboxing
 
         public void SelectObject(Handedness handedness,GameObject selectedObject)
         {
+            CloseSelectionMenu();
             switch (_currentEditMode)
             {
                 case EditMode.Transformation:

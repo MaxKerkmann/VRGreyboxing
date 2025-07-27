@@ -63,6 +63,7 @@ namespace VRGreyboxing
                         {
                             hit.collider.gameObject.AddComponent<VertexEditPoint>();
                             ActionManager.Instance.CopyComponent(vertexEditPointPrefab.GetComponent<LineRenderer>(), hit.collider.gameObject);
+                            hit.collider.gameObject.GetComponent<LineRenderer>().material = vertexEditPointPrefab.GetComponent<LineRenderer>().material;
                         }
                     }
                 }
@@ -229,8 +230,18 @@ namespace VRGreyboxing
             {
                 pbm.CreateShapeFromPolygon(vertices, controllerHeight, false);
                 ActionManager.Instance.SetCurrentPolyShape(polyShape);
-                if(connectedToExistingObject != null)
+                if (connectedToExistingObject != null)
+                {
                     polyShape.gameObject.transform.parent = connectedToExistingObject.transform;
+                    XRGrabInteractable grabInteractable = connectedToExistingObject.GetComponent<XRGrabInteractable>();
+                    if (grabInteractable != null && grabInteractable.colliders.Count <= connectedToExistingObject.transform.childCount)
+                    {
+                        grabInteractable.colliders.Add(polyShape.GetComponent<Collider>());
+                        ActionManager.Instance.xrInteractionManager.UnregisterInteractable((IXRInteractable) grabInteractable);
+                        ActionManager.Instance.xrInteractionManager.RegisterInteractable((IXRInteractable) grabInteractable);
+                    }
+                }
+
                 flipVertices = !(controllerHeight > 0);
             }
         }

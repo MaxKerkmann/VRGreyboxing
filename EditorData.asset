@@ -33,7 +33,7 @@ MonoBehaviour:
   - VRG_Mark
   editorBasePrefab: {fileID: 2645691870601836178, guid: 03905e106306fbd40800bdc7308f0608, type: 3}
   usingBuildScenesOnly: 1
-  usingGreyboxingEditor: 0
+  usingGreyboxingEditor: 1
   createdObjectMaterial: {fileID: 2100000, guid: dedb0a07c48453d4d89e25028f3bd602, type: 2}
   drawingMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
   sceneCleanUpPrefab: {fileID: 6608961106011826283, guid: a5bc67c07d0321d419192b2cdd856d23, type: 3}
@@ -43,7 +43,14 @@ MonoBehaviour:
   objectStates: []
   zoomMode: 1
   rotationMode: 1
+  restrictToStickMovement: 1
+  restrictToTeleport: 0
+  enableStickLeaning: 0
+  enableRotationLeaning: 1
+  oneHandGrabRotation: 0
   minimumZoom: 0.1
   maximumZoom: 3
   zoomStep: 0.01
   startingSize: 1
+  rotationSpeed: 2
+  movementSpeed: 2

@@ -10,7 +10,7 @@ namespace VRGreyboxing
     {
         public override void Process(XRGrabInteractable grabInteractable, XRInteractionUpdateOrder.UpdatePhase updatePhase, ref Pose targetPose, ref Vector3 localScale)
         {
-            if (!ActionManager.Instance.twoHandGrab)
+            if (!ActionManager.Instance.twoHandGrab && !PlayModeManager.Instance.editorDataSO.oneHandGrabRotation)
             {
                 targetPose.rotation = grabInteractable.transform.rotation;
             }
