@@ -58,14 +58,7 @@ namespace VRGreyboxing
                 EnterGreyboxingScene(sceneName);
             }
         }
-
-        private void Update()
-        {
-            if (editorDataSO.restrictToStickMovement)
-            {
-                editorDataSO.enableStickLeaning = false;
-            }
-        }
+        
 
         private void EnterGreyboxingScene(string sceneName)
         {

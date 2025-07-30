@@ -239,10 +239,6 @@ namespace VRGreyboxing
             }
 
             Bounds objBounds = selectedObject.GetComponent<Renderer>() != null ? selectedObject.GetComponent<Renderer>().bounds : selectedObject.GetComponent<Collider>().bounds;
-            foreach (var childBounds in selectedObject.GetComponentsInChildren<Renderer>())
-            {
-                objBounds.Encapsulate(childBounds.bounds);
-            }
             foreach (var childBounds in selectedObject.GetComponentsInChildren<Collider>())
             {
                 objBounds.Encapsulate(childBounds.bounds);

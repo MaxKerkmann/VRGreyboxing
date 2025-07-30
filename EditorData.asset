@@ -43,9 +43,9 @@ MonoBehaviour:
   objectStates: []
   zoomMode: 1
   rotationMode: 1
-  restrictToStickMovement: 1
+  restrictToStickMovement: 0
   restrictToTeleport: 0
-  enableStickLeaning: 0
+  enableStickLeaning: 1
   enableRotationLeaning: 1
   oneHandGrabRotation: 0
   minimumZoom: 0.1
