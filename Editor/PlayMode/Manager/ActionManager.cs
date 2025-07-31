@@ -25,6 +25,9 @@ namespace VRGreyboxing
 {
     public class ActionManager : MonoBehaviour
     {
+
+        public bool DebugBool;
+        
         public static ActionManager Instance;
         public GameObject xROrigin;
         
@@ -234,6 +237,12 @@ namespace VRGreyboxing
 
         private void Update()
         {
+            if (DebugBool)
+            {
+                DisplayInventory();
+                DebugBool = false;
+            }
+            
             //Grace Timer
             _graceTimeLeft = _leftHandSingleInput ? _graceTimeLeft - Time.deltaTime : _graceTimeLeft;
             _graceTimeRight = _rightHandSingleInput ? _graceTimeRight - Time.deltaTime : _graceTimeRight;

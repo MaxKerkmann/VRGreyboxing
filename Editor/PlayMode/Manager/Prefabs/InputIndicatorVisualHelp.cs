@@ -9,29 +9,39 @@ namespace VRGreyboxing
         public Image turnRightIndicator;
         public Image movementDirectionIndicator;
         public Canvas indicatorCanvas;
-        public GameObject teleportIndicatorAnchor;
         public GameObject teleportIndicatorFigure;
 
-        public void DisplayIndicators(Vector3 movementInput, float activationThreshold, int rotationMode)
+        public void DisplayIndicators(Vector3 movementInput, float activationThreshold, GameObject displayInstance, int rotationMode,bool leaningTeleport)
         {
             if (rotationMode == 2)
             {
-                teleportIndicatorAnchor.transform.forward = movementInput.normalized;
-                teleportIndicatorAnchor.transform.localScale = new Vector3(1, 1, movementInput.magnitude / activationThreshold * 5);
-                teleportIndicatorAnchor.transform.GetChild(0).GetComponent<Renderer>().material.color = movementInput.magnitude / activationThreshold >= 1f ? Color.green : Color.red;
+                turnLeftIndicator.enabled = false;
+                turnRightIndicator.enabled = false;
+                movementDirectionIndicator.enabled = false;
                 if (movementInput.magnitude > activationThreshold)
                 {
                     teleportIndicatorFigure.SetActive(true);
-                    teleportIndicatorFigure.transform.position = movementInput.normalized * 6;
+                    teleportIndicatorFigure.transform.position = indicatorCanvas.transform.position + movementInput.normalized * 0.2f;
                     teleportIndicatorFigure.transform.LookAt(indicatorCanvas.transform);
+                    displayInstance.GetComponent<Renderer>().material.color = Color.green;
+                    if (!leaningTeleport)
+                    {
+                        teleportIndicatorFigure.transform.up = Vector3.up;
+                        teleportIndicatorFigure.transform.rotation = Quaternion.LookRotation(new Vector3(indicatorCanvas.transform.position.x - teleportIndicatorFigure.transform.position.x, 0, indicatorCanvas.transform.position.z - teleportIndicatorFigure.transform.position.z));
+                    }
                 }
                 else
                 {
                     teleportIndicatorFigure.SetActive(false);
+                    displayInstance.GetComponent<Renderer>().material.color = Color.red;
+
                 }
             }
             else
             {
+                turnLeftIndicator.enabled = true;
+                turnRightIndicator.enabled = true;
+                movementDirectionIndicator.enabled = true;
                 Vector3 toDirection = movementInput.normalized;
                 Vector3 forward = indicatorCanvas.transform.forward;
                 Vector3 right = indicatorCanvas.transform.right;

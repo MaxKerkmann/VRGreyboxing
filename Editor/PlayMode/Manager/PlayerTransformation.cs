@@ -72,9 +72,9 @@ namespace VRGreyboxing
 
         public void PerformGrab(Handedness handedness,XRGrabInteractable interactable)
         {
-            if (interactable.gameObject.GetComponent<MeshCollider>())
+            if (interactable.gameObject.GetComponentInChildren<MeshCollider>())
             {
-                interactable.gameObject.GetComponent<MeshCollider>().convex = true;
+                interactable.gameObject.GetComponentInChildren<MeshCollider>().convex = true;
             }
             
             GameObject usedController = handedness == Handedness.Right ? _rightController : _leftController;
@@ -232,13 +232,13 @@ namespace VRGreyboxing
             Quaternion originalRotation = selectedObject.transform.rotation;
             selectedObject.transform.rotation = _currentTransWidget.transform.rotation;
             bool enabledCollider = false;
-            if (selectedObject.GetComponent<Collider>().enabled == false)
+            if (selectedObject.GetComponentInChildren<Collider>().enabled == false)
             {
-                selectedObject.GetComponent<Collider>().enabled = true;
+                selectedObject.GetComponentInChildren<Collider>().enabled = true;
                 enabledCollider = true;
             }
 
-            Bounds objBounds = selectedObject.GetComponent<Renderer>() != null ? selectedObject.GetComponent<Renderer>().bounds : selectedObject.GetComponent<Collider>().bounds;
+            Bounds objBounds = selectedObject.GetComponentInChildren<Renderer>() != null ? selectedObject.GetComponentInChildren<Renderer>().bounds : selectedObject.GetComponentInChildren<Collider>().bounds;
             foreach (var childBounds in selectedObject.GetComponentsInChildren<Collider>())
             {
                 objBounds.Encapsulate(childBounds.bounds);
@@ -401,7 +401,7 @@ namespace VRGreyboxing
             }
             selectedObject.transform.rotation = _currentTransWidget.transform.rotation = originalRotation;
             if(enabledCollider)
-                selectedObject.GetComponent<Collider>().enabled = false;
+                selectedObject.GetComponentInChildren<Collider>().enabled = false;
 
         }
         
@@ -467,6 +467,13 @@ namespace VRGreyboxing
             GameObject go = Instantiate(prefab,buttonTransform.position,Quaternion.identity);
             go.transform.up = Vector3.up;
             go.transform.localScale *= ActionManager.Instance.GetCurrentSizeRatio();
+
+            if (go.GetComponentInChildren<Collider>() == null)
+            {
+                MeshCollider mcollider = go.AddComponent<MeshCollider>();
+                mcollider.convex = true;
+                mcollider.sharedMesh = go.GetComponentInChildren<MeshFilter>() != null ? go.GetComponentInChildren<MeshFilter>().sharedMesh : go.GetComponentInChildren<SkinnedMeshRenderer>().sharedMesh;
+            }
             
             go.AddComponent<TwoHandGrabTransformer>();
             XRGrabInteractable interactable = go.GetComponent<XRGrabInteractable>();

@@ -17,7 +17,7 @@ namespace VRGreyboxing
         public struct PrefabPreviewTarget
         {
             public GameObject prefab;
-            public SpriteRenderer renderer;
+            public Image renderer;
             public int retryCount;
         }
         
@@ -34,20 +34,24 @@ namespace VRGreyboxing
                 prefabButton.GetComponent<PrefabSpawnButton>().prefab = availablePrefab;
                 prefabButton.name = availablePrefab.name;
                 prefabButton.GetComponentInChildren<Text>().text = availablePrefab.name;
+                prefabButton.GetComponentInChildren<Text>().gameObject.transform.localPosition = new Vector3(
+                    prefabButton.GetComponentInChildren<Text>().gameObject.transform.localPosition.x, -40,
+                    prefabButton.GetComponentInChildren<Text>().gameObject.transform.localPosition.z);
                 Texture2D preview = AssetPreview.GetAssetPreview(availablePrefab); 
                 if (preview != null)
                 {
-                    ApplyPreviewSprite(prefabButton.GetComponentInChildren<SpriteRenderer>(), preview);
+                    ApplyPreviewSprite(prefabButton.GetComponentInChildren<Image>(), preview);
                 }
                 else
                 {
                     PrefabPreviewTarget prefabTarget = new PrefabPreviewTarget
                     {
                         prefab = availablePrefab,
-                        renderer = prefabButton.GetComponentInChildren<SpriteRenderer>()
+                        renderer = prefabButton.GetComponentInChildren<Image>()
                     };
                     _pendingPreviews.Add(prefabTarget);
                 }
+                prefabButton.transform.localScale = Vector3.one;
 
             }
             
@@ -76,8 +80,8 @@ namespace VRGreyboxing
 
                     if (target.retryCount > 5)
                     {
-                        target.renderer.gameObject.GetComponent<SpriteRenderer>().enabled = true;
-                        target.renderer.gameObject.transform.localScale = Vector3.one * 60;
+                        target.renderer.enabled = true;
+                        target.renderer.gameObject.transform.localScale = Vector3.one;
                         _pendingPreviews.RemoveAt(i);
                     }
                 }
@@ -88,10 +92,11 @@ namespace VRGreyboxing
                 EditorApplication.update -= CheckPreviewStatus;
             }
         }
-        private void ApplyPreviewSprite(SpriteRenderer srenderer, Texture2D texture)
+        private void ApplyPreviewSprite(Image image, Texture2D texture)
         {
             var sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f), 2);
-            srenderer.sprite = sprite;
+            image.sprite = sprite;
+            image.GetComponent<RectTransform>().localScale = Vector3.one;
         }
 
         private void OnDestroy()

@@ -111,7 +111,7 @@ namespace VRGreyboxing
                 GameObject go = AssetDatabase.LoadAssetAtPath<GameObject>(prefab);
                 if ( go == null || go.CompareTag("VRG_WidgetCube") || go.CompareTag("VRG")) continue;
                 
-                if (go.GetComponents<Component>().Where(c => AllowedPrefabTypes.Contains(c.GetType())).ToList().Count >= AllowedPrefabTypes.Count)
+                if (go.GetComponentsInChildren<Component>().Where(c => AllowedPrefabTypes.Contains(c.GetType())).ToList().Count >= AllowedPrefabTypes.Count)
                 {
                     if(!result.Contains(go))
                         result.Add(go);

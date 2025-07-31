@@ -125,9 +125,9 @@ MonoBehaviour:
   sceneSelectButtonPrefab: {fileID: 6215720905016385109, guid: a18c7bffd214a674f9d2673f5161594e, type: 3}
   colorPickerPrefab: {fileID: 2376695874309055911, guid: ed2a60450f7024140a591b44f8a2e435, type: 3}
   scaleMenuPrefab: {fileID: 2281393362357322311, guid: a7a67921a6b881045bcf40b9caee8cd0, type: 3}
-  leaningEnabled: 0
+  leaningPossible: 0
   sceneMenuAnchor: {fileID: 0}
-  allowStickMovement: 0
+  cameraFigureMovement: 0
   twoHandGrab: 0
   leftController: {fileID: 5804632511901089709}
   rightController: {fileID: 5804632510164762450}
@@ -154,7 +154,8 @@ MonoBehaviour:
   leaningSpeed: 20
   zoomMenuTime: 0.25
   movementSpeed: 1
-  navigationInputDisplay: {fileID: 4101415864012724335, guid: 9509b79ef3c9a1944a4979f71a12828a, type: 3}
+  performLateTeleport: 1
+  navigationInputDisplay: {fileID: 5064053430091179792, guid: 9509b79ef3c9a1944a4979f71a12828a, type: 3}
   navigationInputDisplayBorder: {fileID: 1115197594339449303, guid: eb9ed222853ca3542b2e2677d717016d, type: 3}
   movementCounter: 0
   leftGrabMoveProvider: {fileID: 7174147177161898252}
@@ -175,6 +176,7 @@ MonoBehaviour:
   transWidgetPrefab: {fileID: 4534526504609624742, guid: b195ebbc0481a84489a56c849615719b, type: 3}
   currentEditPoint: {fileID: 0}
   selectedObject: {fileID: 0}
+  currentWidgetCenter: {x: 0, y: 0, z: 0}
   currentSelectedTransWidgetPoint: {fileID: 0}
   currentStartRotation: {x: 0, y: 0, z: 0, w: 0}
   leftgrabbedObject: {fileID: 0}
