@@ -26,6 +26,7 @@ namespace VRGreyboxing
         {
             typeof(Transform),
             typeof(MeshRenderer),
+            typeof(SkinnedMeshRenderer),
             typeof(MeshFilter),
             typeof(BoxCollider),
             typeof(SphereCollider),
@@ -48,16 +49,7 @@ namespace VRGreyboxing
             _actionStackIndex = -1;
         }
         
-        private void OnGUI()
-        {
-            GUILayout.Label("VR Greyboxing Options", EditorStyles.boldLabel);
 
-            if (GUILayout.Button("Start Greyboxing"))
-            {
-                string sceneName = editorDataSO.lastOpenScene.Split("/").Last().Split(".")[0];
-                EnterGreyboxingScene(sceneName);
-            }
-        }
         
 
         private void EnterGreyboxingScene(string sceneName)

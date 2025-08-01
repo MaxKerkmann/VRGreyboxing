@@ -30,6 +30,7 @@ namespace VRGreyboxing
             _scaleObject = new GameObject("ScaleObject");
             _fixedCorner = ActionManager.Instance.GetSelectedObject().transform.position + (ActionManager.Instance.GetSelectedObject().transform.position-transWidgetEditPoint.transform.position);
             _scaleObject.transform.position = _fixedCorner;
+            _scaleObject.transform.rotation = ActionManager.Instance.GetSelectedObject().transform.rotation;
             _oldParent = ActionManager.Instance.GetSelectedObject().transform.parent;
             ActionManager.Instance.GetSelectedObject().transform.parent = _scaleObject.transform;
             transWidgetEditPoint.playerTransformation.DisableTransWidget(true);

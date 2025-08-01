@@ -237,12 +237,14 @@ namespace VRGreyboxing
                 selectedObject.GetComponentInChildren<Collider>().enabled = true;
                 enabledCollider = true;
             }
-
+            
             Bounds objBounds = selectedObject.GetComponentInChildren<Renderer>() != null ? selectedObject.GetComponentInChildren<Renderer>().bounds : selectedObject.GetComponentInChildren<Collider>().bounds;
-            foreach (var childBounds in selectedObject.GetComponentsInChildren<Collider>())
+            for (int i = 0; i < selectedObject.transform.childCount; i++)
             {
-                objBounds.Encapsulate(childBounds.bounds);
+                if(selectedObject.transform.GetChild(i).GetComponentInChildren<Renderer>() != null || selectedObject.transform.GetChild(i).GetComponentInChildren<Collider>() != null)
+                    objBounds.Encapsulate(selectedObject.transform.GetChild(i).GetComponentInChildren<Renderer>() != null ? selectedObject.transform.GetChild(i).GetComponentInChildren<Renderer>().bounds : selectedObject.transform.GetChild(i).GetComponentInChildren<Collider>().bounds);
             }
+
             Vector3 rotationWidgetPointCounter = Vector3.zero;
             int cornerScaleCounter = 0;
             Transform t = _currentTransWidget.transform;
@@ -447,7 +449,8 @@ namespace VRGreyboxing
             float oldDiagonal = Vector3.Distance(fixedCornerWS,cornerPointWS);
             float newDiagonal = Vector3.Distance(fixedCornerWS, transWidgetPointWS);
             float ratio = newDiagonal / oldDiagonal;
-
+            //Quaternion oldRotation = scaleObject.transform.rotation;
+            //scaleObject.transform.rotation = Quaternion.Euler(0,0,0);
             if (rotatedOldVector.x == 0 || rotatedOldVector.y == 0 || rotatedOldVector.z == 0)
             {
                 if (rotatedOldVector.x != 0)
@@ -461,6 +464,9 @@ namespace VRGreyboxing
             {
                 scaleObject.transform.localScale = new Vector3(ratio,ratio,ratio);
             }
+            //scaleObject.transform.rotation = oldRotation;
+           
+
         }
         public GameObject CreatePrefabFromMenu(GameObject prefab,Transform buttonTransform)
         {

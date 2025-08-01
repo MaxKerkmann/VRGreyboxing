@@ -474,9 +474,12 @@ namespace VRGreyboxing
 
         private static void RemoveSceneCleanUp(Scene scene)
         {
-            GameObject go = scene.GetRootGameObjects().ToList().Where(go => go.GetComponent<SceneCleanUp>() != null)
-                .ToList().First();
-            Object.DestroyImmediate(go);
+            List<GameObject> gos = scene.GetRootGameObjects().ToList().Where(go => go.GetComponent<SceneCleanUp>() != null)
+                .ToList();
+            foreach (var go in gos)
+            {
+                Object.DestroyImmediate(go);
+            }
         }
         
     }
