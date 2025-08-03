@@ -64,7 +64,8 @@ namespace VRGreyboxing
         private Vector3 destinyPos;
         private Vector3 anchorToDestiny;
         private bool _reachedTpTreshhold;
-
+        
+        
         private void Start()
         {
             movementCounter = 0;
@@ -72,6 +73,7 @@ namespace VRGreyboxing
             _rightController = ActionManager.Instance.rightController;
             _leftTeleportLine = _leftController.GetComponent<LineRenderer>();
             _rightTeleportLine = _rightController.GetComponent<LineRenderer>();
+            currentCameraKeyFrame = null;
             _lineSizePlayerRatio =
                 ActionManager.Instance.xROrigin.GetComponentInChildren<LineRenderer>(true).startWidth /
                 ActionManager.Instance.xROrigin.transform.localScale.x;
@@ -93,6 +95,11 @@ namespace VRGreyboxing
                 if(_previewInstance != null)
                     Destroy(_previewInstance);
             }
+            
+            if(currentCameraKeyFrame != null)
+                MoveCamera();
+            
+            
         }
 
         public void StopMovement()
@@ -537,6 +544,81 @@ namespace VRGreyboxing
             Vector3 upDir = xrOrigin.transform.up;
             Vector3 moveDirection = upDir * movement.y;
             xrOrigin.GetComponent<CharacterController>().Move(moveDirection * PlayModeManager.Instance.editorDataSO.movementSpeed * Time.deltaTime);
+        }
+
+        
+        private CameraFigure _currentCameraFigure;
+        public CameraKeyFrame currentCameraKeyFrame;
+        private float _movementTimer;
+        private float _rotationTimer;
+        private Vector3 _startPosition;
+        private Vector3 _startCamLocalPosition;
+        private Vector3 _startCamWorldPosition;
+        private int _keyFrameIndex;
+        
+        public void FollowCameraPath(CameraFigure cameraFigure)
+        {
+            _keyFrameIndex = 0;
+            currentCameraKeyFrame = cameraFigure.keyFrames[_keyFrameIndex];
+            _currentCameraFigure = cameraFigure;
+            _movementTimer = 0;
+            _rotationTimer = 0;
+            _startPosition = ActionManager.Instance.xROrigin.transform.position;
+            _startCamLocalPosition = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.localPosition;
+            _startCamWorldPosition = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
+        }
+
+        private void MoveCamera()
+        {
+            GameObject xrOrigin = ActionManager.Instance.xROrigin;
+
+            if (_movementTimer / currentCameraKeyFrame.cameraMoveTime <= 1)
+            {
+
+                xrOrigin.transform.position = Vector3.Lerp(_startPosition,
+                    currentCameraKeyFrame.cameraPosition - ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.localPosition,_movementTimer / currentCameraKeyFrame.cameraMoveTime);
+                _movementTimer += Time.deltaTime;
+            }
+
+            if (_rotationTimer / currentCameraKeyFrame.cameraRotateTime <= 1)
+            {
+                /*Vector3 originalChildWorldPosition = child.position;
+                Quaternion currentLocalRotation = child.localRotation;
+
+                // We want the child's world rotation to be: saved * local
+                Quaternion targetChildWorldRotation = savedChildWorldRotation * currentLocalRotation;
+
+                // To achieve this with the child’s current localRotation, parent must be:
+                Quaternion targetParentRotation = targetChildWorldRotation * Quaternion.Inverse(currentLocalRotation);
+
+                // Now compute new parent position that keeps child world position unchanged
+                Vector3 rotatedChildOffset = targetParentRotation * child.localPosition;
+                Vector3 targetParentPosition = originalChildWorldPosition - rotatedChildOffset;
+
+                // Apply
+                parent.rotation = targetParentRotation;
+                parent.position = targetParentPosition;*/
+
+                _rotationTimer += Time.deltaTime;
+            }
+
+            if (_movementTimer / currentCameraKeyFrame.cameraMoveTime >= 1 && _rotationTimer / currentCameraKeyFrame.cameraRotateTime >= 1)
+            {
+                _keyFrameIndex++;
+                currentCameraKeyFrame = _keyFrameIndex == _currentCameraFigure.keyFrames.Count ? null : _currentCameraFigure.keyFrames[_keyFrameIndex];
+                if (currentCameraKeyFrame == null)
+                {
+                    ActionManager.Instance.ExitCameraPath();
+                }
+                else
+                {
+                    _movementTimer = 0;
+                    _rotationTimer = 0;
+                    _startPosition = ActionManager.Instance.xROrigin.transform.position;
+                    _startCamLocalPosition = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.localPosition;
+                    _startCamWorldPosition = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
+                }
+            }
         }
     }
 }

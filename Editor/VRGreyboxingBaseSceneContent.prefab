@@ -94,6 +94,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e631e569c9e7b9d47a4ac6ad86f85b90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  DebugBool: 0
   xROrigin: {fileID: 5141232883918866063}
   xrInteractionManager: {fileID: 4315868942664205295}
   menuOptionButtonPrefab: {fileID: 8048543734897224155, guid: 6e2d20d0acaf66844b42022083ec6435, type: 3}
@@ -103,6 +104,7 @@ MonoBehaviour:
   selectionMenuSaveIcon: {fileID: 21300000, guid: caab167dd9beac243a8514d54905d316, type: 3}
   selectionMenuCameraIcon: {fileID: 21300000, guid: 87a5c1247ee01cc4fb28e6ac837a27db, type: 3}
   selectionMenuLoadingProgressPrefab: {fileID: 9033754499742086654, guid: ea9a8eebc31d2f140a1f8e211d06b8d7, type: 3}
+  keyFrameMenuPrefab: {fileID: 5515986221704593658, guid: 4af339c5438b4e54fb4b2eb6eabc8f27, type: 3}
   inputFieldPrefab: {fileID: 1645182943076459681, guid: 24ea324a7eddbaf40814625f19ca371f, type: 3}
   keyboardPrefab: {fileID: 5371200254662772689, guid: 34dc9833e3126a240887de210a8108b6, type: 3}
   confirmMenuPrefab: {fileID: 6271470383031667398, guid: a68e54532d448a74fa6712d06f6f047e, type: 3}
@@ -155,11 +157,17 @@ MonoBehaviour:
   zoomMenuTime: 0.25
   movementSpeed: 1
   performLateTeleport: 1
+  teleportRotationWithLeaning: 0
   navigationInputDisplay: {fileID: 5064053430091179792, guid: 9509b79ef3c9a1944a4979f71a12828a, type: 3}
   navigationInputDisplayBorder: {fileID: 1115197594339449303, guid: eb9ed222853ca3542b2e2677d717016d, type: 3}
   movementCounter: 0
   leftGrabMoveProvider: {fileID: 7174147177161898252}
   rightGrabMoveProvider: {fileID: 7504283606955035220}
+  currentCameraKeyFrame:
+    cameraPosition: {x: 0, y: 0, z: 0}
+    cameraRotation: {x: 0, y: 0, z: 0, w: 0}
+    cameraMoveTime: 0
+    cameraRotateTime: 0
 --- !u!114 &9059208645396186048
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -174,6 +182,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   xrInteractionManager: {fileID: 4315868942664205295}
   transWidgetPrefab: {fileID: 4534526504609624742, guid: b195ebbc0481a84489a56c849615719b, type: 3}
+  keyFrameDisplayPrefab: {fileID: 593017024666216360, guid: 7edcfedfe9b08674eaf9ba4051e646ba, type: 3}
   currentEditPoint: {fileID: 0}
   selectedObject: {fileID: 0}
   currentWidgetCenter: {x: 0, y: 0, z: 0}
@@ -182,6 +191,7 @@ MonoBehaviour:
   leftgrabbedObject: {fileID: 0}
   rightgrabbedObject: {fileID: 0}
   currentCameraFigure: {fileID: 0}
+  usingCameraFigure: 0
 --- !u!114 &275905012500304460
 MonoBehaviour:
   m_ObjectHideFlags: 0

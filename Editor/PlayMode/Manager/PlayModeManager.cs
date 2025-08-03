@@ -20,7 +20,6 @@ namespace VRGreyboxing
         private List<ObjectBaseState> _actionStack;
         private int _actionStackIndex;
         
-        private Scene _defaultScene;
 
         private static readonly HashSet<Type> AllowedTypes = new HashSet<Type>
         {
@@ -36,6 +35,7 @@ namespace VRGreyboxing
             typeof(Light),
             typeof(SceneCleanUp),
             typeof(PersistentID),
+            typeof(CameraFigure),
             typeof(ProBuilderMesh),
             typeof(ProBuilderEditor),
             typeof(LineRenderer)
@@ -44,7 +44,6 @@ namespace VRGreyboxing
         public void Awake()
         {
             Instance = this;
-            _defaultScene = SceneManager.GetActiveScene();
             _actionStack = new List<ObjectBaseState>();
             _actionStackIndex = -1;
         }

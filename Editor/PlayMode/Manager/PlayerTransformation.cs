@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEditor;
@@ -38,6 +39,7 @@ namespace VRGreyboxing
     {
         public XRInteractionManager xrInteractionManager;
         public GameObject transWidgetPrefab;
+        public GameObject keyFrameDisplayPrefab;
         
         [HideInInspector]
         public TransWidgetEditPoint currentEditPoint;
@@ -62,10 +64,16 @@ namespace VRGreyboxing
         private Vector3 _originalScale;
         private float _originalHeight;
 
+        public bool usingCameraFigure;
+        
+        private List<KeyFrameDisplay> _keyFrameDisplays;
+
+
         private void Start()
         {
             _leftController = ActionManager.Instance.leftController;
             _rightController = ActionManager.Instance.rightController;
+            _keyFrameDisplays = new List<KeyFrameDisplay>();
         }
         
 
@@ -173,6 +181,12 @@ namespace VRGreyboxing
                 DeselectObject();
                 return;
             }
+
+            if (obj.GetComponentInChildren<KeyFrameDisplay>() != null)
+            {
+                ActionManager.Instance.DisplayKeyframeEditMenu(obj.transform.position, obj.GetComponentInChildren<KeyFrameDisplay>().keyFrameIndex);
+                return;
+            }
             
             if (selectedObject != null)
                 DeselectObject();
@@ -181,6 +195,15 @@ namespace VRGreyboxing
                 selectedObject = obj.transform.parent.gameObject;
             else
                 selectedObject = obj;
+
+            if (selectedObject.GetComponent<CameraFigure>() != null && _keyFrameDisplays.Count == 0)
+            {
+                DisplayCameraKeyframes();
+            }
+            else if(_keyFrameDisplays.Count > 0)
+            {
+                RemoveKeyFrameDisplays();
+            }
             
             _selectTransformHandedness = Handedness.None;
             _justSelected = true;
@@ -409,7 +432,8 @@ namespace VRGreyboxing
         
         public void DeselectObject()
         {
-            Destroy(_currentTransWidget); 
+            Destroy(_currentTransWidget);
+            RemoveKeyFrameDisplays();
             selectedObject = null;
         }
         
@@ -552,17 +576,22 @@ namespace VRGreyboxing
         {
             GameObject xrorigin = ActionManager.Instance.xROrigin;
             xrorigin.layer = LayerMask.NameToLayer("Default");
-            currentCameraFigure = selectedObject;
             _originalPosition = xrorigin.transform.position;
             _originalRotation = xrorigin.transform.rotation;
             _originalScale = xrorigin.transform.localScale;
             _originalHeight = xrorigin.transform.GetComponentInChildren<Camera>().transform.position.y;
 
-
-            xrorigin.transform.position = currentCameraFigure.transform.position + Vector3.down;
+            foreach (var camFigure in FindObjectsByType<CameraFigure>(FindObjectsSortMode.None))
+            {
+                camFigure.gameObject.SetActive(false);
+            }
+            usingCameraFigure = true;
+            
+            xrorigin.transform.position = currentCameraFigure.transform.position;//+ Vector3.down;
             xrorigin.transform.forward = currentCameraFigure.transform.forward;
             xrorigin.transform.GetComponentInChildren<Camera>().transform.position = Vector3.Scale(currentCameraFigure.transform.GetChild(0).transform.position, Vector3.up);
             xrorigin.transform.localScale = currentCameraFigure.transform.localScale;
+            xrorigin.transform.GetComponentInChildren<Camera>().transform.forward = xrorigin.transform.forward;
             
             ActionManager.Instance.leaningPossible = false;
             ActionManager.Instance.cameraFigureMovement = 1;
@@ -576,14 +605,18 @@ namespace VRGreyboxing
             characterController.radius = currentCameraFigure.GetComponent<CapsuleCollider>().radius;
             characterController.height = currentCameraFigure.GetComponent<CapsuleCollider>().height;
             DeselectObject();
-            currentCameraFigure.SetActive(false);
             ActionManager.Instance.CloseSelectionMenu();
         }
 
         public void ExitCameraFigure()
         {
             ActionManager.Instance.CloseConfirmMenu();
-            currentCameraFigure.SetActive(true);
+            foreach (var camFigure in FindObjectsByType<CameraFigure>(FindObjectsInactive.Include,FindObjectsSortMode.None))
+            {
+                camFigure.gameObject.SetActive(true);
+            }
+
+            usingCameraFigure = false;
 
             GameObject xrorigin = ActionManager.Instance.xROrigin;
             xrorigin.layer = LayerMask.NameToLayer("VRG_Player");
@@ -593,6 +626,9 @@ namespace VRGreyboxing
             xrorigin.transform.localScale = _originalScale;
             Transform cam = xrorigin.transform.GetComponentInChildren<Camera>().transform;
             xrorigin.transform.GetComponentInChildren<Camera>().transform.position = new Vector3(cam.position.x,_originalHeight,cam.position.z);
+            xrorigin.transform.GetComponentInChildren<Camera>().transform.parent.transform.localPosition = Vector3.zero;
+            xrorigin.transform.GetComponentInChildren<Camera>().transform.parent.transform.localRotation = Quaternion.Euler(0, 0, 0);
+            
             
             ActionManager.Instance.leaningPossible = true;
             ActionManager.Instance.cameraFigureMovement = 0;
@@ -605,8 +641,58 @@ namespace VRGreyboxing
             CharacterController characterController = xrorigin.GetComponent<CharacterController>();
             characterController.radius = 0.1f;
             characterController.height = 0.1f;
-            currentCameraFigure = null;
         }
+
+        public void PlaceCameraKeyframe()
+        {
+            ActionManager.Instance.CloseConfirmMenu();
+            CameraFigure cameraFigure = currentCameraFigure.GetComponent<CameraFigure>();
+            CameraKeyFrame cameraKeyFrame = new CameraKeyFrame()
+            {
+                cameraPosition = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position,
+                cameraRotation = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.rotation,
+                cameraMoveTime = 2f,
+                cameraRotateTime = 2f
+            };
+            cameraKeyFrame.prevKeyFrame = cameraFigure.keyFrames.Count > 0 ? cameraFigure.keyFrames[^1] : null;
+            cameraFigure.keyFrames.Add(cameraKeyFrame);
+        }
+
+        
+        public void DisplayCameraKeyframes()
+        {
+            CameraFigure cameraFigure = selectedObject.GetComponent<CameraFigure>();
+            currentCameraFigure = selectedObject;
+            _keyFrameDisplays = new List<KeyFrameDisplay>();
+            foreach (var keyFrame in cameraFigure.keyFrames)
+            {
+                GameObject keyFrameDisplayObject = Instantiate(keyFrameDisplayPrefab,keyFrame.cameraPosition,keyFrame.cameraRotation);
+                KeyFrameDisplay display = keyFrameDisplayObject.AddComponent<KeyFrameDisplay>();
+                display.keyFrameIndex = cameraFigure.keyFrames.IndexOf(keyFrame);
+                if (cameraFigure.keyFrames.IndexOf(keyFrame) > 0)
+                {
+                    display.prevKeyFrameDisplay = _keyFrameDisplays[^1].gameObject;
+                }
+                else
+                {
+                    display.lineRenderer.SetPosition(1,cameraFigure.transform.position);
+                }
+                _keyFrameDisplays.Add(display);
+            }
+        }
+
+        public void RemoveKeyFrameDisplays()
+        {
+            foreach (var keyFrameDisplay in _keyFrameDisplays.ToList())
+            {
+                currentCameraFigure.GetComponent<CameraFigure>().keyFrames[keyFrameDisplay.keyFrameIndex].cameraPosition = keyFrameDisplay.transform.position;
+                currentCameraFigure.GetComponent<CameraFigure>().keyFrames[keyFrameDisplay.keyFrameIndex].cameraRotation = keyFrameDisplay.transform.rotation;
+                Destroy(keyFrameDisplay.gameObject);
+            }
+            _keyFrameDisplays.Clear();
+        }
+        
+        
         
     }
 }

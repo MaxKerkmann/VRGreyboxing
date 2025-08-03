@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1619195304592884276}
   - component: {fileID: 7665427468971995150}
   - component: {fileID: 3025893487116610033}
+  - component: {fileID: 9035693441730307504}
   m_Layer: 0
   m_Name: CameraFigure
   m_TagString: VRG_CameraFigure
@@ -111,6 +112,19 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &9035693441730307504
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6329100999940102789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f4e72b220e18a34296ea07bff0a001a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  keyFrames: []
 --- !u!1 &6435163844349974732
 GameObject:
   m_ObjectHideFlags: 0

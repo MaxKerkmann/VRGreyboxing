@@ -46,6 +46,8 @@ namespace VRGreyboxing
         private GameObject _selectionMenuInstance;
         public GameObject selectionMenuLoadingProgressPrefab;
         private GameObject _selectionMenuLoadingProgressInstance;
+        public GameObject keyFrameMenuPrefab;
+        private GameObject _keyFrameMenuInstance;
         
         public GameObject inputFieldPrefab;
         public GameObject keyboardPrefab;
@@ -145,6 +147,7 @@ namespace VRGreyboxing
         private bool _colorPickerChanged;
         private bool _drawingConfirmMenuChanged;
         private bool _cameraExitMenuChanged;
+        private bool _cameraKeyFrameMenuChanged;
         
         //Controller
         public GameObject leftController;
@@ -292,7 +295,7 @@ namespace VRGreyboxing
             else if(leaningPossible && PlayModeManager.Instance.editorDataSO.enableStickLeaning)
                 _playerNavigation.PerformLeaning(i_LeftStick.ReadValue<Vector2>());
             
-            if (cameraFigureMovement > 0 && !PlayModeManager.Instance.editorDataSO.restrictToStickMovement) cameraFigureMovement++;
+            if (cameraFigureMovement > 0 && !PlayModeManager.Instance.editorDataSO.restrictToStickMovement && _playerNavigation.currentCameraKeyFrame == null) cameraFigureMovement++;
 
             
             if (_playerTransformation.currentCameraFigure == null)
@@ -304,13 +307,14 @@ namespace VRGreyboxing
             
             if (_currentEditMode == EditMode.Transformation)
             {
-                if (_playerTransformation.currentCameraFigure == null)
+                if (!_playerTransformation.usingCameraFigure)
                 {
                     HandleInventory();
                 }
                 else
                 {
                     HandleCameraFigureExit();
+                    HandleCameraFigureKeyFrameMenu();
                 }
                 
                 HandleTransformGrab();
@@ -747,9 +751,11 @@ namespace VRGreyboxing
                 _leftHandSingleInput = true; 
                 if (_graceTimeLeft <= 0)
                 {
-                    _playerTransformation.DeselectObject();
+                    if(_leftHandHoveredXRObject.GetComponent<KeyFrameDisplay>() == null)
+                        _playerTransformation.DeselectObject();
                     _playerTransformation.PerformGrab(Handedness.Left, _leftHandHoveredXRObject.GetComponent<XRGrabInteractable>());
-                    PlayModeManager.Instance.RegisterObjectChange(_leftHandHoveredXRObject,true);
+                    if(_leftHandHoveredXRObject.GetComponent<PersistentID>()!=null)
+                        PlayModeManager.Instance.RegisterObjectChange(_leftHandHoveredXRObject,true);
                     _grabLeft = true;
                     if (_grabRight && _rightHandHoveredXRObject == _leftHandHoveredXRObject)
                     {
@@ -758,7 +764,8 @@ namespace VRGreyboxing
                 }
             }else if (_grabLeft && !i_grabLeft.IsPressed())
             {
-                PlayModeManager.Instance.RegisterObjectChange(_leftHandHoveredXRObject);
+                if(_leftHandHoveredXRObject.GetComponent<PersistentID>()!=null)
+                    PlayModeManager.Instance.RegisterObjectChange(_leftHandHoveredXRObject);
                 GameObject grabbedObject = _playerTransformation.leftgrabbedObject;
                 _playerTransformation.EndGrab(Handedness.Left);
                 if (grabbedObject.CompareTag("VRG_Mark") && !_grabRight)
@@ -774,9 +781,11 @@ namespace VRGreyboxing
                 _rightHandSingleInput = true;
                 if (_graceTimeRight <= 0)
                 {
-                    _playerTransformation.DeselectObject();
+                    if(_rightHandHoveredXRObject.GetComponent<KeyFrameDisplay>() == null)
+                        _playerTransformation.DeselectObject();
                     _playerTransformation.PerformGrab(Handedness.Right, _rightHandHoveredXRObject.GetComponent<XRGrabInteractable>());
-                    PlayModeManager.Instance.RegisterObjectChange(_rightHandHoveredXRObject,true);
+                    if(_rightHandHoveredXRObject.GetComponent<PersistentID>()!=null)
+                        PlayModeManager.Instance.RegisterObjectChange(_rightHandHoveredXRObject,true);
                     _grabRight = true;
                     if (_grabLeft && _rightHandHoveredXRObject == _leftHandHoveredXRObject)
                     {
@@ -786,7 +795,8 @@ namespace VRGreyboxing
                 }
             }else if (_grabRight && !i_grabRight.IsPressed())
             {
-                PlayModeManager.Instance.RegisterObjectChange(_rightHandHoveredXRObject);
+                if(_rightHandHoveredXRObject.GetComponent<PersistentID>()!=null)
+                    PlayModeManager.Instance.RegisterObjectChange(_rightHandHoveredXRObject);
                 GameObject grabbedObject = _playerTransformation.rightgrabbedObject;
                 _playerTransformation.EndGrab(Handedness.Right);
                 if (grabbedObject.CompareTag("VRG_Mark") && !_grabLeft)
@@ -1000,6 +1010,25 @@ namespace VRGreyboxing
                 _cameraExitMenuChanged = false;
             }
         }
+
+        private void HandleCameraFigureKeyFrameMenu()
+        {
+            if ((i_axLeft.IsPressed() || i_axRight.IsPressed()) && !_cameraKeyFrameMenuChanged)
+            {
+                _cameraKeyFrameMenuChanged = true;
+                if (_confirmMenuInstance != null)
+                {
+                    CloseConfirmMenu();
+                }
+                else
+                {
+                    DisplayConfirmMenu(_playerTransformation.PlaceCameraKeyframe,CloseConfirmMenu,"Place Keyframe?");
+                }
+            }else if (!i_axLeft.IsPressed() && !i_axRight.IsPressed())
+            {
+                _cameraKeyFrameMenuChanged = false;
+            }
+        }
         private void ResetGraceTime(Handedness handedness)
         {
             const float resetGraceTime = 0.25f;
@@ -1174,6 +1203,7 @@ namespace VRGreyboxing
             CloseMainMenu();
             CloseColorPickerMenu();
             CloseSceneSelectionMenu();
+            CloseKeyframeEditMenu();
         }
         
         #region Inventory
@@ -1244,6 +1274,18 @@ namespace VRGreyboxing
                 cameraButton.GetComponentInChildren<Text>().text = "Enter";
                 cameraButton.GetComponentInChildren<Image>().sprite = selectionMenuCameraIcon;
                 cameraButton.GetComponent<Button>().onClick.AddListener(_playerTransformation.EnterCameraFigure);
+
+                if (GetSelectedObject().GetComponent<CameraFigure>().keyFrames.Count > 0)
+                {
+                    GameObject cameraPathButton = Instantiate(menuOptionButtonPrefab, content.transform);
+                    cameraPathButton.name = "CameraPath";
+                    cameraPathButton.GetComponentInChildren<Text>().text = "Camera Path";
+                    cameraPathButton.GetComponentInChildren<Image>().sprite = selectionMenuCameraIcon;
+                    cameraPathButton.GetComponent<Button>().onClick.AddListener(delegate
+                    {
+                        FollowCameraPath(GetSelectedObject().GetComponent<CameraFigure>());
+                    });
+                }
             }
             else
             {
@@ -1480,6 +1522,7 @@ namespace VRGreyboxing
 
         private void StopPlaymode()
         {
+            _playerTransformation.RemoveKeyFrameDisplays();
             UnityEditor.EditorApplication.isPlaying = false;
         }
         
@@ -1548,6 +1591,47 @@ namespace VRGreyboxing
         }
 
         #endregion
+
+        #region KeyframeEditMenu
+
+        public void DisplayKeyframeEditMenu(Vector3 keyPosition, int keyFrameIndex)
+        {
+            CloseAllMenus();
+            _keyFrameMenuInstance = Instantiate(keyFrameMenuPrefab,keyPosition+Vector3.up*0.5f, Quaternion.identity);
+            _keyFrameMenuInstance.transform.forward = xROrigin.GetComponentInChildren<Camera>().gameObject.transform.forward;
+            _keyFrameMenuInstance.GetComponentInChildren<Button>().onClick.AddListener(CloseKeyframeEditMenu);
+            _keyFrameMenuInstance.transform.localScale *= GetCurrentSizeRatio();
+            GameObject content = _keyFrameMenuInstance.GetComponentInChildren<ContentSizeFitter>().gameObject;
+            for (int i = 0; i < content.transform.childCount; i++)
+            {
+                Slider slider = content.transform.GetChild(i).GetComponent<Slider>();
+                slider.onValueChanged.AddListener( delegate {slider.GetComponentInChildren<TextMeshProUGUI>().text = slider.value.ToString(); });
+                slider.minValue = 0;
+                slider.maxValue = 10;
+
+                if (i == 0)
+                {
+                    slider.value = _playerTransformation.currentCameraFigure.GetComponent<CameraFigure>().keyFrames[keyFrameIndex].cameraMoveTime;
+                    slider.onValueChanged.AddListener( delegate {_playerTransformation.currentCameraFigure.GetComponent<CameraFigure>().keyFrames[keyFrameIndex].cameraMoveTime = slider.value; });
+
+                }
+                else
+                {
+                    slider.value = _playerTransformation.currentCameraFigure.GetComponent<CameraFigure>().keyFrames[keyFrameIndex].cameraRotateTime;
+                    slider.onValueChanged.AddListener( delegate {_playerTransformation.currentCameraFigure.GetComponent<CameraFigure>().keyFrames[keyFrameIndex].cameraRotateTime = slider.value; });
+
+                }
+            }
+        }
+
+        public void CloseKeyframeEditMenu()
+        {
+            if(_keyFrameMenuInstance == null) return;
+            Destroy(_keyFrameMenuInstance);
+            _keyFrameMenuInstance = null;
+        }
+
+        #endregion
         
         #endregion
 
@@ -1576,6 +1660,23 @@ namespace VRGreyboxing
         public float GetCurrentLineWidth()
         {
             return _playerCommunication.lineWidth;
+        }
+
+        #endregion
+
+        #region Movement
+
+        public void FollowCameraPath(CameraFigure cameraFigure)
+        {
+            _playerTransformation.EnterCameraFigure();
+            _playerNavigation.FollowCameraPath(cameraFigure);
+        }
+
+        public void ExitCameraPath()
+        {
+            _playerTransformation.ExitCameraFigure();
+            _playerTransformation.currentCameraFigure = null;
+
         }
 
         #endregion
