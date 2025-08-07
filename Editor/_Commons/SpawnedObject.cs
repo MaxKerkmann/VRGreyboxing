@@ -8,6 +8,7 @@ namespace VRGreyboxing
     public class SpawnedObject : ObjectBaseState
     {
         public int prefabIndex;
+        public List<CameraKeyFrame> keyFrames;
         public string basePersistentID;
         public string OriginalScenePath;
 
@@ -44,6 +45,7 @@ namespace VRGreyboxing
                 pbm.ToMesh();
                 pbm.Refresh();
             }
+            keyFrames = spawnedPrevObject.keyFrames;
             spawnedPrevObject.nextState = this;
             return prevState;
         }
@@ -75,6 +77,7 @@ namespace VRGreyboxing
                 pbm.ToMesh();
                 pbm.Refresh();
             }
+            keyFrames = spawnedNextState.keyFrames;
             nextState.prevState = this;
             return base.RedoChange();
         }

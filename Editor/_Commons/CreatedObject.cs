@@ -9,6 +9,7 @@ namespace VRGreyboxing
         public List<Vector3> basePositions;
         public string OriginalScenePath;
         public bool flippedVertices;
+        
 
         public CreatedObject(GameObject gameObject, string persisentID, Vector3 position, Quaternion rotation, Vector3 scale, List<Vector3> basePositions,List<Vector3> positions,bool flippedVertices, string originalScenePath, bool justCreated) : base(gameObject, persisentID, position, rotation, scale,positions)
         {

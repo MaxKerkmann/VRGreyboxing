@@ -441,6 +441,7 @@ namespace VRGreyboxing
                 _originControllerCenter += (ActionManager.Instance.xROrigin.transform.GetComponentInChildren<Camera>().transform.position - playerPos);
                 _playerCenter = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
                 _playerCenter += ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.forward;
+                ActionManager.Instance.DisplayCameraOverlay("New size:"+zoomValue,2);
             }
         }
 
@@ -552,8 +553,11 @@ namespace VRGreyboxing
         private float _movementTimer;
         private float _rotationTimer;
         private Vector3 _startPosition;
-        private Vector3 _startCamLocalPosition;
-        private Vector3 _startCamWorldPosition;
+        
+        private Quaternion savedChildWorldRotation;
+        private Quaternion originalChildWorldRotation;
+        private Vector3 originalChildWorldPosition;
+        
         private int _keyFrameIndex;
         
         public void FollowCameraPath(CameraFigure cameraFigure)
@@ -564,8 +568,9 @@ namespace VRGreyboxing
             _movementTimer = 0;
             _rotationTimer = 0;
             _startPosition = ActionManager.Instance.xROrigin.transform.position;
-            _startCamLocalPosition = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.localPosition;
-            _startCamWorldPosition = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
+            savedChildWorldRotation = currentCameraKeyFrame.cameraRotation;
+            originalChildWorldRotation = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.rotation;
+            originalChildWorldPosition = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
         }
 
         private void MoveCamera()
@@ -577,29 +582,35 @@ namespace VRGreyboxing
 
                 xrOrigin.transform.position = Vector3.Lerp(_startPosition,
                     currentCameraKeyFrame.cameraPosition - ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.localPosition,_movementTimer / currentCameraKeyFrame.cameraMoveTime);
+                originalChildWorldPosition = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
                 _movementTimer += Time.deltaTime;
             }
 
+            _rotationTimer += Time.deltaTime;
+
+            
             if (_rotationTimer / currentCameraKeyFrame.cameraRotateTime <= 1)
             {
-                /*Vector3 originalChildWorldPosition = child.position;
-                Quaternion currentLocalRotation = child.localRotation;
+                // Current local rotation (may be changing over time)
+                Quaternion currentLocalRotation = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.localRotation;
 
-                // We want the child's world rotation to be: saved * local
-                Quaternion targetChildWorldRotation = savedChildWorldRotation * currentLocalRotation;
+                // The live dynamic target world rotation we are interpolating toward
+                Quaternion dynamicTargetWorldRotation = savedChildWorldRotation * currentLocalRotation;
 
-                // To achieve this with the child’s current localRotation, parent must be:
-                Quaternion targetParentRotation = targetChildWorldRotation * Quaternion.Inverse(currentLocalRotation);
+                // Interpolated target world rotation
+                Quaternion interpolatedWorldRotation = Quaternion.Slerp(originalChildWorldRotation, dynamicTargetWorldRotation, _rotationTimer / currentCameraKeyFrame.cameraRotateTime);
 
-                // Now compute new parent position that keeps child world position unchanged
-                Vector3 rotatedChildOffset = targetParentRotation * child.localPosition;
-                Vector3 targetParentPosition = originalChildWorldPosition - rotatedChildOffset;
+                // Compute new parent rotation that makes child world rotation match the interpolated one
+                Quaternion requiredParentRotation = interpolatedWorldRotation * Quaternion.Inverse(currentLocalRotation);
+
+                // Compute new parent position to keep child position fixed
+                Vector3 rotatedOffset = requiredParentRotation * ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.localPosition;
+                Vector3 requiredParentPosition = originalChildWorldPosition - rotatedOffset;
 
                 // Apply
-                parent.rotation = targetParentRotation;
-                parent.position = targetParentPosition;*/
+                ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.parent.rotation = requiredParentRotation;
+                ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.parent.position = requiredParentPosition;
 
-                _rotationTimer += Time.deltaTime;
             }
 
             if (_movementTimer / currentCameraKeyFrame.cameraMoveTime >= 1 && _rotationTimer / currentCameraKeyFrame.cameraRotateTime >= 1)
@@ -615,8 +626,9 @@ namespace VRGreyboxing
                     _movementTimer = 0;
                     _rotationTimer = 0;
                     _startPosition = ActionManager.Instance.xROrigin.transform.position;
-                    _startCamLocalPosition = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.localPosition;
-                    _startCamWorldPosition = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
+                    savedChildWorldRotation = currentCameraKeyFrame.cameraRotation;
+                    originalChildWorldRotation = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.rotation;
+                    originalChildWorldPosition = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
                 }
             }
         }

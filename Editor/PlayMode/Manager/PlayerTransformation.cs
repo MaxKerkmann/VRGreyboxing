@@ -587,16 +587,17 @@ namespace VRGreyboxing
             }
             usingCameraFigure = true;
             
-            xrorigin.transform.position = currentCameraFigure.transform.position;//+ Vector3.down;
+            xrorigin.transform.position = currentCameraFigure.transform.position;
             xrorigin.transform.forward = currentCameraFigure.transform.forward;
-            xrorigin.transform.GetComponentInChildren<Camera>().transform.position = Vector3.Scale(currentCameraFigure.transform.GetChild(0).transform.position, Vector3.up);
             xrorigin.transform.localScale = currentCameraFigure.transform.localScale;
             xrorigin.transform.GetComponentInChildren<Camera>().transform.forward = xrorigin.transform.forward;
+            xrorigin.transform.GetComponentInChildren<Camera>().transform.parent.position -= new Vector3(0, xrorigin.transform.GetComponentInChildren<Camera>().transform.position.y-currentCameraFigure.transform.GetChild(0).transform.position.y, 0);
+
             
             ActionManager.Instance.leaningPossible = false;
             ActionManager.Instance.cameraFigureMovement = 1;
             
-            xrorigin.GetComponentInChildren<TextMeshPro>(true).enabled = true;
+            ActionManager.Instance.DisplayCameraOverlay("CameraFigure",-1);
             foreach (var comp in xrorigin.GetComponentsInChildren<GrabMoveProvider>())
             {
                 comp.enabled = false;
@@ -633,7 +634,7 @@ namespace VRGreyboxing
             ActionManager.Instance.leaningPossible = true;
             ActionManager.Instance.cameraFigureMovement = 0;
             
-            xrorigin.GetComponentInChildren<TextMeshPro>(true).enabled = false;
+            ActionManager.Instance.HideCameraOverlay();
             foreach (var comp in xrorigin.GetComponentsInChildren<GrabMoveProvider>(true))
             {
                 comp.enabled = true;
@@ -658,6 +659,22 @@ namespace VRGreyboxing
             cameraFigure.keyFrames.Add(cameraKeyFrame);
         }
 
+        public void DeleteCameraKeyframe(int index)
+        {
+            CameraFigure cameraFigure = currentCameraFigure.GetComponent<CameraFigure>();
+            RemoveKeyFrameDisplays();
+            if (index == 0 || index == cameraFigure.keyFrames.Count-1)
+            {
+                cameraFigure.keyFrames.RemoveAt(index);
+            }
+            else
+            {
+                cameraFigure.keyFrames.RemoveAt(index);
+                cameraFigure.keyFrames[index+1].prevKeyFrame = cameraFigure.keyFrames[index - 1];
+            }
+            DisplayCameraKeyframes();
+        }
+
         
         public void DisplayCameraKeyframes()
         {
@@ -675,7 +692,7 @@ namespace VRGreyboxing
                 }
                 else
                 {
-                    display.lineRenderer.SetPosition(1,cameraFigure.transform.position);
+                    display.lineRenderer.SetPosition(1,cameraFigure.transform.GetChild(0).position);
                 }
                 _keyFrameDisplays.Add(display);
             }

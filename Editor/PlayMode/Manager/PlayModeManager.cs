@@ -151,7 +151,7 @@ namespace VRGreyboxing
             return result;
         }
 
-        public void RegisterObjectChange(GameObject obj,bool firstSelection = false, int prefabIndex = -1, bool objectCreation = false, bool objectDeletion = false, string basePersistentID = "",string parentPersitendID = "",List<Vector3> basePositions = null,bool flipVertices = false,List<List<Vector3>> markPoints = null,List<Vector3> colliderCenters = null,List<Vector3> colliderSizes = null,List<Color> colors = null,List<float> lineWidths = null)
+        public void RegisterObjectChange(GameObject obj,bool firstSelection = false, int prefabIndex = -1, bool objectCreation = false, bool objectDeletion = false, string basePersistentID = "",string parentPersitendID = "",List<Vector3> basePositions = null,bool flipVertices = false,List<List<Vector3>> markPoints = null,List<Vector3> colliderCenters = null,List<Vector3> colliderSizes = null,List<Color> colors = null,List<float> lineWidths = null,CameraFigure cameraFigure = null)
         {
 
             if (objectCreation)
@@ -250,6 +250,10 @@ namespace VRGreyboxing
                             {
                                 prevState = baseState
                             };
+                            if (obj.GetComponent<CameraFigure>() != null)
+                            {
+                                alteredObject.keyFrames = obj.GetComponent<CameraFigure>().keyFrames;
+                            }
                             editorDataSO.objectStates[editorDataSO.objectStates.IndexOf(baseState)] = alteredObject;
                             if (baseState.Untouched)
                                 _actionStackIndex++;
@@ -276,6 +280,10 @@ namespace VRGreyboxing
                             {
                                 prevState = baseState
                             };
+                            if (obj.GetComponent<CameraFigure>() != null)
+                            {
+                                spawnedObject.keyFrames = obj.GetComponent<CameraFigure>().keyFrames;
+                            }
                             editorDataSO.objectStates[editorDataSO.objectStates.IndexOf(baseState)] = spawnedObject;
                             if (baseState.Untouched)
                                 _actionStackIndex++;
@@ -313,10 +321,14 @@ namespace VRGreyboxing
                 else if(baseState == null)
                 {
                     List<Vector3> positions = obj.GetComponent<ProBuilderMesh>() != null ? obj.GetComponent<ProBuilderMesh>().positions.ToList() : new List<Vector3>();
-                    ObjectBaseState alteredObject = new AlteredObject(obj, persistentID.uniqueId, obj.transform.position, obj.transform.rotation, obj.transform.localScale, objectDeletion,positions)
+                    AlteredObject alteredObject = new AlteredObject(obj, persistentID.uniqueId, obj.transform.position, obj.transform.rotation, obj.transform.localScale, objectDeletion,positions)
                     {
                         Untouched = true
                     };
+                    if (obj.GetComponent<CameraFigure>() != null)
+                    {
+                        alteredObject.keyFrames = obj.GetComponent<CameraFigure>().keyFrames;
+                    }
                     editorDataSO.objectStates.Add(alteredObject);
                 }
             }

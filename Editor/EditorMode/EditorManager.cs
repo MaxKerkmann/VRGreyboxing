@@ -23,6 +23,7 @@ namespace VRGreyboxing
     {
 
         private static List<string> _scenePaths;
+        private static GameObject cam;
         
         private static readonly HashSet<Type> AllowedPrefabTypes = new HashSet<Type>
         {
@@ -32,6 +33,22 @@ namespace VRGreyboxing
         };
         
         public static EditorDataSO editorDataSo;
+        
+        private static float startTime;
+        private static bool isRunning;
+        private static float currentRuntime;
+        private static float moveTime;
+        private static float rotateTime;
+        private static Vector3 originalPosition;
+        private static Quaternion originalRotation;
+        private static float originalDistance;
+        private static List<CameraKeyFrame> keyframes;
+        private static int keyframeIndex;
+        private static Vector3 camStartPos;
+        private static Quaternion camStartRot;
+
+
+
         
 
         static EditorManager()
@@ -173,7 +190,7 @@ namespace VRGreyboxing
             {
                 ApplySceneChanges();
                 PrepareScenes(true);
-                EditorSceneManager.OpenScene(editorDataSo.lastOpenScene);
+                Scene scene = EditorSceneManager.OpenScene(editorDataSo.lastOpenScene);
                 editorDataSo.usingGreyboxingEditor = false;
             }
         }
@@ -223,7 +240,8 @@ namespace VRGreyboxing
                 {
                     editorDataSo.objectStates.Remove(removedKey);
                 }
-                
+                EditorSceneManager.MarkSceneDirty(scene);
+                EditorSceneManager.SaveScene(scene);
             }
         }
 
@@ -344,6 +362,10 @@ namespace VRGreyboxing
                     {
                         obj.GetComponent<ProBuilderMesh>().positions = duplication.alteredPositions.ToArray();
                     }
+                    if (duplication.keyFrames != null)
+                    {
+                        obj.gameObject.GetComponent<CameraFigure>().keyFrames = duplication.keyFrames;
+                    }
                 }
             }
 
@@ -368,6 +390,11 @@ namespace VRGreyboxing
                     }
                     root.transform.SetPositionAndRotation(alteredObject.Position, alteredObject.Rotation);
                     root.transform.localScale = alteredObject.Scale;
+                    if (alteredObject.keyFrames != null)
+                    {
+                        root.gameObject.GetComponent<CameraFigure>().keyFrames = alteredObject.keyFrames;
+                        EditorUtility.SetDirty( root.gameObject.GetComponent<CameraFigure>());
+                    }
                 }
             }
             editorDataSo.objectStates.Remove(editorDataSo.objectStates.FirstOrDefault(state => state.persisentID == persistentID.uniqueId));
@@ -480,6 +507,67 @@ namespace VRGreyboxing
             {
                 Object.DestroyImmediate(go);
             }
+        }
+        
+                public static void StartCameraPath(CameraFigure cameraFigure)
+        {
+            isRunning = true;
+            startTime = (float)EditorApplication.timeSinceStartup;
+            EditorApplication.update += Update;
+            keyframes = cameraFigure.keyFrames;
+            keyframeIndex = 0;
+            camStartPos = cameraFigure.transform.position;
+            camStartRot = cameraFigure.transform.rotation;
+                
+            SceneView sceneView = SceneView.lastActiveSceneView;
+            if (sceneView == null) return;
+                
+            originalPosition = sceneView.pivot;
+            originalRotation = sceneView.rotation;
+            originalDistance = sceneView.size;
+            moveTime = keyframes[keyframeIndex].cameraMoveTime;
+            rotateTime = keyframes[keyframeIndex].cameraRotateTime;
+            currentRuntime = moveTime > rotateTime ? moveTime : rotateTime;
+        }
+        
+        private static void Update()
+        {
+            float currentTime = (float)EditorApplication.timeSinceStartup;
+            float elapsedTime = currentTime - startTime;
+
+            if (elapsedTime > currentRuntime)
+            {
+                if (keyframeIndex == keyframes.Count - 1)
+                {
+                    EditorApplication.update -= Update;
+                    isRunning = false;
+                    SceneView sceneView = SceneView.lastActiveSceneView;
+                    sceneView.LookAt(originalPosition, originalRotation, originalDistance, false, false);
+                    return;
+                }
+
+                camStartPos = keyframes[keyframeIndex].cameraPosition;
+                camStartRot = keyframes[keyframeIndex].cameraRotation;
+                keyframeIndex++;
+                moveTime = keyframes[keyframeIndex].cameraMoveTime;
+                rotateTime = keyframes[keyframeIndex].cameraRotateTime;
+                currentRuntime = moveTime > rotateTime ? moveTime : rotateTime;
+            }
+            
+            UpdateCameraPath(elapsedTime);
+        }
+
+        private static void UpdateCameraPath(float elapsedTime)
+        {
+            Vector3 cameraPosition = Vector3.Lerp(camStartPos,keyframes[keyframeIndex].cameraPosition,elapsedTime/currentRuntime);
+            Quaternion cameraRotation = Quaternion.Slerp(camStartRot,keyframes[keyframeIndex].cameraRotation,elapsedTime/currentRuntime);
+
+            SceneView sceneView = SceneView.lastActiveSceneView;
+            if (sceneView == null) return;
+
+            sceneView.LookAt(cameraPosition, cameraRotation, 0, false, true);
+
+            sceneView.Repaint();
         }
         
     }

@@ -7,7 +7,8 @@ namespace VRGreyboxing
     public class AlteredObject : ObjectBaseState
     {
 
-
+        public List<CameraKeyFrame> keyFrames;
+        
         public AlteredObject(GameObject gameObject, string persisentID, Vector3 position, Quaternion rotation, Vector3 scale,bool deleted, List<Vector3> alteredPositions) : base(gameObject, persisentID, position, rotation, scale,alteredPositions)
         {
             Deleted = deleted;
@@ -30,6 +31,9 @@ namespace VRGreyboxing
                 pbm.ToMesh();
                 pbm.Refresh();
             }
+            
+            keyFrames = alteredPrevState.keyFrames;
+            
             alteredPrevState.nextState = this;
             return prevState;
         }
@@ -51,6 +55,8 @@ namespace VRGreyboxing
                 pbm.ToMesh();
                 pbm.Refresh();
             }
+
+            keyFrames = alteredNextState.keyFrames;
             nextState.prevState = this;
             return nextState;
         }

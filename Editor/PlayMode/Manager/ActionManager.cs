@@ -124,6 +124,7 @@ namespace VRGreyboxing
         private float _redoTimeRight;
         private bool _performedUndoRedo;
         public int cameraFigureMovement;
+        private float _cameraOverlayTime;
 
         private List<VertexEditPoint> _currentPolyShapePoints;
         private GameObject _currentPolyShape;
@@ -257,6 +258,15 @@ namespace VRGreyboxing
             //Undo Redo Timer
             _undoTimeLeft = _undoInput ? _undoTimeLeft - Time.deltaTime : _undoTimeLeft;
             _redoTimeRight = _redoInput ? _redoTimeRight - Time.deltaTime : _redoTimeRight;
+
+            if (_cameraOverlayTime <= 0 && !Mathf.Approximately(_cameraOverlayTime, -1))
+            {
+                HideCameraOverlay();
+            }
+            else
+            {
+                _cameraOverlayTime -= Time.deltaTime;
+            }
             
             if(HandleZoomRotation()) return;
 
@@ -298,7 +308,7 @@ namespace VRGreyboxing
             if (cameraFigureMovement > 0 && !PlayModeManager.Instance.editorDataSO.restrictToStickMovement && _playerNavigation.currentCameraKeyFrame == null) cameraFigureMovement++;
 
             
-            if (_playerTransformation.currentCameraFigure == null)
+            if (!_playerTransformation.usingCameraFigure)
             {
                 HandleMainMenu();
             }
@@ -1022,7 +1032,11 @@ namespace VRGreyboxing
                 }
                 else
                 {
-                    DisplayConfirmMenu(_playerTransformation.PlaceCameraKeyframe,CloseConfirmMenu,"Place Keyframe?");
+                    DisplayConfirmMenu(delegate
+                    {
+                        _playerTransformation.PlaceCameraKeyframe();
+                        PlayModeManager.Instance.RegisterObjectChange(_playerTransformation.currentCameraFigure,cameraFigure: _playerTransformation.currentCameraFigure.GetComponent<CameraFigure>());
+                    },CloseConfirmMenu,"Place Keyframe?");
                 }
             }else if (!i_axLeft.IsPressed() && !i_axRight.IsPressed())
             {
@@ -1192,7 +1206,8 @@ namespace VRGreyboxing
 
         public Vector3 GetUIPosition()
         {
-            return xROrigin.transform.position+xROrigin.GetComponentInChildren<Camera>().transform.localPosition*GetCurrentSizeRatio()+xROrigin.GetComponentInChildren<Camera>().transform.forward*2*GetCurrentSizeRatio();
+            //return xROrigin.transform.position+(xROrigin.GetComponentInChildren<Camera>().transform.localPosition-xROrigin.GetComponentInChildren<Camera>().transform.parent.localPosition)*GetCurrentSizeRatio()+xROrigin.GetComponentInChildren<Camera>().transform.forward*2*GetCurrentSizeRatio();
+            return xROrigin.GetComponentInChildren<Camera>().transform.position+xROrigin.GetComponentInChildren<Camera>().transform.forward * (2 * GetCurrentSizeRatio());
         }
         
         private void CloseAllMenus()
@@ -1602,7 +1617,7 @@ namespace VRGreyboxing
             _keyFrameMenuInstance.GetComponentInChildren<Button>().onClick.AddListener(CloseKeyframeEditMenu);
             _keyFrameMenuInstance.transform.localScale *= GetCurrentSizeRatio();
             GameObject content = _keyFrameMenuInstance.GetComponentInChildren<ContentSizeFitter>().gameObject;
-            for (int i = 0; i < content.transform.childCount; i++)
+            for (int i = 0; i < content.GetComponentsInChildren<Slider>().Length; i++)
             {
                 Slider slider = content.transform.GetChild(i).GetComponent<Slider>();
                 slider.onValueChanged.AddListener( delegate {slider.GetComponentInChildren<TextMeshProUGUI>().text = slider.value.ToString(); });
@@ -1622,6 +1637,16 @@ namespace VRGreyboxing
 
                 }
             }
+            content.GetComponentInChildren<Button>().onClick.AddListener(delegate
+            {
+                DisplayConfirmMenu(delegate
+                {
+                    _playerTransformation.DeleteCameraKeyframe(keyFrameIndex);
+                    PlayModeManager.Instance.RegisterObjectChange(_playerTransformation.currentCameraFigure,cameraFigure: _playerTransformation.currentCameraFigure.GetComponent<CameraFigure>());
+                    CloseKeyframeEditMenu();
+                    CloseConfirmMenu();
+                }, CloseConfirmMenu,"Delete Keyframe");
+            });
         }
 
         public void CloseKeyframeEditMenu()
@@ -1630,6 +1655,22 @@ namespace VRGreyboxing
             Destroy(_keyFrameMenuInstance);
             _keyFrameMenuInstance = null;
         }
+
+        #region CameraOverlayDisplay
+
+        public void DisplayCameraOverlay(string text, float duration)
+        {
+            xROrigin.GetComponentInChildren<TextMeshPro>().text = text;
+            xROrigin.GetComponentInChildren<TextMeshPro>(true).enabled = true;
+            _cameraOverlayTime = duration;
+        }
+
+        public void HideCameraOverlay()
+        {
+            xROrigin.GetComponentInChildren<TextMeshPro>(true).enabled = false;
+        }
+        
+        #endregion
 
         #endregion
         
