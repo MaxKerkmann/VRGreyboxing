@@ -589,7 +589,9 @@ PrefabInstance:
       propertyPath: m_UIHoverEntered.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 3836881422026595809}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 1178341087320851568, guid: 0a805b7325a1a974298ff405e6568e04, type: 3}
+    - {fileID: 836334680991541641, guid: 0a805b7325a1a974298ff405e6568e04, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

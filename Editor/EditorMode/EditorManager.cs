@@ -139,7 +139,7 @@ namespace VRGreyboxing
                 }
                 catch (Exception e)
                 {
-                    Debug.LogException(e);
+                    Debug.LogWarning("Skipping faulty prefab: "+e.Message);
                 }
             }
             result.Sort((a, b) =>

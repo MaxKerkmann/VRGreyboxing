@@ -36,15 +36,13 @@ namespace VRGreyboxing
 
         public override void Process(XRGrabInteractable grabInteractable, XRInteractionUpdateOrder.UpdatePhase updatePhase, ref Pose targetPose, ref Vector3 localScale)
         {
-            Vector3 axis = Vector3.zero;
-            if((permittedMovementAxes & XRGeneralGrabTransformer.ManipulationAxes.X) != 0)
-                axis = transWidgetEditPoint.playerTransformation.selectedObject.transform.right;
-            
-            if((permittedMovementAxes & XRGeneralGrabTransformer.ManipulationAxes.Y) != 0)
-                axis = transWidgetEditPoint.playerTransformation.selectedObject.transform.up;
-            
-            if((permittedMovementAxes & XRGeneralGrabTransformer.ManipulationAxes.Z) != 0)
-                axis = transWidgetEditPoint.playerTransformation.selectedObject.transform.forward;
+            var widgetTransform = transWidgetEditPoint.playerTransformation.selectedObject.transform;
+
+            Vector3 axis =
+                (permittedMovementAxes & XRGeneralGrabTransformer.ManipulationAxes.X) != 0 ? widgetTransform.right :
+                (permittedMovementAxes & XRGeneralGrabTransformer.ManipulationAxes.Y) != 0 ? widgetTransform.up :
+                (permittedMovementAxes & XRGeneralGrabTransformer.ManipulationAxes.Z) != 0 ? widgetTransform.forward :
+                Vector3.zero;
             
             Vector3 objectPos = grabInteractable.transform.position;
             Vector3 movement = Vector3.Project(targetPose.position - objectPos, axis);

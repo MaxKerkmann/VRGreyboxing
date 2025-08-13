@@ -46,7 +46,7 @@ namespace VRGreyboxing
 
         private Vector3 _turnAnchor;
         private GameObject _turnAnchorObject;
-        private Vector3 _playerCenter;
+        private Vector3 _playerViewCenter;
         private Vector3 _originControllerCenter;
 
         private bool _startedZoom;
@@ -144,8 +144,8 @@ namespace VRGreyboxing
                 _rightControllerZoomOrigin = _rightController.transform.position;
                 _leftControllerRotationOrigin = _leftController.transform.position;
                 _rightControllerRotationOrigin = _rightController.transform.position;
-                _playerCenter = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
-                _playerCenter += ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.forward;
+                _playerViewCenter = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
+                _playerViewCenter += ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.forward;
                 _originControllerCenter =
                     (_leftController.transform.position + _rightController.transform.position) / 2;
                 _startedRotation = _startedZoom = false;
@@ -185,8 +185,8 @@ namespace VRGreyboxing
                     leftControllerPosition.y = 0;
                     rightControllerPosition.y = 0;
                     cameraPosition.y = 0;
-                    _playerCenter.y = 0;
-                    var normal = (_playerCenter - cameraPosition).normalized;
+                    _playerViewCenter.y = 0;
+                    var normal = (_playerViewCenter - cameraPosition).normalized;
                     var leftControllerSide =
                         Vector3.Cross(normal, (leftControllerPosition - cameraPosition).normalized).y > 0
                             ? Handedness.Left
@@ -195,7 +195,7 @@ namespace VRGreyboxing
                         Vector3.Cross(normal, (rightControllerPosition - cameraPosition).normalized).y > 0
                             ? Handedness.Left
                             : Handedness.Right;
-                    Debug.DrawLine(_playerCenter, cameraPosition, Color.red);
+                    Debug.DrawLine(_playerViewCenter, cameraPosition, Color.red);
                     Debug.DrawLine(leftControllerPosition, cameraPosition, Color.green);
                     Debug.DrawLine(rightControllerPosition, cameraPosition, Color.blue);
 
@@ -237,11 +237,8 @@ namespace VRGreyboxing
                         Vector3 dirNormalized = movementInput.normalized;
                         float distance = Vector3.Dot(centerToAnchor, dirNormalized);
                         Vector3 lockedPosition = controllerCenter + dirNormalized * distance;
-
-
                         // Project the movement onto a plane perpendicular to the vector from anchor to center
-                        Vector3 projectedMovement =
-                            Vector3.ProjectOnPlane(movementInput, centerToAnchor.normalized);
+                        Vector3 projectedMovement = Vector3.ProjectOnPlane(movementInput, centerToAnchor.normalized);
 
                         // Calculate rotation axis as cross product
                         Vector3 turnAxis = Vector3.Cross(centerToAnchor, projectedMovement).normalized;
@@ -256,9 +253,7 @@ namespace VRGreyboxing
                         Vector3 direction = originTransform.position - _turnAnchor;
                         direction = rotation * direction;
                         originTransform.position = _turnAnchor + direction;
-
-                        if (Vector3.Distance(lockedPosition, _turnAnchor) >
-                            Vector3.Distance(_originControllerCenter, _turnAnchor))
+                        if (Vector3.Distance(lockedPosition, _turnAnchor) > Vector3.Distance(_originControllerCenter, _turnAnchor))
                         {
                             originTransform.position += centerToAnchor.normalized * (distance * 0.01f);
                         }
@@ -266,13 +261,11 @@ namespace VRGreyboxing
                         {
                             originTransform.position -= centerToAnchor.normalized * (distance * 0.01f);
                         }
-
                         originTransform.rotation = rotation * originTransform.rotation;
 
                         // Rotate original controller center to match
                         _originControllerCenter = rotation * (_originControllerCenter - _turnAnchor) + _turnAnchor;
-                        if (Vector3.Distance(lockedPosition, _turnAnchor) >
-                            Vector3.Distance(_originControllerCenter, _turnAnchor))
+                        if (Vector3.Distance(lockedPosition, _turnAnchor) > Vector3.Distance(_originControllerCenter, _turnAnchor))
                         {
                             _originControllerCenter += centerToAnchor.normalized * (distance * 0.01f);
                         }
@@ -395,21 +388,19 @@ namespace VRGreyboxing
             {
                 var controllerPosition = _leftController.transform.position;
                 controllerPosition.y = 0;
-                var distance = Vector3.Distance(controllerPosition, _playerCenter);
-                ActionManager.Instance.xROrigin.transform.RotateAround(_turnAnchor, Vector3.up,
-                    distance * rotationFactor);
-                _playerCenter = RotatePointAroundPivot(_playerCenter, _turnAnchor,
-                    Vector3.up * (distance * rotationFactor));
+                var distance = Vector3.Distance(controllerPosition, _playerViewCenter);
+                ActionManager.Instance.xROrigin.transform.RotateAround(_turnAnchor, Vector3.up, distance * rotationFactor);
+                _playerViewCenter = RotatePointAroundPivot(_playerViewCenter, _turnAnchor, Vector3.up * (distance * rotationFactor));
 
             }
             else
             {
                 var controllerPosition = _rightController.transform.position;
                 controllerPosition.y = 0;
-                var distance = Vector3.Distance(controllerPosition, _playerCenter);
+                var distance = Vector3.Distance(controllerPosition, _playerViewCenter);
                 ActionManager.Instance.xROrigin.transform.RotateAround(_turnAnchor, Vector3.up,
                     -distance * rotationFactor);
-                _playerCenter = RotatePointAroundPivot(_playerCenter, _turnAnchor, Vector3.up * -(distance * rotationFactor));
+                _playerViewCenter = RotatePointAroundPivot(_playerViewCenter, _turnAnchor, Vector3.up * -(distance * rotationFactor));
             }
         }
 
@@ -439,8 +430,8 @@ namespace VRGreyboxing
                 _leftControllerZoomOrigin = _leftController.transform.position;
                 _rightControllerZoomOrigin = _rightController.transform.position;
                 _originControllerCenter += (ActionManager.Instance.xROrigin.transform.GetComponentInChildren<Camera>().transform.position - playerPos);
-                _playerCenter = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
-                _playerCenter += ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.forward;
+                _playerViewCenter = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
+                _playerViewCenter += ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.forward;
                 ActionManager.Instance.DisplayCameraOverlay("New size:"+zoomValue,2);
             }
         }
@@ -461,8 +452,8 @@ namespace VRGreyboxing
             _leftControllerZoomOrigin = _leftController.transform.position;
             _rightControllerZoomOrigin = _rightController.transform.position;
             _originControllerCenter += (ActionManager.Instance.xROrigin.transform.GetComponentInChildren<Camera>().transform.position - playerPos);
-            _playerCenter = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
-            _playerCenter += ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.forward;
+            _playerViewCenter = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
+            _playerViewCenter += ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.forward;
 
         }
         
@@ -583,6 +574,7 @@ namespace VRGreyboxing
                 xrOrigin.transform.position = Vector3.Lerp(_startPosition,
                     currentCameraKeyFrame.cameraPosition - ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.localPosition,_movementTimer / currentCameraKeyFrame.cameraMoveTime);
                 originalChildWorldPosition = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
+                
                 _movementTimer += Time.deltaTime;
             }
 
