@@ -217,7 +217,7 @@ namespace VRGreyboxing
         }
         private void OnDisable()
         {
-            i_grabLeft.Disable();
+            /*i_grabLeft.Disable();
             i_grabRight.Disable();
             i_triggerLeft.Disable();
             i_triggerRight.Disable();
@@ -230,7 +230,7 @@ namespace VRGreyboxing
             i_RightStick.Disable();
             i_LeftStick.Disable();
             i_StickPressLeft.Disable();
-            i_StickPressRight.Disable();
+            i_StickPressRight.Disable();*/
         }
 
         public void Start()
@@ -246,6 +246,9 @@ namespace VRGreyboxing
                 DisplayInventory();
                 DebugBool = false;
             }
+            
+            if(i_axLeft.IsPressed())
+                Debug.Log("Pressed");
             
             //Grace Timer
             _graceTimeLeft = _leftHandSingleInput ? _graceTimeLeft - Time.deltaTime : _graceTimeLeft;

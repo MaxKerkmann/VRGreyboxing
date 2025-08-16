@@ -517,7 +517,7 @@ namespace VRGreyboxing
             }
         }
         
-                public static void StartCameraPath(CameraFigure cameraFigure)
+        public static void StartCameraPath(CameraFigure cameraFigure)
         {
             isRunning = true;
             startTime = (float)EditorApplication.timeSinceStartup;
@@ -559,6 +559,7 @@ namespace VRGreyboxing
                 keyframeIndex++;
                 moveTime = keyframes[keyframeIndex].cameraMoveTime;
                 rotateTime = keyframes[keyframeIndex].cameraRotateTime;
+                startTime = (float)EditorApplication.timeSinceStartup;
                 currentRuntime = moveTime > rotateTime ? moveTime : rotateTime;
             }
             

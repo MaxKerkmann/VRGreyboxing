@@ -468,13 +468,11 @@ namespace VRGreyboxing
             if (Math.Abs(rotatedOldVector.z) <= 0.01)
                 rotatedOldVector.z = 0;
             
-            Debug.Log(oldVector);
 
             float oldDiagonal = Vector3.Distance(fixedCornerWS,cornerPointWS);
             float newDiagonal = Vector3.Distance(fixedCornerWS, transWidgetPointWS);
             float ratio = newDiagonal / oldDiagonal;
-            //Quaternion oldRotation = scaleObject.transform.rotation;
-            //scaleObject.transform.rotation = Quaternion.Euler(0,0,0);
+
             if (rotatedOldVector.x == 0 || rotatedOldVector.y == 0 || rotatedOldVector.z == 0)
             {
                 if (rotatedOldVector.x != 0)
@@ -488,7 +486,7 @@ namespace VRGreyboxing
             {
                 scaleObject.transform.localScale = new Vector3(ratio,ratio,ratio);
             }
-            //scaleObject.transform.rotation = oldRotation;
+            
            
 
         }
@@ -567,8 +565,8 @@ namespace VRGreyboxing
             selectedObject.AddComponent<XRGrabInteractable>();
             selectedObject.AddComponent<TwoHandGrabTransformer>();
             selectedObject.AddComponent<XRGeneralGrabTransformer>();
-            if(spawnTag)
-                selectedObject.tag = "VRG_SpawnableObject";
+            selectedObject.tag = spawnTag ? "VRG_SpawnableObject" : prefTag;
+            
 
         }
 

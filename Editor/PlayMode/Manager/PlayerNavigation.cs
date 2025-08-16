@@ -14,17 +14,6 @@ namespace VRGreyboxing
 {
     public class PlayerNavigation : MonoBehaviour
     {
-        public float zoomMoveDistancePerStep;
-        public float rotationFactor;
-        public float maxTeleportDistance;
-        public float freeRotationCenterDistance;
-        public float teleportationRotationDistance;
-        public float leaningSpeed;
-        public float zoomMenuTime;
-        public float movementSpeed;
-        public bool performLateTeleport;
-        public bool teleportRotationWithLeaning;
-
         public GameObject navigationInputDisplay;
         public GameObject navigationInputDisplayBorder;
         private GameObject _displayInstance;
@@ -41,8 +30,7 @@ namespace VRGreyboxing
 
         private Vector3 _leftControllerZoomOrigin;
         private Vector3 _rightControllerZoomOrigin;
-        private Vector3 _leftControllerRotationOrigin;
-        private Vector3 _rightControllerRotationOrigin;
+
 
         private Vector3 _turnAnchor;
         private GameObject _turnAnchorObject;
@@ -59,11 +47,24 @@ namespace VRGreyboxing
         private float _zoomMenuTimer;
         private float _lineSizePlayerRatio;
         
-        private Vector3 anchorToCenter;
-        private Transform originTransform;
-        private Vector3 destinyPos;
-        private Vector3 anchorToDestiny;
+        private Vector3 _anchorToCenter;
+        private Transform _originTransform;
+        private Vector3 _destinyPos;
+        private Vector3 _anchorToDestiny;
         private bool _reachedTpTreshhold;
+        
+                
+        private CameraFigure _currentCameraFigure;
+        public CameraKeyFrame currentCameraKeyFrame;
+        private float _movementTimer;
+        private float _rotationTimer;
+        private Vector3 _startPosition;
+        
+        private Quaternion _savedChildWorldRotation;
+        private Quaternion _originalChildWorldRotation;
+        private Vector3 _originalChildWorldPosition;
+        
+        private int _keyFrameIndex;
         
         
         private void Start()
@@ -74,6 +75,7 @@ namespace VRGreyboxing
             _leftTeleportLine = _leftController.GetComponent<LineRenderer>();
             _rightTeleportLine = _rightController.GetComponent<LineRenderer>();
             currentCameraKeyFrame = null;
+            _originTransform = ActionManager.Instance.xROrigin.transform;
             _lineSizePlayerRatio =
                 ActionManager.Instance.xROrigin.GetComponentInChildren<LineRenderer>(true).startWidth /
                 ActionManager.Instance.xROrigin.transform.localScale.x;
@@ -105,7 +107,7 @@ namespace VRGreyboxing
         public void StopMovement()
         {
             movementCounter = 2;
-            if (performLateTeleport && _reachedTpTreshhold)
+            if (PlayModeManager.Instance.editorDataSO.performLateTeleport && _reachedTpTreshhold)
             {
                 TeleportRotation();
                 _reachedTpTreshhold = false;
@@ -116,21 +118,20 @@ namespace VRGreyboxing
 
         public void PerformLeaning(Vector2 direction)
         {
-            Transform originTransform = ActionManager.Instance.xROrigin.transform;
-            Transform cam = originTransform.GetComponentInChildren<Camera>().transform;
+            Transform cam = _originTransform.GetComponentInChildren<Camera>().transform;
 
             // Lean forward/backward (around camera's right axis)
             if (Mathf.Abs(direction.y) > 0.01f)
             {
                 Vector3 right = cam.right;
-                originTransform.Rotate(right, direction.y * leaningSpeed * Time.deltaTime, Space.World);
+                _originTransform.Rotate(right, direction.y * PlayModeManager.Instance.editorDataSO.leaningSpeed * Time.deltaTime, Space.World);
             }
 
             // Lean left/right (around camera's forward axis)
             if (Mathf.Abs(direction.x) > 0.01f)
             {
                 Vector3 forward = cam.forward;
-                originTransform.Rotate(forward, -direction.x * leaningSpeed * Time.deltaTime, Space.World);
+                _originTransform.Rotate(forward, -direction.x * PlayModeManager.Instance.editorDataSO.leaningSpeed * Time.deltaTime, Space.World);
             }
         }
 
@@ -142,8 +143,6 @@ namespace VRGreyboxing
                 rightGrabMoveProvider.enabled = false;
                 _leftControllerZoomOrigin = _leftController.transform.position;
                 _rightControllerZoomOrigin = _rightController.transform.position;
-                _leftControllerRotationOrigin = _leftController.transform.position;
-                _rightControllerRotationOrigin = _rightController.transform.position;
                 _playerViewCenter = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
                 _playerViewCenter += ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.forward;
                 _originControllerCenter =
@@ -167,7 +166,7 @@ namespace VRGreyboxing
 
                 movementCounter = 1;
                 if(PlayModeManager.Instance.editorDataSO.zoomMode == 1)
-                    _zoomMenuTimer = zoomMenuTime;
+                    _zoomMenuTimer = PlayModeManager.Instance.editorDataSO.zoomMenuTime;
                 return;
             }
             
@@ -195,9 +194,7 @@ namespace VRGreyboxing
                         Vector3.Cross(normal, (rightControllerPosition - cameraPosition).normalized).y > 0
                             ? Handedness.Left
                             : Handedness.Right;
-                    Debug.DrawLine(_playerViewCenter, cameraPosition, Color.red);
-                    Debug.DrawLine(leftControllerPosition, cameraPosition, Color.green);
-                    Debug.DrawLine(rightControllerPosition, cameraPosition, Color.blue);
+
 
                     if (leftControllerSide == rightControllerSide)
                     {
@@ -213,7 +210,7 @@ namespace VRGreyboxing
                         _displayInstance = Instantiate(navigationInputDisplay);
                         _displayBorderInstance = Instantiate(navigationInputDisplayBorder);
                         _previewInstance = Instantiate(_turnAnchorObject);
-                        _displayBorderInstance.transform.localScale = new Vector3(freeRotationCenterDistance*2, freeRotationCenterDistance*2, freeRotationCenterDistance*2) * ActionManager.Instance.GetCurrentSizeRatio();
+                        _displayBorderInstance.transform.localScale = new Vector3(PlayModeManager.Instance.editorDataSO.freeRotationCenterDistance*2, PlayModeManager.Instance.editorDataSO.freeRotationCenterDistance*2, PlayModeManager.Instance.editorDataSO.freeRotationCenterDistance*2) * ActionManager.Instance.GetCurrentSizeRatio();
                         _displayInstance.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f) * ActionManager.Instance.GetCurrentSizeRatio();
                         ScaleToTargetSize(_previewInstance,_displayBorderInstance,0.5f);
                     }
@@ -224,55 +221,11 @@ namespace VRGreyboxing
                     // Get the movement delta from the initial controller center
                     Vector3 movementInput = controllerCenter - _originControllerCenter;
                     _displayInstance.transform.up = movementInput.normalized;
-                    Debug.DrawLine(_originControllerCenter, controllerCenter, Color.red);
-                    _displayBorderInstance.GetComponent<InputIndicatorVisualHelp>().DisplayIndicators(movementInput,freeRotationCenterDistance*ActionManager.Instance.GetCurrentSizeRatio(),_displayInstance,PlayModeManager.Instance.editorDataSO.rotationMode,teleportRotationWithLeaning);
-                    if (movementInput.magnitude > freeRotationCenterDistance*ActionManager.Instance.GetCurrentSizeRatio())
+                    _displayBorderInstance.GetComponent<InputIndicatorVisualHelp>().DisplayIndicators(movementInput,PlayModeManager.Instance.editorDataSO.freeRotationCenterDistance*ActionManager.Instance.GetCurrentSizeRatio(),_displayInstance,PlayModeManager.Instance.editorDataSO.rotationMode,PlayModeManager.Instance.editorDataSO.enableTeleportRotationLeaning);
+                    if (movementInput.magnitude > PlayModeManager.Instance.editorDataSO.freeRotationCenterDistance*ActionManager.Instance.GetCurrentSizeRatio())
                     {
                         _startedRotation = true;
-
-                        // Vector from anchor to original center
-                        Vector3 centerToAnchor = _originControllerCenter - _turnAnchor;
-
-
-                        Vector3 dirNormalized = movementInput.normalized;
-                        float distance = Vector3.Dot(centerToAnchor, dirNormalized);
-                        Vector3 lockedPosition = controllerCenter + dirNormalized * distance;
-                        // Project the movement onto a plane perpendicular to the vector from anchor to center
-                        Vector3 projectedMovement = Vector3.ProjectOnPlane(movementInput, centerToAnchor.normalized);
-
-                        // Calculate rotation axis as cross product
-                        Vector3 turnAxis = Vector3.Cross(centerToAnchor, projectedMovement).normalized;
-
-                        // Use angle based on projected movement magnitude
-                        float angle = projectedMovement.magnitude * rotationFactor;
-                        // Apply rotation using quaternion to prevent gimbal lock
-                        Quaternion rotation = Quaternion.AngleAxis(angle, turnAxis);
-                        Transform originTransform = ActionManager.Instance.xROrigin.transform;
-
-                        // Rotate around anchor
-                        Vector3 direction = originTransform.position - _turnAnchor;
-                        direction = rotation * direction;
-                        originTransform.position = _turnAnchor + direction;
-                        if (Vector3.Distance(lockedPosition, _turnAnchor) > Vector3.Distance(_originControllerCenter, _turnAnchor))
-                        {
-                            originTransform.position += centerToAnchor.normalized * (distance * 0.01f);
-                        }
-                        else
-                        {
-                            originTransform.position -= centerToAnchor.normalized * (distance * 0.01f);
-                        }
-                        originTransform.rotation = rotation * originTransform.rotation;
-
-                        // Rotate original controller center to match
-                        _originControllerCenter = rotation * (_originControllerCenter - _turnAnchor) + _turnAnchor;
-                        if (Vector3.Distance(lockedPosition, _turnAnchor) > Vector3.Distance(_originControllerCenter, _turnAnchor))
-                        {
-                            _originControllerCenter += centerToAnchor.normalized * (distance * 0.01f);
-                        }
-                        else
-                        {
-                            _originControllerCenter -= centerToAnchor.normalized * (distance * 0.01f);
-                        }
+                        PerformUnrestrictedRotation(movementInput, controllerCenter);
 
                         return;
                     }
@@ -318,17 +271,50 @@ namespace VRGreyboxing
             obj.transform.localScale *= uniformScaleFactor;
         }
 
-        private void PerformUnrestrictedRotation(Vector3 input)
+        private void PerformUnrestrictedRotation(Vector3 movementInput, Vector3 controllerCenter)
         {
-            Vector3 rotationVector = new Vector3(input.x, input.y,0);
-            Vector3 centerToAnchor = ActionManager.Instance.xROrigin.transform.InverseTransformDirection(_turnAnchor) -
-                                     ActionManager.Instance.xROrigin.transform.InverseTransformDirection(
-                                         _originControllerCenter);
-            Vector3 turnAxis = Vector3.Cross(centerToAnchor, rotationVector);
-            ActionManager.Instance.xROrigin.transform.RotateAround(_turnAnchor, turnAxis,
-                -rotationVector.magnitude * rotationFactor);
-            _originControllerCenter = RotatePointAroundPivot(_originControllerCenter, _turnAnchor,
-                turnAxis * (-rotationVector.magnitude * rotationFactor));
+            // Vector from anchor to original center
+            Vector3 centerToAnchor = _originControllerCenter - _turnAnchor;
+
+
+            Vector3 dirNormalized = movementInput.normalized;
+            float distance = Vector3.Dot(centerToAnchor, dirNormalized);
+            Vector3 lockedPosition = controllerCenter + dirNormalized * distance;
+            // Project the movement onto a plane perpendicular to the vector from anchor to center
+            Vector3 projectedMovement = Vector3.ProjectOnPlane(movementInput, centerToAnchor.normalized);
+
+            // Calculate rotation axis as cross product
+            Vector3 turnAxis = Vector3.Cross(centerToAnchor, projectedMovement).normalized;
+
+            // Use angle based on projected movement magnitude
+            float angle = projectedMovement.magnitude * PlayModeManager.Instance.editorDataSO.rotationSpeed;
+            // Apply rotation using quaternion to prevent gimbal lock
+            Quaternion rotation = Quaternion.AngleAxis(angle, turnAxis);
+
+            // Rotate around anchor
+            Vector3 direction = _originTransform.position - _turnAnchor;
+            direction = rotation * direction;
+            _originTransform.position = _turnAnchor + direction;
+            if (Vector3.Distance(lockedPosition, _turnAnchor) > Vector3.Distance(_originControllerCenter, _turnAnchor))
+            {
+                _originTransform.position += centerToAnchor.normalized * (distance * 0.01f);
+            }
+            else
+            {
+                _originTransform.position -= centerToAnchor.normalized * (distance * 0.01f);
+            }
+            _originTransform.rotation = rotation * _originTransform.rotation;
+
+            // Rotate original controller center to match
+            _originControllerCenter = rotation * (_originControllerCenter - _turnAnchor) + _turnAnchor;
+            if (Vector3.Distance(lockedPosition, _turnAnchor) > Vector3.Distance(_originControllerCenter, _turnAnchor))
+            {
+                _originControllerCenter += centerToAnchor.normalized * (distance * 0.01f);
+            }
+            else
+            {
+                _originControllerCenter -= centerToAnchor.normalized * (distance * 0.01f);
+            }
             
         }
 
@@ -339,7 +325,7 @@ namespace VRGreyboxing
                 _displayInstance = Instantiate(navigationInputDisplay);
                 _displayBorderInstance = Instantiate(navigationInputDisplayBorder);
                 _previewInstance = Instantiate(_turnAnchorObject);
-                _displayBorderInstance.transform.localScale = new Vector3(teleportationRotationDistance*2, teleportationRotationDistance*2, teleportationRotationDistance*2) * ActionManager.Instance.GetCurrentSizeRatio();
+                _displayBorderInstance.transform.localScale = new Vector3(PlayModeManager.Instance.editorDataSO.teleportationRotationDistance*2, PlayModeManager.Instance.editorDataSO.teleportationRotationDistance*2, PlayModeManager.Instance.editorDataSO.teleportationRotationDistance*2) * ActionManager.Instance.GetCurrentSizeRatio();
                 _displayInstance.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f) * ActionManager.Instance.GetCurrentSizeRatio();
                 ScaleToTargetSize(_previewInstance,_displayBorderInstance,0.5f);
             }
@@ -352,15 +338,14 @@ namespace VRGreyboxing
             // Get the movement delta from the initial controller center
             Vector3 movementInput = controllerCenter - _originControllerCenter;
             _displayInstance.transform.up = movementInput.normalized;
-            _displayBorderInstance.GetComponent<InputIndicatorVisualHelp>().DisplayIndicators(movementInput,teleportationRotationDistance*ActionManager.Instance.GetCurrentSizeRatio(),_displayInstance,PlayModeManager.Instance.editorDataSO.rotationMode,teleportRotationWithLeaning);
-            if (movementInput.magnitude > teleportationRotationDistance*ActionManager.Instance.GetCurrentSizeRatio())
+            _displayBorderInstance.GetComponent<InputIndicatorVisualHelp>().DisplayIndicators(movementInput,PlayModeManager.Instance.editorDataSO.teleportationRotationDistance*ActionManager.Instance.GetCurrentSizeRatio(),_displayInstance,PlayModeManager.Instance.editorDataSO.rotationMode,PlayModeManager.Instance.editorDataSO.enableTeleportRotationLeaning);
+            if (movementInput.magnitude > PlayModeManager.Instance.editorDataSO.teleportationRotationDistance*ActionManager.Instance.GetCurrentSizeRatio())
             {
-                anchorToCenter = _originControllerCenter - _turnAnchorObject.transform.position;
-                originTransform = ActionManager.Instance.xROrigin.transform;
-                destinyPos = anchorToCenter.magnitude * movementInput.normalized + _turnAnchorObject.transform.position - originTransform.GetComponentInChildren<Camera>().transform.localPosition;
-                anchorToDestiny = destinyPos - _turnAnchorObject.transform.position;
+                _anchorToCenter = _originControllerCenter - _turnAnchorObject.transform.position;
+                _destinyPos = _anchorToCenter.magnitude * movementInput.normalized + _turnAnchorObject.transform.position - _originTransform.GetComponentInChildren<Camera>().transform.localPosition;
+                _anchorToDestiny = _destinyPos - _turnAnchorObject.transform.position;
                 _reachedTpTreshhold = true;
-                if (!performLateTeleport)
+                if (!PlayModeManager.Instance.editorDataSO.performLateTeleport)
                 {
                     TeleportRotation();
                     _reachedTpTreshhold = false;
@@ -372,13 +357,13 @@ namespace VRGreyboxing
 
         private void TeleportRotation()
         {
-            originTransform.RotateAround(_turnAnchorObject.transform.position,
-                Vector3.Cross(anchorToCenter, anchorToDestiny), Vector3.Angle(anchorToCenter, anchorToDestiny));
-            originTransform.LookAt(_turnAnchorObject.transform.position);
-            if (!teleportRotationWithLeaning)
+            _originTransform.RotateAround(_turnAnchorObject.transform.position,
+                Vector3.Cross(_anchorToCenter, _anchorToDestiny), Vector3.Angle(_anchorToCenter, _anchorToDestiny));
+            _originTransform.LookAt(_turnAnchorObject.transform.position);
+            if (!PlayModeManager.Instance.editorDataSO.enableTeleportRotationLeaning)
             {
-                originTransform.up = Vector3.up;
-                originTransform.rotation = Quaternion.LookRotation(new Vector3(_turnAnchorObject.transform.position.x - originTransform.position.x, 0, _turnAnchorObject.transform.position.z - originTransform.position.z));
+                _originTransform.up = Vector3.up;
+                _originTransform.rotation = Quaternion.LookRotation(new Vector3(_turnAnchorObject.transform.position.x - _originTransform.position.x, 0, _turnAnchorObject.transform.position.z - _originTransform.position.z));
             }
         }
         
@@ -389,8 +374,8 @@ namespace VRGreyboxing
                 var controllerPosition = _leftController.transform.position;
                 controllerPosition.y = 0;
                 var distance = Vector3.Distance(controllerPosition, _playerViewCenter);
-                ActionManager.Instance.xROrigin.transform.RotateAround(_turnAnchor, Vector3.up, distance * rotationFactor);
-                _playerViewCenter = RotatePointAroundPivot(_playerViewCenter, _turnAnchor, Vector3.up * (distance * rotationFactor));
+                ActionManager.Instance.xROrigin.transform.RotateAround(_turnAnchor, Vector3.up, distance * PlayModeManager.Instance.editorDataSO.rotationSpeed);
+                _playerViewCenter = RotatePointAroundPivot(_playerViewCenter, _turnAnchor, Vector3.up * (distance * PlayModeManager.Instance.editorDataSO.rotationSpeed));
 
             }
             else
@@ -399,8 +384,8 @@ namespace VRGreyboxing
                 controllerPosition.y = 0;
                 var distance = Vector3.Distance(controllerPosition, _playerViewCenter);
                 ActionManager.Instance.xROrigin.transform.RotateAround(_turnAnchor, Vector3.up,
-                    -distance * rotationFactor);
-                _playerViewCenter = RotatePointAroundPivot(_playerViewCenter, _turnAnchor, Vector3.up * -(distance * rotationFactor));
+                    -distance * PlayModeManager.Instance.editorDataSO.rotationSpeed);
+                _playerViewCenter = RotatePointAroundPivot(_playerViewCenter, _turnAnchor, Vector3.up * -(distance * PlayModeManager.Instance.editorDataSO.rotationSpeed));
             }
         }
 
@@ -419,7 +404,7 @@ namespace VRGreyboxing
                 if((Mathf.Approximately(scaleValue, PlayModeManager.Instance.editorDataSO.maximumZoom) && oldDistance > newDistance)||(Mathf.Approximately(scaleValue, PlayModeManager.Instance.editorDataSO.minimumZoom) && oldDistance < newDistance)) return;
                 float zoomValue = Mathf.Clamp(scaleValue + zoom * PlayModeManager.Instance.editorDataSO.zoomStep, PlayModeManager.Instance.editorDataSO.minimumZoom, PlayModeManager.Instance.editorDataSO.maximumZoom);
                 ActionManager.Instance.xROrigin.transform.localScale = new Vector3(zoomValue, zoomValue, zoomValue);
-                ActionManager.Instance.xROrigin.transform.Translate(Camera.main.transform.forward * (zoomMoveDistancePerStep * -zoom), Space.World);
+                ActionManager.Instance.xROrigin.transform.Translate(Camera.main.transform.forward * (PlayModeManager.Instance.editorDataSO.zoomMoveDistancePerStep * -zoom), Space.World);
                 LineRenderer[] lines = ActionManager.Instance.xROrigin.GetComponentsInChildren<LineRenderer>(true);
                 foreach (LineRenderer l in lines)
                 {
@@ -438,10 +423,8 @@ namespace VRGreyboxing
 
         public void PerformMenuZoom(float sizeValue)
         {
-            var oldSize = ActionManager.Instance.xROrigin.transform.localScale.x;
             ActionManager.Instance.xROrigin.transform.localScale = new Vector3(sizeValue, sizeValue, sizeValue);
             Vector3 playerPos = ActionManager.Instance.xROrigin.transform.GetComponentInChildren<Camera>().transform.position;
-            //ActionManager.Instance.xROrigin.transform.Translate(Camera.main.transform.forward * (zoomMoveDistancePerStep * ((sizeValue-oldSize)/PlayModeManager.Instance.editorDataSO.zoomStep)), Space.World);
             LineRenderer[] lines = ActionManager.Instance.xROrigin.GetComponentsInChildren<LineRenderer>(true);
             foreach (LineRenderer l in lines)
             {
@@ -474,7 +457,7 @@ namespace VRGreyboxing
             }
             
             RaycastHit hit;
-            if (Physics.Raycast(usedLine.gameObject.transform.position, usedLine.gameObject.transform.forward, out hit, maxTeleportDistance))
+            if (Physics.Raycast(usedLine.gameObject.transform.position, usedLine.gameObject.transform.forward, out hit, PlayModeManager.Instance.editorDataSO.maxTeleportDistance))
             {
                 usedLine.positionCount = 2;
                 usedLine.SetPosition(0, usedLine.gameObject.transform.position);
@@ -527,7 +510,7 @@ namespace VRGreyboxing
             Vector3 forwardDir = Vector3.ProjectOnPlane(xrcamera.forward, Vector3.up).normalized;
             Vector3 rightDir = Vector3.Cross(Vector3.up, forwardDir);
             Vector3 moveDirection = forwardDir * movement.y + rightDir * movement.x;
-            xrOrigin.GetComponent<CharacterController>().Move(moveDirection * movementSpeed * Time.deltaTime);
+            xrOrigin.GetComponent<CharacterController>().Move(moveDirection * (PlayModeManager.Instance.editorDataSO.movementSpeed * Time.deltaTime));
         }
         
         public void PerformFlyingMovement(Vector2 movement)
@@ -535,21 +518,8 @@ namespace VRGreyboxing
             GameObject xrOrigin = ActionManager.Instance.xROrigin;
             Vector3 upDir = xrOrigin.transform.up;
             Vector3 moveDirection = upDir * movement.y;
-            xrOrigin.GetComponent<CharacterController>().Move(moveDirection * PlayModeManager.Instance.editorDataSO.movementSpeed * Time.deltaTime);
+            xrOrigin.GetComponent<CharacterController>().Move(moveDirection * (PlayModeManager.Instance.editorDataSO.movementSpeed * Time.deltaTime));
         }
-
-        
-        private CameraFigure _currentCameraFigure;
-        public CameraKeyFrame currentCameraKeyFrame;
-        private float _movementTimer;
-        private float _rotationTimer;
-        private Vector3 _startPosition;
-        
-        private Quaternion savedChildWorldRotation;
-        private Quaternion originalChildWorldRotation;
-        private Vector3 originalChildWorldPosition;
-        
-        private int _keyFrameIndex;
         
         public void FollowCameraPath(CameraFigure cameraFigure)
         {
@@ -559,9 +529,9 @@ namespace VRGreyboxing
             _movementTimer = 0;
             _rotationTimer = 0;
             _startPosition = ActionManager.Instance.xROrigin.transform.position;
-            savedChildWorldRotation = currentCameraKeyFrame.cameraRotation;
-            originalChildWorldRotation = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.rotation;
-            originalChildWorldPosition = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
+            _savedChildWorldRotation = currentCameraKeyFrame.cameraRotation;
+            _originalChildWorldRotation = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.rotation;
+            _originalChildWorldPosition = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
         }
 
         private void MoveCamera()
@@ -573,7 +543,7 @@ namespace VRGreyboxing
 
                 xrOrigin.transform.position = Vector3.Lerp(_startPosition,
                     currentCameraKeyFrame.cameraPosition - ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.localPosition,_movementTimer / currentCameraKeyFrame.cameraMoveTime);
-                originalChildWorldPosition = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
+                _originalChildWorldPosition = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
                 
                 _movementTimer += Time.deltaTime;
             }
@@ -587,17 +557,17 @@ namespace VRGreyboxing
                 Quaternion currentLocalRotation = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.localRotation;
 
                 // The live dynamic target world rotation we are interpolating toward
-                Quaternion dynamicTargetWorldRotation = savedChildWorldRotation * currentLocalRotation;
+                Quaternion dynamicTargetWorldRotation = _savedChildWorldRotation * currentLocalRotation;
 
                 // Interpolated target world rotation
-                Quaternion interpolatedWorldRotation = Quaternion.Slerp(originalChildWorldRotation, dynamicTargetWorldRotation, _rotationTimer / currentCameraKeyFrame.cameraRotateTime);
+                Quaternion interpolatedWorldRotation = Quaternion.Slerp(_originalChildWorldRotation, dynamicTargetWorldRotation, _rotationTimer / currentCameraKeyFrame.cameraRotateTime);
 
                 // Compute new parent rotation that makes child world rotation match the interpolated one
                 Quaternion requiredParentRotation = interpolatedWorldRotation * Quaternion.Inverse(currentLocalRotation);
 
                 // Compute new parent position to keep child position fixed
                 Vector3 rotatedOffset = requiredParentRotation * ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.localPosition;
-                Vector3 requiredParentPosition = originalChildWorldPosition - rotatedOffset;
+                Vector3 requiredParentPosition = _originalChildWorldPosition - rotatedOffset;
 
                 // Apply
                 ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.parent.rotation = requiredParentRotation;
@@ -618,9 +588,9 @@ namespace VRGreyboxing
                     _movementTimer = 0;
                     _rotationTimer = 0;
                     _startPosition = ActionManager.Instance.xROrigin.transform.position;
-                    savedChildWorldRotation = currentCameraKeyFrame.cameraRotation;
-                    originalChildWorldRotation = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.rotation;
-                    originalChildWorldPosition = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
+                    _savedChildWorldRotation = currentCameraKeyFrame.cameraRotation;
+                    _originalChildWorldRotation = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.rotation;
+                    _originalChildWorldPosition = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
                 }
             }
         }

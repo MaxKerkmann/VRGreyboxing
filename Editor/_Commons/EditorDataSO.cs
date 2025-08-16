@@ -31,8 +31,9 @@ namespace VRGreyboxing
         public bool restrictToStickMovement;
         public bool restrictToTeleport;
         public bool enableStickLeaning;
-        public bool enableRotationLeaning;
+        public bool enableTeleportRotationLeaning;
         public bool oneHandGrabRotation;
+        public bool performLateTeleport;
         
         [Header("Navigation Settings")]
         public float minimumZoom;
@@ -41,7 +42,12 @@ namespace VRGreyboxing
         public float startingSize;
         public float rotationSpeed;
         public float movementSpeed;
-
+        public float leaningSpeed;
+        public float zoomMoveDistancePerStep;
+        public float maxTeleportDistance;
+        public float freeRotationCenterDistance;
+        public float teleportationRotationDistance;
+        public float zoomMenuTime;
 
     }
 }

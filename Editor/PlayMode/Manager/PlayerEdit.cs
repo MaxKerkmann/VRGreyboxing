@@ -63,7 +63,7 @@ namespace VRGreyboxing
                         {
                             hit.collider.gameObject.AddComponent<VertexEditPoint>();
                             ActionManager.Instance.CopyComponent(vertexEditPointPrefab.GetComponent<LineRenderer>(), hit.collider.gameObject);
-                            hit.collider.gameObject.GetComponent<LineRenderer>().material = vertexEditPointPrefab.GetComponent<LineRenderer>().material;
+                            hit.collider.gameObject.GetComponent<LineRenderer>().sharedMaterial = vertexEditPointPrefab.GetComponent<LineRenderer>().sharedMaterial;
                         }
                     }
                 }
@@ -82,7 +82,7 @@ namespace VRGreyboxing
                         {
                             hit.collider.gameObject.AddComponent<VertexEditPoint>();
                             ActionManager.Instance.CopyComponent(vertexEditPointPrefab.GetComponent<LineRenderer>(), hit.collider.gameObject);
-                            hit.collider.gameObject.GetComponent<LineRenderer>().material = vertexEditPointPrefab.GetComponent<LineRenderer>().material;
+                            hit.collider.gameObject.GetComponent<LineRenderer>().sharedMaterial = vertexEditPointPrefab.GetComponent<LineRenderer>().sharedMaterial;
                         }
                     }
                 }
