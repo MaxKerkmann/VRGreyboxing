@@ -170,15 +170,12 @@ namespace VRGreyboxing
                 return;
             }
             
-            var cameraPosition =
-                ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
+            var cameraPosition = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
             var leftControllerPosition = _leftController.transform.position;
             var rightControllerPosition = _rightController.transform.position;
 
             if (!_startedZoom)
             {
-                
-
                 if (PlayModeManager.Instance.editorDataSO.rotationMode == 0)
                 {
                     leftControllerPosition.y = 0;
@@ -351,6 +348,10 @@ namespace VRGreyboxing
                     _reachedTpTreshhold = false;
                     StopMovement();
                 }
+            }
+            else
+            {
+                _reachedTpTreshhold = false;
             }
 
         }

@@ -47,11 +47,8 @@ public class RadialSelection : MonoBehaviour
         }
 
         float angle = Vector3.SignedAngle(mainMenuCanvas.up, centerToHandProjected, -mainMenuCanvas.forward);
-
-        if (angle < 0)
-        {
-            angle = 360 + angle;
-        }
+        
+        angle = angle < 0 ? 360 + angle : angle;
         
         currentSelectedPart = (int) angle * _numberOfParts / 360;
 
