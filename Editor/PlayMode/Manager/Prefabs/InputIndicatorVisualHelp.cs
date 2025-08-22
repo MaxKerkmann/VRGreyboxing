@@ -11,7 +11,7 @@ namespace VRGreyboxing
         public Canvas indicatorCanvas;
         public GameObject teleportIndicatorFigure;
 
-        public void DisplayIndicators(Vector3 movementInput, float activationThreshold, GameObject displayInstance, int rotationMode,bool leaningTeleport)
+        public void DisplayIndicators(Vector3 movementInput, float activationThreshold, GameObject displayInstance, float indicatorDistance, int rotationMode,bool leaningTeleport)
         {
             if (rotationMode == 2)
             {
@@ -21,7 +21,7 @@ namespace VRGreyboxing
                 if (movementInput.magnitude > activationThreshold)
                 {
                     teleportIndicatorFigure.SetActive(true);
-                    teleportIndicatorFigure.transform.position = indicatorCanvas.transform.position + movementInput.normalized * 0.2f;
+                    teleportIndicatorFigure.transform.position = indicatorCanvas.transform.position + movementInput.normalized * indicatorDistance;
                     teleportIndicatorFigure.transform.LookAt(indicatorCanvas.transform);
                     displayInstance.GetComponent<Renderer>().material.color = Color.green;
                     if (!leaningTeleport)

@@ -135,7 +135,7 @@ namespace VRGreyboxing
             }
         }
 
-        public void PerformZoomRotation(RaycastHit hitLeft, RaycastHit hitRight)
+        public void PerformZoomRotation(RaycastHit hitLeft, RaycastHit hitRight, bool performRotation)
         {
             if (movementCounter == 0)
             {
@@ -165,7 +165,7 @@ namespace VRGreyboxing
                 }
 
                 movementCounter = 1;
-                if(PlayModeManager.Instance.editorDataSO.zoomMode == 1)
+                if(PlayModeManager.Instance.editorDataSO.zoomMode == 1 && !performRotation)
                     _zoomMenuTimer = PlayModeManager.Instance.editorDataSO.zoomMenuTime;
                 return;
             }
@@ -174,7 +174,7 @@ namespace VRGreyboxing
             var leftControllerPosition = _leftController.transform.position;
             var rightControllerPosition = _rightController.transform.position;
 
-            if (!_startedZoom)
+            if (performRotation)
             {
                 if (PlayModeManager.Instance.editorDataSO.rotationMode == 0)
                 {
@@ -197,7 +197,6 @@ namespace VRGreyboxing
                     {
                         _startedRotation = true;
                         PerformRestrictedRotation(leftControllerSide);
-                        return;
                     }
                 }
                 else if (PlayModeManager.Instance.editorDataSO.rotationMode == 1)
@@ -218,13 +217,11 @@ namespace VRGreyboxing
                     // Get the movement delta from the initial controller center
                     Vector3 movementInput = controllerCenter - _originControllerCenter;
                     _displayInstance.transform.up = movementInput.normalized;
-                    _displayBorderInstance.GetComponent<InputIndicatorVisualHelp>().DisplayIndicators(movementInput,PlayModeManager.Instance.editorDataSO.freeRotationCenterDistance*ActionManager.Instance.GetCurrentSizeRatio(),_displayInstance,PlayModeManager.Instance.editorDataSO.rotationMode,PlayModeManager.Instance.editorDataSO.enableTeleportRotationLeaning);
+                    _displayBorderInstance.GetComponent<InputIndicatorVisualHelp>().DisplayIndicators(movementInput,PlayModeManager.Instance.editorDataSO.freeRotationCenterDistance*ActionManager.Instance.GetCurrentSizeRatio(),_displayInstance,0,PlayModeManager.Instance.editorDataSO.rotationMode,PlayModeManager.Instance.editorDataSO.enableTeleportRotationLeaning);
                     if (movementInput.magnitude > PlayModeManager.Instance.editorDataSO.freeRotationCenterDistance*ActionManager.Instance.GetCurrentSizeRatio())
                     {
                         _startedRotation = true;
                         PerformUnrestrictedRotation(movementInput, controllerCenter);
-
-                        return;
                     }
                 }
                 else if (PlayModeManager.Instance.editorDataSO.rotationMode == 2)
@@ -232,8 +229,7 @@ namespace VRGreyboxing
                     PerformTeleportRotation();
                 }
             }
-
-            if (!_startedRotation)
+            else
             {
                 if (PlayModeManager.Instance.editorDataSO.zoomMode == 0)
                 {
@@ -335,7 +331,7 @@ namespace VRGreyboxing
             // Get the movement delta from the initial controller center
             Vector3 movementInput = controllerCenter - _originControllerCenter;
             _displayInstance.transform.up = movementInput.normalized;
-            _displayBorderInstance.GetComponent<InputIndicatorVisualHelp>().DisplayIndicators(movementInput,PlayModeManager.Instance.editorDataSO.teleportationRotationDistance*ActionManager.Instance.GetCurrentSizeRatio(),_displayInstance,PlayModeManager.Instance.editorDataSO.rotationMode,PlayModeManager.Instance.editorDataSO.enableTeleportRotationLeaning);
+            _displayBorderInstance.GetComponent<InputIndicatorVisualHelp>().DisplayIndicators(movementInput,PlayModeManager.Instance.editorDataSO.teleportationRotationDistance*ActionManager.Instance.GetCurrentSizeRatio(),_displayInstance,PlayModeManager.Instance.editorDataSO.teleportationRotationDistance*1.5f*ActionManager.Instance.GetCurrentSizeRatio(),PlayModeManager.Instance.editorDataSO.rotationMode,PlayModeManager.Instance.editorDataSO.enableTeleportRotationLeaning);
             if (movementInput.magnitude > PlayModeManager.Instance.editorDataSO.teleportationRotationDistance*ActionManager.Instance.GetCurrentSizeRatio())
             {
                 _anchorToCenter = _originControllerCenter - _turnAnchorObject.transform.position;
@@ -418,6 +414,7 @@ namespace VRGreyboxing
                 _originControllerCenter += (ActionManager.Instance.xROrigin.transform.GetComponentInChildren<Camera>().transform.position - playerPos);
                 _playerViewCenter = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
                 _playerViewCenter += ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.forward;
+                ActionManager.Instance.RefreshCurrentWidget();
                 ActionManager.Instance.DisplayCameraOverlay("New size:"+zoomValue,2);
             }
         }
@@ -438,7 +435,7 @@ namespace VRGreyboxing
             _originControllerCenter += (ActionManager.Instance.xROrigin.transform.GetComponentInChildren<Camera>().transform.position - playerPos);
             _playerViewCenter = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
             _playerViewCenter += ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.forward;
-
+            ActionManager.Instance.RefreshCurrentWidget();
         }
         
         public void PerformTeleportRaycast(Handedness handedness)

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Unity.XR.CoreUtils.Collections;
+using UnityEditor;
 using UnityEngine;
 
 namespace VRGreyboxing
@@ -8,6 +9,8 @@ namespace VRGreyboxing
     {
         [Header("Universal Data")]
         public Object prefabSaveDirectory;
+        public List<DefaultAsset> prefabDirectories;
+        public DefaultAsset defaultPrefabFolder;
         public List<GameObject> availablePrefabs;
         public bool setupTags;
         public List<string> tags;
@@ -34,6 +37,7 @@ namespace VRGreyboxing
         public bool enableTeleportRotationLeaning;
         public bool oneHandGrabRotation;
         public bool performLateTeleport;
+        public float widgetScaleSize;
         
         [Header("Navigation Settings")]
         public float minimumZoom;

@@ -229,6 +229,7 @@ namespace VRGreyboxing
             else
             {
                 pbm.CreateShapeFromPolygon(vertices, controllerHeight, false);
+                
                 ActionManager.Instance.SetCurrentPolyShape(polyShape);
                 if (connectedToExistingObject != null)
                 {
@@ -245,6 +246,24 @@ namespace VRGreyboxing
                 flipVertices = !(controllerHeight > 0);
             }
         }
+
+        public void CenterPolyshapePosition(GameObject polyShape)
+        {
+            ProBuilderMesh pbm = polyShape.GetComponent<ProBuilderMesh>();
+            Vector3 center = Vector3.zero;
+            foreach (var position in pbm.positions)
+            {
+                Vector3 pos = polyShape.transform.TransformPoint(position);
+                center += pos;
+            }
+            center /= pbm.positions.Count;
+            Vector3 offset = polyShape.transform.position - center;
+            polyShape.transform.position = center;
+            pbm.positions = pbm.positions.Select(p => p+offset).ToList();
+            pbm.ToMesh();
+            pbm.Refresh();
+        }
+        
         public void SelectObject(Handedness handedness, GameObject obj)
         {
             var constrainGrabTransformer = obj.GetComponent<NoneConstrainGrabTransformer>();

@@ -117,7 +117,25 @@ namespace VRGreyboxing
         private static List<GameObject> GetAvailablePrefabs()
         {
             List<GameObject> result = new List<GameObject>(2);
-            string[] temp = AssetDatabase.GetAllAssetPaths();
+            List<string> temp = new List<string>();
+            if (editorDataSo.prefabDirectories.Count == 0)
+            {
+                temp = AssetDatabase.GetAllAssetPaths().ToList();
+            }
+            else
+            {
+                List<DefaultAsset> directories = editorDataSo.prefabDirectories.ToList();
+                directories.Add(editorDataSo.defaultPrefabFolder);
+                foreach (var folder in directories)
+                {
+                    List<string> guids = AssetDatabase.FindAssets("", new[] { AssetDatabase.GetAssetPath(folder) }).ToList();
+                    foreach (string guid in guids)
+                    {
+                        temp.Add(AssetDatabase.GUIDToAssetPath(guid));
+                    }
+                }
+                
+            }
             List<string> names = new List<string>();
             foreach ( string s in temp ) {
                 if ( s.Contains( ".prefab" ) ) names.Add( s );
@@ -326,13 +344,13 @@ namespace VRGreyboxing
                 LineRenderer lineRenderer = drawing.AddComponent<LineRenderer>();
                 lineRenderer.useWorldSpace = false;
                 lineRenderer.positionCount = markerObject.markPoints[i].Count;
-                lineRenderer.SetPositions(markerObject.markPoints[i].ToArray());
+                lineRenderer.SetPositions(markerObject.markPoints[i].Select(v => v+markerObject.drawingOffsets[i]).ToArray());
                 lineRenderer.sharedMaterial = editorDataSo.drawingMaterial;
                 lineRenderer.startColor = lineRenderer.endColor = markerObject.colors[i];
                 lineRenderer.startWidth = lineRenderer.endWidth = markerObject.lineWidths[i];
                 
                 BoxCollider boxCollider = drawing.AddComponent<BoxCollider>();
-                boxCollider.center = markerObject.colliderCenters[i];
+                boxCollider.center = markerObject.colliderCenters[i]+markerObject.drawingOffsets[i];
                 boxCollider.size = markerObject.colliderSizes[i];
                 drawingColliders.Add(boxCollider);
                 drawing.transform.localPosition = Vector3.zero;

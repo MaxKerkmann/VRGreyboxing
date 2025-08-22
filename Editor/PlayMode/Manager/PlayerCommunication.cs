@@ -184,6 +184,7 @@ namespace VRGreyboxing
             GameObject drawingContainer = new GameObject("DrawingContainer");
             drawingContainer.tag = "VRG_Mark";
             Vector3 center  = Vector3.zero;
+            _currentDrawingObjects.RemoveAll(item => item == null);
             foreach (var drawingObject in _currentDrawingObjects)    
             {
                 drawingObject.transform.parent = drawingContainer.transform;
@@ -205,6 +206,7 @@ namespace VRGreyboxing
         {
 
             List<List<Vector3>> drawingpoints = new List<List<Vector3>>();
+            List<Vector3> drawingOffsets = new List<Vector3>();
             List<Vector3> colliderCenters = new List<Vector3>();
             List<Vector3> colliderSizes = new List<Vector3>();
             List<Color> drawingColors = new List<Color>();
@@ -217,6 +219,7 @@ namespace VRGreyboxing
                 IdHolderInformation idHolderInfo = drawing.transform.GetChild(i).gameObject.AddComponent<IdHolderInformation>();
                 idHolderInfo.iDHolder = drawing.transform;
                 
+                drawingOffsets.Add(drawing.transform.GetChild(i).transform.localPosition);
                 drawingColors.Add(line.startColor);
                 lineWidths.Add(line.startWidth);
                 Vector3[] positions = new Vector3[line.positionCount];
@@ -252,7 +255,7 @@ namespace VRGreyboxing
             
             parentCollider.enabled = false;
             ResetDrawing();
-            PlayModeManager.Instance.RegisterObjectChange(drawing,false,-1,false,false,"","",new List<Vector3>(),false,drawingpoints,colliderCenters,colliderSizes,drawingColors,lineWidths);
+            PlayModeManager.Instance.RegisterObjectChange(drawing,false,-1,false,false,"","",new List<Vector3>(),false,drawingpoints,drawingOffsets,colliderCenters,colliderSizes,drawingColors,lineWidths);
         }
 
         public void EncapsulateDrawing(BoxCollider parentCollider, Collider[] drawingColliders)

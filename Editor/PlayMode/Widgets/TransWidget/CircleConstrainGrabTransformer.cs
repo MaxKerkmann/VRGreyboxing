@@ -71,26 +71,5 @@ namespace VRGreyboxing
 
             transWidgetEditPoint.playerTransformation.TransformSelectedObject(transWidgetEditPoint.transWidgetTransformType,Vector3.zero, deltaRotation);
         }
-
-        private void OnDrawGizmos()
-        {
-            if (transWidgetEditPoint.playerTransformation.currentEditPoint != null)
-            {
-                Quaternion rotation = Quaternion.FromToRotation(Vector3.up, _planeNormal);
-
-                // Save the old Gizmos matrix
-                Matrix4x4 oldMatrix = Gizmos.matrix;
-
-                // Apply transformation matrix
-                Gizmos.matrix = Matrix4x4.TRS(_center, rotation, Vector3.one);
-
-                // Draw the tilted wire sphere at local origin (which becomes `position` in world space)
-                Gizmos.color = Color.yellow;
-                Gizmos.DrawWireSphere(Vector3.zero, _radius);
-
-                // Restore original matrix
-                Gizmos.matrix = oldMatrix;
-            }
-        }
     }
 }

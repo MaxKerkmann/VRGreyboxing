@@ -272,11 +272,13 @@ namespace VRGreyboxing
             int cornerScaleCounter = 0;
             Transform t = _currentTransWidget.transform;
             Vector3 e = objBounds.extents;
+            float objSizeFactor = (objBounds.size.x+ objBounds.size.y+ objBounds.size.z)/3;
+            float playerDistanceFactor = Mathf.Clamp(Vector3.Distance(ActionManager.Instance.xROrigin.transform.position, selectedObject.transform.position),0.5f,1);
             currentWidgetCenter = objBounds.center;
             foreach (var editPoint in _currentTransWidget.GetComponentsInChildren<TransWidgetEditPoint>())
             {
                 editPoint.playerTransformation = this;
-                editPoint.transform.localScale *= ActionManager.Instance.GetCurrentSizeRatio();
+                editPoint.transform.localScale = Vector3.one * (objSizeFactor*playerDistanceFactor*PlayModeManager.Instance.editorDataSO.widgetScaleSize*ActionManager.Instance.GetCurrentSizeRatio());
                 if(editPoint == currentEditPoint) continue;
                 switch (editPoint.transWidgetTransformType)
                 {
@@ -490,7 +492,7 @@ namespace VRGreyboxing
            
 
         }
-        public GameObject CreatePrefabFromMenu(GameObject prefab,Transform buttonTransform)
+        public GameObject CreatePrefabFromMenu(GameObject prefab,int prefabIndex,Transform buttonTransform)
         {
             GameObject go = Instantiate(prefab,buttonTransform.position,Quaternion.identity);
             go.transform.up = Vector3.up;
@@ -504,6 +506,8 @@ namespace VRGreyboxing
             }
             
             go.AddComponent<TwoHandGrabTransformer>();
+            IdHolderInformation idHolderInformation = go.AddComponent<IdHolderInformation>();
+            idHolderInformation.prefabIndex = prefabIndex;
             XRGrabInteractable interactable = go.GetComponent<XRGrabInteractable>();
             if(interactable == null)
                  interactable = go.AddComponent<XRGrabInteractable>();
@@ -521,11 +525,25 @@ namespace VRGreyboxing
             ActionManager.Instance.CloseSelectionMenu();
         }
 
-        public GameObject DuplicateSelectedObject(Handedness handedness)
+        public GameObject DuplicateSelectedObject()
         {
             ActionManager.Instance.CloseSelectionMenu();
             GameObject go = Instantiate(selectedObject,selectedObject.transform.position,Quaternion.identity);
+            ObjectBaseState baseState = PlayModeManager.Instance.GetObjectTypeForPersistentID(go.GetComponent<PersistentID>());
+            if (baseState is CreatedObject)
+            {
+                CreatedObject createdState = baseState as CreatedObject;
+                Destroy(go.GetComponent<PersistentID>());
+                PlayModeManager.Instance.RegisterObjectChange(go,false,-1,true,false,"","",createdState.basePositions,createdState.flippedVertices);
+                return go;
+            }
             Destroy(go.GetComponent<PersistentID>());
+            IdHolderInformation idHolderInformation = go.AddComponent<IdHolderInformation>();
+            if (selectedObject.GetComponent<IdHolderInformation>() != null)
+            {
+                idHolderInformation.prefabIndex = selectedObject.GetComponent<IdHolderInformation>().prefabIndex;
+            }
+            idHolderInformation.iDHolder = selectedObject.transform;
             return go;
         }
         

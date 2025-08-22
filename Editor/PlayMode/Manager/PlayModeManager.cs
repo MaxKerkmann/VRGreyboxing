@@ -151,7 +151,7 @@ namespace VRGreyboxing
             return result;
         }
 
-        public void RegisterObjectChange(GameObject obj,bool firstSelection = false, int prefabIndex = -1, bool objectCreation = false, bool objectDeletion = false, string basePersistentID = "",string parentPersitendID = "",List<Vector3> basePositions = null,bool flipVertices = false,List<List<Vector3>> markPoints = null,List<Vector3> colliderCenters = null,List<Vector3> colliderSizes = null,List<Color> colors = null,List<float> lineWidths = null,CameraFigure cameraFigure = null)
+        public void RegisterObjectChange(GameObject obj,bool firstSelection = false, int prefabIndex = -1, bool objectCreation = false, bool objectDeletion = false, string basePersistentID = "",string parentPersitendID = "",List<Vector3> basePositions = null,bool flipVertices = false,List<List<Vector3>> markPoints = null,List<Vector3> drawingOffsets = null,List<Vector3> colliderCenters = null,List<Vector3> colliderSizes = null,List<Color> colors = null,List<float> lineWidths = null,CameraFigure cameraFigure = null)
         {
 
             if (objectCreation)
@@ -222,7 +222,7 @@ namespace VRGreyboxing
                 var persitentID = obj.AddComponent<PersistentID>();
                 var scene = SceneManager.GetActiveScene();
                 List<Vector3> positions = new List<Vector3>();
-                var markObj = new MarkerObject(obj,persitentID.uniqueId,obj.transform.position, obj.transform.rotation, obj.transform.lossyScale,positions,scene.path,markPoints,colliderCenters,colliderSizes,colors,lineWidths)
+                var markObj = new MarkerObject(obj,persitentID.uniqueId,obj.transform.position, obj.transform.rotation, obj.transform.lossyScale,positions,scene.path,markPoints,drawingOffsets,colliderCenters,colliderSizes,colors,lineWidths)
                 {
                     justCreated = true
                 };
@@ -236,7 +236,7 @@ namespace VRGreyboxing
                 var persistentID = obj.GetComponent<PersistentID>();
                 if (persistentID == null)
                 {
-                    persistentID = obj.GetComponent<IdHolderInformation>().iDHolder.GetComponentInParent<PersistentID>();
+                    persistentID = obj.GetComponent<IdHolderInformation>().GetIDHolder().GetComponentInParent<PersistentID>();
                 }
                 ObjectBaseState baseState = editorDataSO.objectStates.FirstOrDefault(obs => obs.persisentID == persistentID.uniqueId);
                 if (baseState != null && !firstSelection)
@@ -294,8 +294,8 @@ namespace VRGreyboxing
                         {
                             CreatedObject createdState = baseState as CreatedObject;
                             var createdObject = new CreatedObject(obj, createdState.persisentID, obj.transform.position,
-                                obj.transform.rotation, obj.transform.lossyScale, basePositions,
-                                createdState.basePositions,createdState.flippedVertices, SceneManager.GetActiveScene().path, false)
+                                obj.transform.rotation, obj.transform.lossyScale, createdState.basePositions,
+                                obj.GetComponent<ProBuilderMesh>().positions.ToList(),createdState.flippedVertices, SceneManager.GetActiveScene().path, false)
                             {
                                 prevState = baseState
                             };
@@ -307,7 +307,7 @@ namespace VRGreyboxing
                         }
                         case MarkerObject:
                             MarkerObject markerState = baseState as MarkerObject;
-                            var markerObject = new MarkerObject(obj,baseState.persisentID, obj.transform.position, obj.transform.rotation, obj.transform.lossyScale, new List<Vector3>(),SceneManager.GetActiveScene().path,markerState.markPoints,markerState.colliderCenters,markerState.colliderSizes,markerState.colors,markerState.lineWidths)
+                            var markerObject = new MarkerObject(obj,baseState.persisentID, obj.transform.position, obj.transform.rotation, obj.transform.lossyScale, new List<Vector3>(),SceneManager.GetActiveScene().path,markerState.markPoints,drawingOffsets,markerState.colliderCenters,markerState.colliderSizes,markerState.colors,markerState.lineWidths)
                             {
                                 prevState = baseState
                             };
@@ -332,6 +332,11 @@ namespace VRGreyboxing
                     editorDataSO.objectStates.Add(alteredObject);
                 }
             }
+        }
+
+        public ObjectBaseState GetObjectTypeForPersistentID(PersistentID persistentID)
+        {
+            return editorDataSO.objectStates.FirstOrDefault(obs => obs.persisentID == persistentID.uniqueId);
         }
 
         public void UndoObjectChange()

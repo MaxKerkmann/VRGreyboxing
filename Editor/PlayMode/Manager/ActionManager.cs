@@ -247,9 +247,6 @@ namespace VRGreyboxing
                 DebugBool = false;
             }
             
-            if(i_axLeft.IsPressed())
-                Debug.Log("Pressed");
-            
             //Grace Timer
             _graceTimeLeft = _leftHandSingleInput ? _graceTimeLeft - Time.deltaTime : _graceTimeLeft;
             _graceTimeRight = _rightHandSingleInput ? _graceTimeRight - Time.deltaTime : _graceTimeRight;
@@ -508,7 +505,10 @@ namespace VRGreyboxing
                 {
                     if (_lastPrefabIndex == -1)
                     {
-                        PlayModeManager.Instance.RegisterObjectChange(_leftHandSelectedXRObject, false, _lastPrefabIndex,false,false,_lastDuplicationID);
+                        if(_lastDuplicationID != "")
+                            PlayModeManager.Instance.RegisterObjectChange(_leftHandSelectedXRObject, false, _lastPrefabIndex,false,false,_lastDuplicationID);
+                        else
+                            PlayModeManager.Instance.RegisterObjectChange(_leftHandSelectedXRObject);
                     }
                     else
                     {
@@ -556,7 +556,10 @@ namespace VRGreyboxing
                 {
                     if (_lastPrefabIndex == -1)
                     {
-                        PlayModeManager.Instance.RegisterObjectChange(_rightHandSelectedXRObject, false, _lastPrefabIndex,false,false,_lastDuplicationID);
+                        if(_lastDuplicationID != "")
+                            PlayModeManager.Instance.RegisterObjectChange(_rightHandSelectedXRObject, false, _lastPrefabIndex,false,false,_lastDuplicationID);
+                        else
+                            PlayModeManager.Instance.RegisterObjectChange(_rightHandSelectedXRObject);
                     }
                     else
                     {
@@ -700,10 +703,12 @@ namespace VRGreyboxing
                 {
                     if (_currentPolyShape != null)
                     {
+                        _playerEdit.CenterPolyshapePosition(_currentPolyShape);
                         SelectObject(Handedness.Left, _currentPolyShape);
                         string parentID = "";
                         if (_currentPolyShape.transform.parent != null)
                             parentID = _currentPolyShape.transform.parent.GetComponent<PersistentID>().uniqueId;
+                        
                         PlayModeManager.Instance.RegisterObjectChange(_currentPolyShape,false,-1,true,false,"",parentID,_currentPolyShapePoints.Select(p => p.transform.position).ToList(),_playerEdit.flipVertices);
                         _currentPolyShape = null;
                         _playerEdit.flipVertices = false;
@@ -732,6 +737,7 @@ namespace VRGreyboxing
                 {
                     if (_currentPolyShape != null)
                     {
+                        _playerEdit.CenterPolyshapePosition(_currentPolyShape);
                         SelectObject(Handedness.Right, _currentPolyShape);
                         string parentID = "";
                         if (_currentPolyShape.transform.parent != null)
@@ -764,6 +770,7 @@ namespace VRGreyboxing
                 _leftHandSingleInput = true; 
                 if (_graceTimeLeft <= 0)
                 {
+                    if(_leftHandHoveredXRObject.CompareTag("VRG_WidgetCube")) return;
                     if(_leftHandHoveredXRObject.GetComponent<KeyFrameDisplay>() == null)
                         _playerTransformation.DeselectObject();
                     _playerTransformation.PerformGrab(Handedness.Left, _leftHandHoveredXRObject.GetComponent<XRGrabInteractable>());
@@ -783,7 +790,7 @@ namespace VRGreyboxing
                 _playerTransformation.EndGrab(Handedness.Left);
                 if (grabbedObject.CompareTag("VRG_Mark") && !_grabRight)
                 {
-                    _playerCommunication.EncapsulateDrawing(grabbedObject.transform.parent.GetComponent<BoxCollider>(),grabbedObject.GetComponent<IdHolderInformation>().iDHolder.GetComponentsInChildren<Collider>().Where(c => c.transform != grabbedObject.transform.parent.transform).ToArray());
+                    _playerCommunication.EncapsulateDrawing(grabbedObject.transform.parent.GetComponent<BoxCollider>(),grabbedObject.GetComponent<IdHolderInformation>().GetIDHolder().GetComponentsInChildren<Collider>().Where(c => c.transform != grabbedObject.transform.parent.transform).ToArray());
                 }
                 _grabLeft = false;
                 twoHandGrab = false;
@@ -794,6 +801,8 @@ namespace VRGreyboxing
                 _rightHandSingleInput = true;
                 if (_graceTimeRight <= 0)
                 {
+                    if(_rightHandHoveredXRObject.CompareTag("VRG_WidgetCube")) return;
+
                     if(_rightHandHoveredXRObject.GetComponent<KeyFrameDisplay>() == null)
                         _playerTransformation.DeselectObject();
                     _playerTransformation.PerformGrab(Handedness.Right, _rightHandHoveredXRObject.GetComponent<XRGrabInteractable>());
@@ -814,7 +823,7 @@ namespace VRGreyboxing
                 _playerTransformation.EndGrab(Handedness.Right);
                 if (grabbedObject.CompareTag("VRG_Mark") && !_grabLeft)
                 {
-                    _playerCommunication.EncapsulateDrawing(grabbedObject.transform.parent.GetComponent<BoxCollider>(),grabbedObject.GetComponent<IdHolderInformation>().iDHolder.GetComponentsInChildren<Collider>().Where(c => c.transform != grabbedObject.transform.parent.transform).ToArray());
+                    _playerCommunication.EncapsulateDrawing(grabbedObject.transform.parent.GetComponent<BoxCollider>(),grabbedObject.GetComponent<IdHolderInformation>().GetIDHolder().GetComponentsInChildren<Collider>().Where(c => c.transform != grabbedObject.transform.parent.transform).ToArray());
                 }
                 _grabRight = false;
                 twoHandGrab = false;
@@ -972,9 +981,16 @@ namespace VRGreyboxing
         }
         private bool HandleZoomRotation()
         {
-            if (i_triggerLeft.IsPressed() && i_triggerRight.IsPressed()&& !_grabLeft &&!_grabRight)
+            if (i_triggerLeft.IsPressed() && i_triggerRight.IsPressed()&& !_grabLeft && !_grabRight)
             {
-                _playerNavigation.PerformZoomRotation(leftControllerRaycaster.hit, rightControllerRaycaster.hit);
+                _playerNavigation.PerformZoomRotation(leftControllerRaycaster.hit, rightControllerRaycaster.hit,true);
+                ResetGraceTime(Handedness.None);
+                return true;
+            }
+
+            if (i_grabLeft.IsPressed() && i_grabRight.IsPressed() && !_grabLeft && !_grabRight)
+            {
+                _playerNavigation.PerformZoomRotation(leftControllerRaycaster.hit, rightControllerRaycaster.hit,false);
                 ResetGraceTime(Handedness.None);
                 return true;
             }
@@ -1243,8 +1259,8 @@ namespace VRGreyboxing
         
         public void SpawnObjectOnHand(GameObject prefab,Transform buttonTransform,Handedness handedness)
         {
-            GameObject instance = _playerTransformation.CreatePrefabFromMenu(prefab,buttonTransform);
             _lastPrefabIndex = PlayModeManager.Instance.editorDataSO.availablePrefabs.IndexOf(prefab);
+            GameObject instance = _playerTransformation.CreatePrefabFromMenu(prefab,_lastPrefabIndex,buttonTransform);
             _playerTransformation.PerformGrab(handedness,instance.GetComponent<XRGrabInteractable>());
             if (handedness == Handedness.Left)
             {
@@ -1343,10 +1359,20 @@ namespace VRGreyboxing
 
         public void DuplicateSelectedObject(Transform trans,Handedness handedness)
         {
-            GameObject go = _playerTransformation.DuplicateSelectedObject(handedness);
+            GameObject go = _playerTransformation.DuplicateSelectedObject();
             go.transform.position = trans.position;
-            _lastPrefabIndex = -1;
-            _lastDuplicationID = GetSelectedObject().GetComponent<PersistentID>().uniqueId;
+            if (go.GetComponent<IdHolderInformation>() != null)
+            {
+                _lastPrefabIndex = go.GetComponent<IdHolderInformation>().prefabIndex;
+                if (_lastPrefabIndex == -1)
+                    _lastDuplicationID = go.GetComponent<IdHolderInformation>().GetIDHolder().GetComponent<PersistentID>().uniqueId;
+            }
+            else
+            {
+                _lastPrefabIndex = -1;
+                _lastDuplicationID = "";
+            }
+
             _playerTransformation.PerformGrab(handedness,go.GetComponent<XRGrabInteractable>());
             if (handedness == Handedness.Left)
             {
@@ -1794,6 +1820,22 @@ namespace VRGreyboxing
                 case EditMode.Edit:
                     _playerEdit.SelectObject(handedness,selectedObject);
                     break;
+            }
+        }
+
+        public void RefreshCurrentWidget()
+        {
+            if (GetSelectedObject() != null)
+            {
+                switch (_currentEditMode)
+                {
+                    case EditMode.Transformation:
+                        _playerTransformation.ApplyTransWidgetToSelectedObject();
+                        break;
+                    case EditMode.Edit:
+                        _playerEdit.ApplyTransWidgetToSelectedObject();
+                        break;
+                }
             }
         }
 
