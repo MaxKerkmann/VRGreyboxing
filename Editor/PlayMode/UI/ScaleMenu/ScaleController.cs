@@ -36,12 +36,12 @@ namespace VRGreyboxing
             threequarterSizeButton.GetComponentInChildren<TextMeshProUGUI>().text = (PlayModeManager.Instance.editorDataSO.maximumZoom*0.75f).ToString();
             quarterSizeButton.GetComponentInChildren<TextMeshProUGUI>().text = (PlayModeManager.Instance.editorDataSO.maximumZoom*0.25f).ToString();
             
-            maxSizeButton.onClick.AddListener(delegate { ActionManager.Instance.ScalePlayer(PlayModeManager.Instance.editorDataSO.maximumZoom); });
-            minSizeButton.onClick.AddListener(delegate { ActionManager.Instance.ScalePlayer(PlayModeManager.Instance.editorDataSO.minimumZoom); });
-            quarterSizeButton.onClick.AddListener(delegate { ActionManager.Instance.ScalePlayer(PlayModeManager.Instance.editorDataSO.maximumZoom*0.25f); });
-            threequarterSizeButton.onClick.AddListener(delegate { ActionManager.Instance.ScalePlayer(PlayModeManager.Instance.editorDataSO.maximumZoom*0.75f); });
-            increasingSizeButton.onClick.AddListener(delegate { scaleSlider.value = PlayModeManager.Instance.editorDataSO.maximumZoom/10 + scaleSlider.value; });
-            decreasingSizeButton.onClick.AddListener(delegate { scaleSlider.value = scaleSlider.value - PlayModeManager.Instance.editorDataSO.maximumZoom/10; });
+            maxSizeButton.onClick.AddListener(delegate { ActionManager.Instance.ScalePlayer(PlayModeManager.Instance.editorDataSO.minimumZoom); });
+            minSizeButton.onClick.AddListener(delegate { ActionManager.Instance.ScalePlayer(PlayModeManager.Instance.editorDataSO.maximumZoom); });
+            quarterSizeButton.onClick.AddListener(delegate { ActionManager.Instance.ScalePlayer((PlayModeManager.Instance.editorDataSO.minimumZoom*0.25f)); });
+            threequarterSizeButton.onClick.AddListener(delegate { ActionManager.Instance.ScalePlayer((PlayModeManager.Instance.editorDataSO.minimumZoom*0.75f)); });
+            increasingSizeButton.onClick.AddListener(delegate { scaleSlider.value = PlayModeManager.Instance.editorDataSO.minimumZoom/10 + scaleSlider.value; });
+            decreasingSizeButton.onClick.AddListener(delegate { scaleSlider.value = scaleSlider.value - PlayModeManager.Instance.editorDataSO.minimumZoom/10; });
 
             confirmButton.onClick.AddListener(delegate { ActionManager.Instance.ScalePlayer(scaleSlider.value); });
             

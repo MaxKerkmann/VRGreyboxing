@@ -348,6 +348,8 @@ namespace VRGreyboxing
         {
             ProBuilderMesh pbm = selectedObject.GetComponent<ProBuilderMesh>();
             List<Vector3> worldPositions = pbm.positions.Select(v => pbm.transform.TransformPoint(v)).ToList();
+            Bounds objBounds = selectedObject.GetComponentInChildren<Renderer>() != null ? selectedObject.GetComponentInChildren<Renderer>().bounds : selectedObject.GetComponentInChildren<Collider>().bounds;
+            float objSizeFactor = (objBounds.size.x+ objBounds.size.y+ objBounds.size.z)/3;
 
             // Detect flat mesh
             bool isFlat = IsMeshFlat(worldPositions, 0.001f);
@@ -378,7 +380,7 @@ namespace VRGreyboxing
                     else if (!edgeMarkersByRoundedCenter.ContainsKey(key))
                     {
                         GameObject widgetPoint = Instantiate(editWidgetPointPrefab, _currentEditWidget.transform);
-                        widgetPoint.transform.localScale *= ActionManager.Instance.GetCurrentSizeRatio();
+                        widgetPoint.transform.localScale = Vector3.one * (objSizeFactor*PlayModeManager.Instance.editorDataSO.widgetScaleSize);
                         widgetPoint.transform.position = center;
                         var editPoint = widgetPoint.GetComponent<EditWidgetEditPoint>();
                         editPoint.playerEdit = this;
@@ -407,7 +409,7 @@ namespace VRGreyboxing
                 {
                     GameObject widgetPoint = Instantiate(editWidgetPointPrefab, _currentEditWidget.transform);
                     widgetPoint.transform.position = worldPos;
-                    widgetPoint.transform.localScale *= ActionManager.Instance.GetCurrentSizeRatio();
+                    widgetPoint.transform.localScale = Vector3.one * (objSizeFactor*PlayModeManager.Instance.editorDataSO.widgetScaleSize);
 
                     var editPoint = widgetPoint.GetComponent<EditWidgetEditPoint>();
                     editPoint.playerEdit = this;

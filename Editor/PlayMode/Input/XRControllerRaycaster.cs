@@ -11,6 +11,7 @@ namespace VRGreyboxing
         [HideInInspector]
         public RaycastHit hit;
         public LayerMask uILayerMask;
+        public LayerMask defaultLayerMask;
         
         private void Update()
         {
@@ -18,7 +19,7 @@ namespace VRGreyboxing
 
             if (hits.Length == 0)
             {
-                if (Physics.Raycast(transform.position, transform.forward, out hit))
+                if (Physics.Raycast(transform.position, transform.forward, out hit, float.MaxValue, defaultLayerMask))
                 {
                     if (hit.collider != null && hit.collider.gameObject != _lastHit)
                     {

@@ -42,6 +42,7 @@ namespace VRGreyboxing
         public GameObject selectionMenuPrefab;
         public Sprite selectionMenuDeletionIcon;
         public Sprite selectionMenuSaveIcon;
+        public Sprite seletionMenuDuplicateIcon;
         public Sprite selectionMenuCameraIcon;
         private GameObject _selectionMenuInstance;
         public GameObject selectionMenuLoadingProgressPrefab;
@@ -79,6 +80,9 @@ namespace VRGreyboxing
         
         public GameObject scaleMenuPrefab;
         private GameObject _scaleMenuInstance;
+        
+        public GameObject movementOptionsMenuPrefab;
+        private GameObject _movementOptionsMenuInstance;
         
         private PlayerNavigation _playerNavigation;
         private PlayerTransformation _playerTransformation;
@@ -149,6 +153,7 @@ namespace VRGreyboxing
         private bool _drawingConfirmMenuChanged;
         private bool _cameraExitMenuChanged;
         private bool _cameraKeyFrameMenuChanged;
+        private bool _movementOptionsChanged;
         
         //Controller
         public GameObject leftController;
@@ -243,7 +248,7 @@ namespace VRGreyboxing
         {
             if (DebugBool)
             {
-                DisplayInventory();
+                DisplayMainMenu(leftController);
                 DebugBool = false;
             }
             
@@ -288,6 +293,10 @@ namespace VRGreyboxing
                 }
             }
             
+            
+            bool grabMove = HandleGrabMove();
+
+            
             if(cameraFigureMovement == 0 && !PlayModeManager.Instance.editorDataSO.restrictToStickMovement)
                 HandleTeleport();
 
@@ -299,7 +308,6 @@ namespace VRGreyboxing
                 }
             }
             
-            HandleGrabMove();
             if (cameraFigureMovement>5)
                 _playerNavigation.PerformLinearMovement(i_LeftStick.ReadValue<Vector2>());
             else if(leaningPossible && PlayModeManager.Instance.editorDataSO.enableStickLeaning)
@@ -319,12 +327,13 @@ namespace VRGreyboxing
             {
                 if (!_playerTransformation.usingCameraFigure)
                 {
-                    HandleInventory();
+                    if(!grabMove) HandleInventory();
+                    HandleMovementOptionsMenu();
                 }
                 else
                 {
                     HandleCameraFigureExit();
-                    HandleCameraFigureKeyFrameMenu();
+                    if(!grabMove) HandleCameraFigureKeyFrameMenu();
                 }
                 
                 HandleTransformGrab();
@@ -344,7 +353,7 @@ namespace VRGreyboxing
             {
                 HandleComSelect();
                 HandleColorMenu();
-                HandleDrawConfirmMenu();
+                if(!grabMove) HandleDrawConfirmMenu();
                 HandleComGrab();
             }
 
@@ -831,7 +840,7 @@ namespace VRGreyboxing
         }
         private void HandleInventory()
         {
-            if ((i_byLeft.IsPressed() || i_byRight.IsPressed()) && !_inventoryChanged)
+            if ((i_axLeft.IsPressed() || i_axRight.IsPressed()) && !_inventoryChanged)
             {
                 _inventoryChanged = true;
                 if (_inventoryInstance != null)
@@ -842,9 +851,28 @@ namespace VRGreyboxing
                 {
                     DisplayInventory();
                 }
-            }else if (!i_byRight.IsPressed() && !i_byLeft.IsPressed())
+            }else if (!i_axLeft.IsPressed() && !i_axRight.IsPressed())
             {
                 _inventoryChanged = false;
+            }
+        }
+
+        private void HandleMovementOptionsMenu()
+        {
+            if ((i_byLeft.IsPressed() || i_byRight.IsPressed()) && !_movementOptionsChanged)
+            {
+                _movementOptionsChanged = true;
+                if (_movementOptionsMenuInstance != null)
+                {
+                    CloseMovementOptions();
+                }
+                else
+                {
+                    DisplayMovementOptions();
+                }
+            }else if (!i_byLeft.IsPressed() && !i_byRight.IsPressed())
+            {
+                _movementOptionsChanged = false;
             }
         }
 
@@ -965,22 +993,27 @@ namespace VRGreyboxing
         #region MovementInput
         
         
-        private void HandleGrabMove()
+        private bool HandleGrabMove()
         {
             if (i_grabMoveLeft.IsPressed())
             {
                 ResetGraceTime(Handedness.Left);
                 ResetSelectionMenuTime(Handedness.Left);
+                return true;
             }
 
             if (i_grabMoveRight.IsPressed())
             {
                 ResetGraceTime(Handedness.Right);
                 ResetSelectionMenuTime(Handedness.Right);
+                return true;
             }
+            return false;
         }
         private bool HandleZoomRotation()
         {
+            
+
             if (i_triggerLeft.IsPressed() && i_triggerRight.IsPressed()&& !_grabLeft && !_grabRight)
             {
                 _playerNavigation.PerformZoomRotation(leftControllerRaycaster.hit, rightControllerRaycaster.hit,true);
@@ -1238,6 +1271,7 @@ namespace VRGreyboxing
             CloseColorPickerMenu();
             CloseSceneSelectionMenu();
             CloseKeyframeEditMenu();
+            CloseMovementOptions();
         }
         
         #region Inventory
@@ -1277,6 +1311,46 @@ namespace VRGreyboxing
         
         #endregion
 
+        #region MovementOptions
+
+        public void DisplayMovementOptions()
+        {
+            _movementOptionsMenuInstance = Instantiate(movementOptionsMenuPrefab,GetUIPosition(), Quaternion.identity);
+            _movementOptionsMenuInstance.transform.forward = xROrigin.GetComponentInChildren<Camera>().gameObject.transform.forward;
+            _movementOptionsMenuInstance.transform.localScale *= GetCurrentSizeRatio();
+
+            foreach (var dropdown in _movementOptionsMenuInstance.GetComponentsInChildren<TMP_Dropdown>())
+            {
+                if (dropdown.options.Count == 3)
+                {
+                    dropdown.value = PlayModeManager.Instance.editorDataSO.rotationMode;
+                    dropdown.onValueChanged.AddListener(delegate
+                    {
+                        PlayModeManager.Instance.editorDataSO.rotationMode = dropdown.value;
+                    });
+                }
+                else
+                {
+                    dropdown.value = PlayModeManager.Instance.editorDataSO.zoomMode;
+                    dropdown.onValueChanged.AddListener(delegate
+                    {
+                        PlayModeManager.Instance.editorDataSO.zoomMode = dropdown.value;
+                    });
+                }
+            }
+
+
+        }
+
+        public void CloseMovementOptions()
+        {
+            if(_movementOptionsMenuInstance == null) return;
+            Destroy(_movementOptionsMenuInstance);
+            _movementOptionsMenuInstance = null;
+        }
+
+        #endregion
+
         #region SelectionMenu
         private void DisplaySelectionMenu()
         {
@@ -1297,7 +1371,7 @@ namespace VRGreyboxing
             GameObject duplicationButton = Instantiate(menuOptionButtonPrefab, content.transform);
             duplicationButton.name = "Duplicate";
             duplicationButton.GetComponentInChildren<Text>().text = "Duplicate";
-            duplicationButton.GetComponentInChildren<Image>().sprite = selectionMenuDeletionIcon;
+            duplicationButton.GetComponentInChildren<Image>().sprite = seletionMenuDuplicateIcon;
             duplicationButton.AddComponent<ObjectDuplicationButton>();
             
             //CameraFigure
@@ -1567,7 +1641,8 @@ namespace VRGreyboxing
         private void StopPlaymode()
         {
             _playerTransformation.RemoveKeyFrameDisplays();
-            UnityEditor.EditorApplication.isPlaying = false;
+            PlayModeManager.Instance.ResetWorldScale();
+            EditorApplication.isPlaying = false;
         }
         
         #endregion
@@ -1602,6 +1677,7 @@ namespace VRGreyboxing
 
         public void SwitchToScene(string sceneName)
         {
+            PlayModeManager.Instance.ResetWorldScale();
             SceneManager.LoadScene(sceneName);
         }
 

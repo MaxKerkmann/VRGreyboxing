@@ -1,14 +1,16 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEditor;
+using UnityEditor.ProBuilder;
 using UnityEngine;
+using UnityEngine.ProBuilder;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 using UnityEngine.XR.Interaction.Toolkit.Locomotion.Movement;
 using UnityEngine.XR.Interaction.Toolkit.Transformers;
+using Math = System.Math;
 
 
 #if UNITY_EDITOR
@@ -273,12 +275,11 @@ namespace VRGreyboxing
             Transform t = _currentTransWidget.transform;
             Vector3 e = objBounds.extents;
             float objSizeFactor = (objBounds.size.x+ objBounds.size.y+ objBounds.size.z)/3;
-            float playerDistanceFactor = Mathf.Clamp(Vector3.Distance(ActionManager.Instance.xROrigin.transform.position, selectedObject.transform.position),0.5f,1);
             currentWidgetCenter = objBounds.center;
             foreach (var editPoint in _currentTransWidget.GetComponentsInChildren<TransWidgetEditPoint>())
             {
                 editPoint.playerTransformation = this;
-                editPoint.transform.localScale = Vector3.one * (objSizeFactor*playerDistanceFactor*PlayModeManager.Instance.editorDataSO.widgetScaleSize*ActionManager.Instance.GetCurrentSizeRatio());
+                editPoint.transform.localScale = Vector3.one * (objSizeFactor*PlayModeManager.Instance.editorDataSO.widgetScaleSize);
                 if(editPoint == currentEditPoint) continue;
                 switch (editPoint.transWidgetTransformType)
                 {
@@ -529,6 +530,13 @@ namespace VRGreyboxing
         {
             ActionManager.Instance.CloseSelectionMenu();
             GameObject go = Instantiate(selectedObject,selectedObject.transform.position,Quaternion.identity);
+            if (go.GetComponentInChildren<ProBuilderMesh>() != null)
+            {
+                var pbm = go.GetComponentInChildren<ProBuilderMesh>();
+                pbm.MakeUnique();
+                pbm.ToMesh();
+                pbm.Refresh();
+            }
             ObjectBaseState baseState = PlayModeManager.Instance.GetObjectTypeForPersistentID(go.GetComponent<PersistentID>());
             if (baseState is CreatedObject)
             {
@@ -658,6 +666,7 @@ namespace VRGreyboxing
             CharacterController characterController = xrorigin.GetComponent<CharacterController>();
             characterController.radius = 0.1f;
             characterController.height = 0.1f;
+            PlayModeManager.Instance.RegisterObjectChange(currentCameraFigure);
         }
 
         public void PlaceCameraKeyframe()

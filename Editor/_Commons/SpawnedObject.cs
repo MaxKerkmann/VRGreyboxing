@@ -79,7 +79,7 @@ namespace VRGreyboxing
             }
             keyFrames = spawnedNextState.keyFrames;
             nextState.prevState = this;
-            return base.RedoChange();
+            return nextState;
         }
     }
 }

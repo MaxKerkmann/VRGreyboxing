@@ -75,7 +75,7 @@ namespace VRGreyboxing
                 pbm.Refresh();
             }
             nextState.prevState = this;
-            return base.RedoChange();
+            return nextState;
         }
     }
 }

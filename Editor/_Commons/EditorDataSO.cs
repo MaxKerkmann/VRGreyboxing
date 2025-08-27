@@ -53,5 +53,14 @@ namespace VRGreyboxing
         public float teleportationRotationDistance;
         public float zoomMenuTime;
 
+        [Header("Usage Times")] 
+        public int restrictedRotation;
+        public int unrestrictedRotation;
+        public int teleportRotation;
+        public int gestureZoom;
+        public int menuZoom;
+        public int redo;
+        public int undo;
+
     }
 }

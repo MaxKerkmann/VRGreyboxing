@@ -37,9 +37,6 @@ namespace VRGreyboxing
         private Vector3 _playerViewCenter;
         private Vector3 _originControllerCenter;
 
-        private bool _startedZoom;
-        private bool _startedRotation;
-
         private LineRenderer _leftTeleportLine;
         private LineRenderer _rightTeleportLine;
         private Vector3 _lastTeleportPosition;
@@ -65,7 +62,9 @@ namespace VRGreyboxing
         private Vector3 _originalChildWorldPosition;
         
         private int _keyFrameIndex;
-        
+
+        private bool _performedRotation;
+        private bool _performedZoom;
         
         private void Start()
         {
@@ -113,7 +112,28 @@ namespace VRGreyboxing
                 _reachedTpTreshhold = false;
             }
 
-            if(_zoomMenuTimer >= 0) ActionManager.Instance.DisplayZoomMenu();
+            if (_performedRotation)
+            {
+                switch (PlayModeManager.Instance.editorDataSO.rotationMode)
+                {
+                    case 0:
+                        PlayModeManager.Instance.editorDataSO.restrictedRotation++;
+                        break;
+                    case 1:
+                        PlayModeManager.Instance.editorDataSO.unrestrictedRotation++;
+                        break;
+                }
+                _performedRotation = false;
+            }
+
+            if (_zoomMenuTimer >= 0)
+            {
+                ActionManager.Instance.DisplayZoomMenu();
+            }else if (_performedZoom)
+            {
+                PlayModeManager.Instance.editorDataSO.gestureZoom++;
+                _performedZoom = false;
+            }
         }
 
         public void PerformLeaning(Vector2 direction)
@@ -147,7 +167,6 @@ namespace VRGreyboxing
                 _playerViewCenter += ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.forward;
                 _originControllerCenter =
                     (_leftController.transform.position + _rightController.transform.position) / 2;
-                _startedRotation = _startedZoom = false;
 
                 if (hitLeft.collider != null && hitRight.collider != null)
                 {
@@ -160,8 +179,6 @@ namespace VRGreyboxing
                         _turnAnchor = hitLeft.point;
                     else if (hitRight.collider != null)
                         _turnAnchor = hitRight.point;
-                    else
-                        _startedZoom = true;
                 }
 
                 movementCounter = 1;
@@ -195,7 +212,7 @@ namespace VRGreyboxing
 
                     if (leftControllerSide == rightControllerSide)
                     {
-                        _startedRotation = true;
+                        _performedRotation = true;
                         PerformRestrictedRotation(leftControllerSide);
                     }
                 }
@@ -220,7 +237,7 @@ namespace VRGreyboxing
                     _displayBorderInstance.GetComponent<InputIndicatorVisualHelp>().DisplayIndicators(movementInput,PlayModeManager.Instance.editorDataSO.freeRotationCenterDistance*ActionManager.Instance.GetCurrentSizeRatio(),_displayInstance,0,PlayModeManager.Instance.editorDataSO.rotationMode,PlayModeManager.Instance.editorDataSO.enableTeleportRotationLeaning);
                     if (movementInput.magnitude > PlayModeManager.Instance.editorDataSO.freeRotationCenterDistance*ActionManager.Instance.GetCurrentSizeRatio())
                     {
-                        _startedRotation = true;
+                        _performedRotation = true;
                         PerformUnrestrictedRotation(movementInput, controllerCenter);
                     }
                 }
@@ -362,6 +379,8 @@ namespace VRGreyboxing
                 _originTransform.up = Vector3.up;
                 _originTransform.rotation = Quaternion.LookRotation(new Vector3(_turnAnchorObject.transform.position.x - _originTransform.position.x, 0, _turnAnchorObject.transform.position.z - _originTransform.position.z));
             }
+
+            PlayModeManager.Instance.editorDataSO.teleportRotation++;
         }
         
         private void PerformRestrictedRotation(Handedness controllerSide)
@@ -393,21 +412,23 @@ namespace VRGreyboxing
             var zoomCalc = oldDistance > newDistance ? oldDistance / newDistance : newDistance / oldDistance;
             zoomCalc -= 1;
             int zoom = (int)(zoomCalc / PlayModeManager.Instance.editorDataSO.zoomStep);
-            zoom = oldDistance > newDistance ? zoom : -zoom;
+            zoom = oldDistance < newDistance ? zoom : -zoom;
             Vector3 playerPos = ActionManager.Instance.xROrigin.transform.GetComponentInChildren<Camera>().transform.position;
             if (zoom != 0)
             {
-                var scaleValue = ActionManager.Instance.xROrigin.transform.localScale.x;
-                if((Mathf.Approximately(scaleValue, PlayModeManager.Instance.editorDataSO.maximumZoom) && oldDistance > newDistance)||(Mathf.Approximately(scaleValue, PlayModeManager.Instance.editorDataSO.minimumZoom) && oldDistance < newDistance)) return;
+                var scaleValue = PlayModeManager.Instance.currentWorldScaler.scale;
+                if((Mathf.Approximately(scaleValue, PlayModeManager.Instance.editorDataSO.maximumZoom) && oldDistance < newDistance)||(Mathf.Approximately(scaleValue, PlayModeManager.Instance.editorDataSO.minimumZoom) && oldDistance > newDistance)) return;
+        
                 float zoomValue = Mathf.Clamp(scaleValue + zoom * PlayModeManager.Instance.editorDataSO.zoomStep, PlayModeManager.Instance.editorDataSO.minimumZoom, PlayModeManager.Instance.editorDataSO.maximumZoom);
-                ActionManager.Instance.xROrigin.transform.localScale = new Vector3(zoomValue, zoomValue, zoomValue);
+                /*ActionManager.Instance.xROrigin.transform.localScale = new Vector3(zoomValue, zoomValue, zoomValue);
                 ActionManager.Instance.xROrigin.transform.Translate(Camera.main.transform.forward * (PlayModeManager.Instance.editorDataSO.zoomMoveDistancePerStep * -zoom), Space.World);
                 LineRenderer[] lines = ActionManager.Instance.xROrigin.GetComponentsInChildren<LineRenderer>(true);
                 foreach (LineRenderer l in lines)
                 {
                     l.startWidth = zoomValue * _lineSizePlayerRatio;
                     l.endWidth = zoomValue * _lineSizePlayerRatio;
-                }
+                }*/
+                PlayModeManager.Instance.currentWorldScaler.SetScale(zoomValue);
 
                 _leftControllerZoomOrigin = _leftController.transform.position;
                 _rightControllerZoomOrigin = _rightController.transform.position;
@@ -415,20 +436,22 @@ namespace VRGreyboxing
                 _playerViewCenter = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
                 _playerViewCenter += ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.forward;
                 ActionManager.Instance.RefreshCurrentWidget();
-                ActionManager.Instance.DisplayCameraOverlay("New size:"+zoomValue,2);
+                ActionManager.Instance.DisplayCameraOverlay("New size:"+ 1 / zoomValue,2);
+                _performedZoom = true;
             }
         }
 
         public void PerformMenuZoom(float sizeValue)
         {
-            ActionManager.Instance.xROrigin.transform.localScale = new Vector3(sizeValue, sizeValue, sizeValue);
+            PlayModeManager.Instance.currentWorldScaler.SetScale(1/sizeValue);
+            //ActionManager.Instance.xROrigin.transform.localScale = new Vector3(sizeValue, sizeValue, sizeValue);
             Vector3 playerPos = ActionManager.Instance.xROrigin.transform.GetComponentInChildren<Camera>().transform.position;
-            LineRenderer[] lines = ActionManager.Instance.xROrigin.GetComponentsInChildren<LineRenderer>(true);
+            /*LineRenderer[] lines = ActionManager.Instance.xROrigin.GetComponentsInChildren<LineRenderer>(true);
             foreach (LineRenderer l in lines)
             {
                 l.startWidth = sizeValue * _lineSizePlayerRatio;
                 l.endWidth = sizeValue * _lineSizePlayerRatio;
-            }
+            }*/
 
             _leftControllerZoomOrigin = _leftController.transform.position;
             _rightControllerZoomOrigin = _rightController.transform.position;
@@ -436,6 +459,7 @@ namespace VRGreyboxing
             _playerViewCenter = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
             _playerViewCenter += ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.forward;
             ActionManager.Instance.RefreshCurrentWidget();
+            PlayModeManager.Instance.editorDataSO.menuZoom++;
         }
         
         public void PerformTeleportRaycast(Handedness handedness)

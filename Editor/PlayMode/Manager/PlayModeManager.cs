@@ -20,6 +20,8 @@ namespace VRGreyboxing
         private List<ObjectBaseState> _actionStack;
         private int _actionStackIndex;
         
+        public WorldScaler currentWorldScaler;
+        
 
         private static readonly HashSet<Type> AllowedTypes = new HashSet<Type>
         {
@@ -151,6 +153,31 @@ namespace VRGreyboxing
             return result;
         }
 
+        public void PlaceWorldScaler()
+        {
+            GameObject worldScaler = new GameObject("WorldScaler");
+            worldScaler.transform.position = Vector3.zero;
+            currentWorldScaler = worldScaler.AddComponent<WorldScaler>();
+            Scene scene = SceneManager.GetActiveScene();
+            foreach (var root in scene.GetRootGameObjects())
+            {
+                root.transform.SetParent(worldScaler.transform);
+            }
+
+        }
+
+        public void ResetWorldScale()
+        {
+            if(currentWorldScaler == null) return;
+            currentWorldScaler.SetScale(1);
+            foreach (var objectState in editorDataSO.objectStates)
+            {
+                if(objectState.gameObject.scene != SceneManager.GetActiveScene()) continue;
+                objectState.Position = objectState.gameObject.transform.position;
+                objectState.Scale = objectState.gameObject.transform.localScale;
+            }
+        }
+
         public void RegisterObjectChange(GameObject obj,bool firstSelection = false, int prefabIndex = -1, bool objectCreation = false, bool objectDeletion = false, string basePersistentID = "",string parentPersitendID = "",List<Vector3> basePositions = null,bool flipVertices = false,List<List<Vector3>> markPoints = null,List<Vector3> drawingOffsets = null,List<Vector3> colliderCenters = null,List<Vector3> colliderSizes = null,List<Color> colors = null,List<float> lineWidths = null,CameraFigure cameraFigure = null)
         {
 
@@ -198,6 +225,10 @@ namespace VRGreyboxing
                     {
                         justCreated = true
                     };
+                if (obj.GetComponent<CameraFigure>() != null)
+                {
+                    spawnedObj.keyFrames = obj.GetComponent<CameraFigure>().keyFrames;
+                }
                 editorDataSO.objectStates.Add(spawnedObj);
                 _actionStack.Add(spawnedObj);
                 _actionStackIndex++;
@@ -287,7 +318,7 @@ namespace VRGreyboxing
                             editorDataSO.objectStates[editorDataSO.objectStates.IndexOf(baseState)] = spawnedObject;
                             if (baseState.Untouched)
                                 _actionStackIndex++;
-                            _actionStack[_actionStackIndex] = spawnedState;
+                            _actionStack[_actionStackIndex] = spawnedObject;
                             break;
                         }
                         case CreatedObject:
@@ -302,7 +333,7 @@ namespace VRGreyboxing
                             editorDataSO.objectStates[editorDataSO.objectStates.IndexOf(baseState)] = createdObject;
                             if (baseState.Untouched)
                                 _actionStackIndex++;
-                            _actionStack[_actionStackIndex] = createdState;
+                            _actionStack[_actionStackIndex] = createdObject;
                             break;
                         }
                         case MarkerObject:
@@ -314,7 +345,7 @@ namespace VRGreyboxing
                             editorDataSO.objectStates[editorDataSO.objectStates.IndexOf(baseState)] = markerObject;
                             if (baseState.Untouched)
                                 _actionStackIndex++;
-                            _actionStack[_actionStackIndex] = markerState;
+                            _actionStack[_actionStackIndex] = markerObject;
                             break;
                     }
                 }
@@ -348,6 +379,7 @@ namespace VRGreyboxing
             {
                 _actionStack[_actionStackIndex] = _actionStack[_actionStackIndex].UndoChange();
                 editorDataSO.objectStates[editorDataSO.objectStates.IndexOf(editorDataSO.objectStates.FirstOrDefault(obs => obs.persisentID == _actionStack[_actionStackIndex].persisentID))] = _actionStack[_actionStackIndex];
+                editorDataSO.undo++;
             }
             else
             {
@@ -365,6 +397,7 @@ namespace VRGreyboxing
             {
                 _actionStack[_actionStackIndex] = _actionStack[_actionStackIndex].RedoChange();
                 editorDataSO.objectStates[editorDataSO.objectStates.IndexOf(editorDataSO.objectStates.FirstOrDefault(obs => obs.persisentID == _actionStack[_actionStackIndex].persisentID))] = _actionStack[_actionStackIndex];
+                editorDataSO.redo++;
             }
             else
             {

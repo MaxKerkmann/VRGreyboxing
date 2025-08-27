@@ -9,6 +9,7 @@ namespace VRGreyboxing
         private void Awake()
         {
             PlayModeManager.Instance.StripComponentsInCurrentScene();
+            PlayModeManager.Instance.PlaceWorldScaler();
         }
     }
 }

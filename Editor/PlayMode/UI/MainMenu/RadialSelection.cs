@@ -100,7 +100,7 @@ public class RadialSelection : MonoBehaviour
             optionIcon.transform.position = transform.position + new Vector3(0,0,-1)* mainMenuCanvas.localScale.x + partVector * (optionRadius * ActionManager.Instance.GetCurrentSizeRatio() * mainMenuCanvas.localScale.x);
             optionIcon.transform.eulerAngles = Vector3.zero;
             optionIcon.GetComponent<Image>().sprite = optionImages[i];
-            optionIcon.transform.forward = -usedController.transform.forward;
+            //optionIcon.transform.forward = -usedController.transform.forward;
             optionIcon.transform.right = usedController.transform.right;
             radialPart.GetComponent<Image>().fillAmount = (1 / (float)_numberOfParts) - (angleSpacing/360);
             

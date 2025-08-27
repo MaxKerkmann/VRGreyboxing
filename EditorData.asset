@@ -37,12 +37,15 @@ MonoBehaviour:
   createdObjectMaterial: {fileID: 2100000, guid: dedb0a07c48453d4d89e25028f3bd602, type: 2}
   drawingMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
   sceneCleanUpPrefab: {fileID: 6608961106011826283, guid: a5bc67c07d0321d419192b2cdd856d23, type: 3}
-  lastOpenScene: Assets/Scenes/TestScene.unity
+  lastOpenScene: Assets/Scenes/Spielwiese.unity
   sceneNames:
-  - TestScene
+  - Spielwiese
+  - VR_Chris
+  - VR_Jasmin
+  - VR_Nils
   objectStates: []
   zoomMode: 0
-  rotationMode: 2
+  rotationMode: 0
   restrictToStickMovement: 0
   restrictToTeleport: 0
   enableStickLeaning: 1
@@ -54,11 +57,18 @@ MonoBehaviour:
   maximumZoom: 3
   zoomStep: 0.01
   startingSize: 1
-  rotationSpeed: 2
+  rotationSpeed: 1
   movementSpeed: 1
   leaningSpeed: 15
-  zoomMoveDistancePerStep: 0.01
+  zoomMoveDistancePerStep: 0.1
   maxTeleportDistance: 20
-  freeRotationCenterDistance: 0.2
+  freeRotationCenterDistance: 0.15
   teleportationRotationDistance: 0.2
   zoomMenuTime: 0.25
+  restrictedRotation: 8
+  unrestrictedRotation: 7
+  teleportRotation: 5
+  gestureZoom: 9
+  menuZoom: 0
+  redo: 3
+  undo: 29

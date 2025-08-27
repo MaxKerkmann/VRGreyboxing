@@ -102,6 +102,7 @@ MonoBehaviour:
   selectionMenuPrefab: {fileID: 5905599720372585868, guid: 17c4bc9dcbec09648bddb85db7b2b840, type: 3}
   selectionMenuDeletionIcon: {fileID: 21300000, guid: 5a904862f6216fd4ca2ffc700fb835ae, type: 3}
   selectionMenuSaveIcon: {fileID: 21300000, guid: caab167dd9beac243a8514d54905d316, type: 3}
+  seletionMenuDuplicateIcon: {fileID: 21300000, guid: 17d565bb4a7744b41b7e4dc7e3a09e35, type: 3}
   selectionMenuCameraIcon: {fileID: 21300000, guid: 87a5c1247ee01cc4fb28e6ac837a27db, type: 3}
   selectionMenuLoadingProgressPrefab: {fileID: 9033754499742086654, guid: ea9a8eebc31d2f140a1f8e211d06b8d7, type: 3}
   keyFrameMenuPrefab: {fileID: 5515986221704593658, guid: 4af339c5438b4e54fb4b2eb6eabc8f27, type: 3}
@@ -112,21 +113,22 @@ MonoBehaviour:
   confirmCancelIcon: {fileID: 21300000, guid: 5a904862f6216fd4ca2ffc700fb835ae, type: 3}
   mainMenuPrefab: {fileID: 2851054162058085026, guid: 02c21b4381799884d9ea1dd92ce78a2d, type: 3}
   mainMenuOptionSprites:
-  - {fileID: 21300000, guid: 87a5c1247ee01cc4fb28e6ac837a27db, type: 3}
-  - {fileID: 21300000, guid: 87a5c1247ee01cc4fb28e6ac837a27db, type: 3}
-  - {fileID: 21300000, guid: 87a5c1247ee01cc4fb28e6ac837a27db, type: 3}
-  - {fileID: 21300000, guid: 87a5c1247ee01cc4fb28e6ac837a27db, type: 3}
-  - {fileID: 21300000, guid: 87a5c1247ee01cc4fb28e6ac837a27db, type: 3}
+  - {fileID: 21300000, guid: 972c01d382da9064aab961a31ae37496, type: 3}
+  - {fileID: 21300000, guid: aede9625680aabf4a9882635e6aaad0f, type: 3}
+  - {fileID: 21300000, guid: be6309984247c1c40af387b4deb38efb, type: 3}
+  - {fileID: 21300000, guid: 227f581289d591b4a9d31873af7ceef6, type: 3}
+  - {fileID: 21300000, guid: b3e7f137b22da254c8f4128d46672d5d, type: 3}
   mainMenuOptionNames:
   - Transformation
   - Edit
-  - Comms
+  - Paint
   - Close
   - Scenes
   sceneMenuPrefab: {fileID: 6528917115449524576, guid: 3de1c9583a36c0f459ee237ffdfbdec7, type: 3}
   sceneSelectButtonPrefab: {fileID: 6215720905016385109, guid: a18c7bffd214a674f9d2673f5161594e, type: 3}
   colorPickerPrefab: {fileID: 2376695874309055911, guid: ed2a60450f7024140a591b44f8a2e435, type: 3}
   scaleMenuPrefab: {fileID: 2281393362357322311, guid: a7a67921a6b881045bcf40b9caee8cd0, type: 3}
+  movementOptionsMenuPrefab: {fileID: 3302308408210046888, guid: a40b5b5c867131447904c55f30178060, type: 3}
   leaningPossible: 0
   sceneMenuAnchor: {fileID: 0}
   cameraFigureMovement: 0
@@ -148,16 +150,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 238a67090cde443449c16a0c34b1753e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  zoomMoveDistancePerStep: 0.05
-  rotationFactor: 2
-  maxTeleportDistance: 20
-  freeRotationCenterDistance: 0.1
-  teleportationRotationDistance: 0.15
-  leaningSpeed: 20
-  zoomMenuTime: 0.25
-  movementSpeed: 1
-  performLateTeleport: 1
-  teleportRotationWithLeaning: 0
   navigationInputDisplay: {fileID: 5064053430091179792, guid: 9509b79ef3c9a1944a4979f71a12828a, type: 3}
   navigationInputDisplayBorder: {fileID: 1115197594339449303, guid: eb9ed222853ca3542b2e2677d717016d, type: 3}
   movementCounter: 0
@@ -320,6 +312,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   editorDataSO: {fileID: 11400000, guid: 28217b637d78f6b4a9373f25ff6b47bd, type: 2}
+  currentWorldScaler: {fileID: 0}
 --- !u!1 &4434459673910672713
 GameObject:
   m_ObjectHideFlags: 0
@@ -553,6 +546,14 @@ PrefabInstance:
       propertyPath: m_InteractionManager
       value: 
       objectReference: {fileID: 4315868942664205295}
+    - target: {fileID: 1880070436443781296, guid: 0a805b7325a1a974298ff405e6568e04, type: 3}
+      propertyPath: m_CullingMask.m_Bits
+      value: 215
+      objectReference: {fileID: 0}
+    - target: {fileID: 2341268075570443232, guid: 0a805b7325a1a974298ff405e6568e04, type: 3}
+      propertyPath: defaultLayerMask.m_Bits
+      value: 33
+      objectReference: {fileID: 0}
     - target: {fileID: 4642050565917605448, guid: 0a805b7325a1a974298ff405e6568e04, type: 3}
       propertyPath: m_ActionAssets.Array.size
       value: 2
@@ -589,6 +590,10 @@ PrefabInstance:
       propertyPath: m_UIHoverEntered.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 3836881422026595809}
+    - target: {fileID: 8700406162181115781, guid: 0a805b7325a1a974298ff405e6568e04, type: 3}
+      propertyPath: defaultLayerMask.m_Bits
+      value: 33
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 1178341087320851568, guid: 0a805b7325a1a974298ff405e6568e04, type: 3}
     - {fileID: 836334680991541641, guid: 0a805b7325a1a974298ff405e6568e04, type: 3}

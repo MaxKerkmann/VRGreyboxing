@@ -35,7 +35,7 @@ namespace VRGreyboxing
                 prefabButton.name = availablePrefab.name;
                 prefabButton.GetComponentInChildren<Text>().text = availablePrefab.name;
                 prefabButton.GetComponentInChildren<Text>().gameObject.transform.localPosition = new Vector3(
-                    prefabButton.GetComponentInChildren<Text>().gameObject.transform.localPosition.x, -40,
+                    prefabButton.GetComponentInChildren<Text>().gameObject.transform.localPosition.x, -50,
                     prefabButton.GetComponentInChildren<Text>().gameObject.transform.localPosition.z);
                 Texture2D preview = AssetPreview.GetAssetPreview(availablePrefab); 
                 if (preview != null)

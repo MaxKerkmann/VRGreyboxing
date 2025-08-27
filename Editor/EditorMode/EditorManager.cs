@@ -111,7 +111,20 @@ namespace VRGreyboxing
 
             
             obj.position = Vector3.zero;
+            ResetUsageTimes();
+            
             EditorApplication.EnterPlaymode();
+        }
+
+        private static void ResetUsageTimes()
+        {
+            editorDataSo.restrictedRotation = 0;
+            editorDataSo.unrestrictedRotation = 0;
+            editorDataSo.teleportRotation = 0;
+            editorDataSo.gestureZoom = 0;
+            editorDataSo.menuZoom = 0;
+            editorDataSo.undo = 0;
+            editorDataSo.redo = 0;
         }
 
         private static List<GameObject> GetAvailablePrefabs()
@@ -214,6 +227,7 @@ namespace VRGreyboxing
         {
             if (newState == PlayModeStateChange.EnteredEditMode && editorDataSo.usingGreyboxingEditor)
             {
+                PlayModeManager.Instance.ResetWorldScale();
                 ApplySceneChanges();
                 PrepareScenes(true);
                 Scene scene = EditorSceneManager.OpenScene(editorDataSo.lastOpenScene);
@@ -240,15 +254,18 @@ namespace VRGreyboxing
                     }
                     else if (objectState is SpawnedObject spawnedObject)
                     {
+                        if(spawnedObject.OriginalScenePath != scene.path) continue;
                         found = true;
                         SpawnObject(spawnedObject,scene);
                     }else if (objectState is CreatedObject createdObject)
                     {
+                        if(createdObject.OriginalScenePath != scene.path) continue;
                         found = true;
                         CreateObject(createdObject,scene);
                     }
                     else if (objectState is MarkerObject markerObject)
                     {
+                        if(markerObject.originalScenePath != scene.path) continue;
                         found = true;
                         DrawObject(markerObject,scene);
                     }
@@ -277,12 +294,24 @@ namespace VRGreyboxing
             Transform obj = ((GameObject)PrefabUtility.InstantiatePrefab(editorDataSo.availablePrefabs[spawnedObject.prefabIndex],scene)).transform;
             obj.SetPositionAndRotation(spawnedObject.Position, spawnedObject.Rotation);
             obj.localScale = spawnedObject.Scale;
+            if (obj.GetComponentInChildren<ProBuilderMesh>() != null)
+            {
+                var pbm = obj.GetComponentInChildren<ProBuilderMesh>();
+                pbm.MakeUnique();
+                pbm.ToMesh();
+                pbm.Refresh();
+            }
             if (spawnedObject.alteredPositions.Count > 0)
             {
                 ProBuilderMesh pbm = obj.GetComponent<ProBuilderMesh>();
                 pbm.positions = spawnedObject.alteredPositions.ToArray();
                 pbm.ToMesh();
                 pbm.Refresh();
+            }
+            if (spawnedObject.keyFrames != null)
+            {
+                obj.gameObject.GetComponent<CameraFigure>().keyFrames = spawnedObject.keyFrames;
+                EditorUtility.SetDirty( obj.gameObject.GetComponent<CameraFigure>());
             }
         }
 
@@ -373,7 +402,7 @@ namespace VRGreyboxing
             PersistentID persistentID = root.GetComponent<PersistentID>();
             if(persistentID == null) return;
 
-            foreach (var key in editorDataSo.objectStates.Where(state => state is SpawnedObject))
+            foreach (var key in editorDataSo.objectStates.Where(state => state is SpawnedObject && !state.disabled))
             {
                 SpawnedObject duplication = key as SpawnedObject;
                 if (duplication != null && duplication.basePersistentID == persistentID.uniqueId)
@@ -384,6 +413,13 @@ namespace VRGreyboxing
                     obj.name = "Duplicate of " + root.name;
                     objTrans.SetPositionAndRotation(duplication.Position, duplication.Rotation);
                     objTrans.localScale = duplication.Scale;
+                    if (obj.GetComponentInChildren<ProBuilderMesh>() != null)
+                    {
+                        var pbm = obj.GetComponentInChildren<ProBuilderMesh>();
+                        pbm.MakeUnique();
+                        pbm.ToMesh();
+                        pbm.Refresh();
+                    }
                     if (duplication.alteredPositions.Count > 0)
                     {
                         obj.GetComponent<ProBuilderMesh>().positions = duplication.alteredPositions.ToArray();
@@ -537,6 +573,7 @@ namespace VRGreyboxing
         
         public static void StartCameraPath(CameraFigure cameraFigure)
         {
+            if(cameraFigure.keyFrames.Count == 0) return;
             isRunning = true;
             startTime = (float)EditorApplication.timeSinceStartup;
             EditorApplication.update += Update;

@@ -747,7 +747,6 @@ GameObject:
   - component: {fileID: 4519004507320555649}
   - component: {fileID: 6875123528333585992}
   - component: {fileID: 5055429886891694566}
-  - component: {fileID: 1633992823677490659}
   m_Layer: 5
   m_Name: SceneSelectionMenu
   m_TagString: Untagged
@@ -883,19 +882,6 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
---- !u!114 &1633992823677490659
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6528917115449524576}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9996ba65d91f1cc459f51c7c4c1ccfda, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  inventoryOptionButtonPrefab: {fileID: 8048543734897224155, guid: 078e7421747695c45ac9af66c758a389, type: 3}
 --- !u!1 &6638176102482557444
 GameObject:
   m_ObjectHideFlags: 0
