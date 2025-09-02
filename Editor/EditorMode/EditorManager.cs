@@ -18,6 +18,9 @@ using Object = UnityEngine.Object;
 
 namespace VRGreyboxing
 {
+    /**
+     * Manager class holding main logic for edit mode processes
+     */
     [InitializeOnLoad]
     public static class EditorManager
     {
@@ -46,9 +49,6 @@ namespace VRGreyboxing
         private static int keyframeIndex;
         private static Vector3 camStartPos;
         private static Quaternion camStartRot;
-
-
-
         
 
         static EditorManager()
@@ -57,10 +57,14 @@ namespace VRGreyboxing
             EditorApplication.playModeStateChanged += OnPlayModeChanged;
         }
         
+        /**
+         * Start greyboxing process
+         */
         public static void StartGreyboxing()
         {
             if (EditorApplication.isPlaying) return;
 
+            //Setup tags
             if (!editorDataSo.setupTags)
             {
                 foreach (var tag in editorDataSo.tags)
@@ -69,26 +73,23 @@ namespace VRGreyboxing
                         new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset")[0]);
                     SerializedProperty tagsProp = tagManager.FindProperty("tags");
                     bool exsists = false;
-                    // First check if the tag already exists
                     for (int i = 0; i < tagsProp.arraySize; i++)
                     {
                         SerializedProperty t = tagsProp.GetArrayElementAtIndex(i);
-                        if (t.stringValue.Equals(tag)) exsists = true; // Tag already exists
+                        if (t.stringValue.Equals(tag)) exsists = true;
                     }
 
                     if (!exsists)
                     {
-                        // Otherwise, add new tag
                         tagsProp.InsertArrayElementAtIndex(tagsProp.arraySize);
                         tagsProp.GetArrayElementAtIndex(tagsProp.arraySize - 1).stringValue = tag;
-
                         tagManager.ApplyModifiedProperties();
                     }
                 }
                 editorDataSo.setupTags = true;
             }
             
-            EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
+            //Initialize data
             editorDataSo.lastOpenScene = SceneManager.GetActiveScene().path;
             editorDataSo.usingGreyboxingEditor = true;
             editorDataSo.objectStates = new List<ObjectBaseState>();
@@ -96,6 +97,8 @@ namespace VRGreyboxing
             editorDataSo.sceneNames = GetAllScenes();
             
             PrepareScenes(false);
+            
+            //Create initial hub scene
             Scene baseScene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene);
             Transform obj = ((GameObject)PrefabUtility.InstantiatePrefab(editorDataSo.editorBasePrefab)).transform;
             SceneManager.MoveGameObjectToScene(obj.gameObject,baseScene);
@@ -127,6 +130,9 @@ namespace VRGreyboxing
             editorDataSo.redo = 0;
         }
 
+        /**
+         * Get all prefabs in projekt file or just those in configured folders
+         */
         private static List<GameObject> GetAvailablePrefabs()
         {
             List<GameObject> result = new List<GameObject>(2);
@@ -189,15 +195,16 @@ namespace VRGreyboxing
                 int insertIndex = result.FindLastIndex(go => go.CompareTag("VRG_SpawnableObject")) + 1;
                 result.Insert(insertIndex, cameraFigure);
             }
-            
-            
             return result;
         }
+        
+        /**
+         * Find all scene names in project
+         */
         private static List<string> GetAllScenes()
         {
             List<string> scenes = new List<string>();
 
-            // Get build scenes
             List<string> buildScenePaths = new List<string>();
             foreach (var scene in EditorBuildSettings.scenes)
             {
@@ -205,7 +212,6 @@ namespace VRGreyboxing
                     buildScenePaths.Add(scene.path);
             }
 
-            // Get all scene files in Assets
             string[] allScenePaths = Directory.GetFiles("Assets", "*.unity", SearchOption.AllDirectories);
 
             foreach (string path in allScenePaths)
@@ -227,14 +233,21 @@ namespace VRGreyboxing
         {
             if (newState == PlayModeStateChange.EnteredEditMode && editorDataSo.usingGreyboxingEditor)
             {
-                PlayModeManager.Instance.ResetWorldScale();
                 ApplySceneChanges();
                 PrepareScenes(true);
                 Scene scene = EditorSceneManager.OpenScene(editorDataSo.lastOpenScene);
                 editorDataSo.usingGreyboxingEditor = false;
             }
-        }
 
+            if (newState == PlayModeStateChange.ExitingPlayMode && editorDataSo.usingGreyboxingEditor)
+            {
+                PlayModeManager.Instance.ResetWorldScale();
+            }
+        }
+        
+        /**
+         * Apply all saves changes from greyboxing phase in vr to scenes in edit mode
+         */
         private static void ApplySceneChanges()
         {
             _scenePaths = AssetDatabase.FindAssets("t:Scene").ToList();
@@ -248,7 +261,7 @@ namespace VRGreyboxing
                 foreach (var objectState in editorDataSo.objectStates)
                 {
                     bool found = false;
-                    if (objectState.disabled)
+                    if (objectState.disabled || objectState.Deleted)
                     {
                         found = true;
                     }
@@ -284,7 +297,6 @@ namespace VRGreyboxing
                     editorDataSo.objectStates.Remove(removedKey);
                 }
                 EditorSceneManager.MarkSceneDirty(scene);
-                EditorSceneManager.SaveScene(scene);
             }
         }
 
@@ -396,9 +408,12 @@ namespace VRGreyboxing
             containerCollider.enabled = false;
         }
 
+        
+        /**
+         * Apply changes made to already existing objects in scenes
+         */
         private static void ApplyChangesRecursively(GameObject root)
         {
-            
             PersistentID persistentID = root.GetComponent<PersistentID>();
             if(persistentID == null) return;
 
@@ -467,6 +482,9 @@ namespace VRGreyboxing
             }
         }
 
+        /**
+         * Iterate through scenes and prepare them for play- or edit-mode
+         */
         private static void PrepareScenes(bool remove)
         {
             _scenePaths = AssetDatabase.FindAssets("t:Scene").ToList();
@@ -525,6 +543,9 @@ namespace VRGreyboxing
             return scenes;
         }
 
+        /**
+         * Add persistent id to all objects in scenes
+         */
         private static void AssignIDsRecursive(Transform root)
         {
             var id = root.GetComponent<PersistentID>();
@@ -547,6 +568,9 @@ namespace VRGreyboxing
             }
         }
 
+        /**
+         * Remove persistent id of objects after returning to edit mode
+         */
         private static void RemoveIDsRecursive(Transform root)
         {
             var id = root.GetComponent<PersistentID>();
@@ -571,7 +595,10 @@ namespace VRGreyboxing
             }
         }
         
-        public static void StartCameraPath(CameraFigure cameraFigure)
+        /**
+         * Initialize camera movement for keyframes from camera figure
+         */
+        public static void StartCameraMovement(CameraFigure cameraFigure)
         {
             if(cameraFigure.keyFrames.Count == 0) return;
             isRunning = true;
@@ -618,10 +645,13 @@ namespace VRGreyboxing
                 currentRuntime = moveTime > rotateTime ? moveTime : rotateTime;
             }
             
-            UpdateCameraPath(elapsedTime);
+            UpdateCameraMovement(elapsedTime);
         }
 
-        private static void UpdateCameraPath(float elapsedTime)
+        /**
+         * Interpolate camera between each camera figure keyframe
+         */
+        private static void UpdateCameraMovement(float elapsedTime)
         {
             Vector3 cameraPosition = Vector3.Lerp(camStartPos,keyframes[keyframeIndex].cameraPosition,elapsedTime/currentRuntime);
             Quaternion cameraRotation = Quaternion.Slerp(camStartRot,keyframes[keyframeIndex].cameraRotation,elapsedTime/currentRuntime);

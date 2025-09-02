@@ -351,12 +351,9 @@ namespace VRGreyboxing
             Bounds objBounds = selectedObject.GetComponentInChildren<Renderer>() != null ? selectedObject.GetComponentInChildren<Renderer>().bounds : selectedObject.GetComponentInChildren<Collider>().bounds;
             float objSizeFactor = (objBounds.size.x+ objBounds.size.y+ objBounds.size.z)/3;
 
-            // Detect flat mesh
             bool isFlat = IsMeshFlat(worldPositions, 0.001f);
 
-            // --- EDGE MARKERS ---
             Dictionary<Vector3Int, EditWidgetEditPoint> edgeMarkersByRoundedCenter = new Dictionary<Vector3Int, EditWidgetEditPoint>();
-
             
             foreach (var face in pbm.faces)
             {
@@ -392,7 +389,6 @@ namespace VRGreyboxing
                 }
             }
 
-            // --- CORNER MARKERS ---
             Dictionary<Vector3Int, EditWidgetEditPoint> cornerMarkers = new Dictionary<Vector3Int, EditWidgetEditPoint>();
 
             foreach (var shared in pbm.sharedVertices)

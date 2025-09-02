@@ -3,6 +3,9 @@ using UnityEngine.UI;
 
 namespace VRGreyboxing
 {
+    /**
+     * Indicator visualization for rotation modes
+     */
     public class InputIndicatorVisualHelp : MonoBehaviour
     {
         public Image turnLeftIndicator;

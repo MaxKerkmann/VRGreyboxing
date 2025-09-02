@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace VRGreyboxing
 {
+    /**
+     * Raycasting from player controllers to find currently hovered object by player
+     */
     public class XRControllerRaycaster : MonoBehaviour
     {
         public Transform pokePointTransform;

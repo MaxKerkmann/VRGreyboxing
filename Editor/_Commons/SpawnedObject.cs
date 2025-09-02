@@ -12,11 +12,12 @@ namespace VRGreyboxing
         public string basePersistentID;
         public string OriginalScenePath;
 
-        public SpawnedObject(GameObject gameObject, string persistentId,Vector3 position, Quaternion rotation, Vector3 scale,List<Vector3> positions, int prefabIndex, string scene,string basePersistentID) : base(gameObject,persistentId,position, rotation, scale,positions)
+        public SpawnedObject(GameObject gameObject, string persistentId,Vector3 position, Quaternion rotation, Vector3 scale,bool deleted,List<Vector3> positions, int prefabIndex, string scene,string basePersistentID) : base(gameObject,persistentId,position, rotation, scale,positions)
         {
             this.prefabIndex = prefabIndex;
             this.OriginalScenePath = scene;
             this.basePersistentID = basePersistentID;
+            this.Deleted = deleted;
         }
 
         public override ObjectBaseState UndoChange()

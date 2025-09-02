@@ -6,6 +6,9 @@ using System;
 
 namespace VRGreyboxing
 {
+    /**
+     * Persistent id to identify objects in scenes
+     */
     [ExecuteAlways]
     public class PersistentID : MonoBehaviour
     {

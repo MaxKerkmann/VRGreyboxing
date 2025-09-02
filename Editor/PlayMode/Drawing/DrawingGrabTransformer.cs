@@ -6,6 +6,10 @@ using UnityEngine.XR.Interaction.Toolkit.Transformers;
 
 namespace VRGreyboxing
 {
+    
+    /**
+     * Grabtransformer to enable grabbing and moving from created marks in the scene
+     */
     public class DrawingGrabTransformer : XRBaseGrabTransformer, IFarAttachProvider
     {
         public InteractableFarAttachMode farAttachMode { get; set; }

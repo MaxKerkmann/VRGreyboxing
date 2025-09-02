@@ -6,6 +6,9 @@ using UnityEngine.SceneManagement;
 
 namespace VRGreyboxing
 {
+    /**
+     * Costum ui window for greyboxing configuration
+     */
     public class EditorWindow : UnityEditor.EditorWindow
     {
         
@@ -24,8 +27,6 @@ namespace VRGreyboxing
         private void OnGUI()
         {
             GUILayout.Label("VR Greyboxing Options", EditorStyles.boldLabel);
-
-
             
             if (GUILayout.Button("Start Greyboxing"))
             {

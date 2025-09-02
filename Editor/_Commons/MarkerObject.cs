@@ -18,7 +18,7 @@ namespace VRGreyboxing
 
 
 
-        public MarkerObject(GameObject gameObject, string persisentID, Vector3 position, Quaternion rotation, Vector3 scale, List<Vector3> alteredPositions,string originalScenePath, List<List<Vector3>> markPoints,List<Vector3> drawingOffsets, List<Vector3> colliderCenters, List<Vector3> colliderSizes,List<Color> colors,List<float> lineWidths) : base(gameObject, persisentID, position, rotation, scale, alteredPositions)
+        public MarkerObject(GameObject gameObject, string persisentID, Vector3 position, Quaternion rotation, Vector3 scale,bool deleted, List<Vector3> alteredPositions,string originalScenePath, List<List<Vector3>> markPoints,List<Vector3> drawingOffsets, List<Vector3> colliderCenters, List<Vector3> colliderSizes,List<Color> colors,List<float> lineWidths) : base(gameObject, persisentID, position, rotation, scale, alteredPositions)
         {
             this.markPoints = markPoints;
             this.colliderCenters = colliderCenters;
@@ -27,6 +27,7 @@ namespace VRGreyboxing
             this.colors = colors;
             this.lineWidths = lineWidths;
             this.drawingOffsets = drawingOffsets;
+            this.Deleted = deleted;
         }
 
         public override ObjectBaseState UndoChange()

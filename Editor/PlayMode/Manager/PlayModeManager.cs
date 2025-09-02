@@ -50,27 +50,19 @@ namespace VRGreyboxing
             _actionStackIndex = -1;
         }
         
-
-        
-
-        private void EnterGreyboxingScene(string sceneName)
-        {
-            SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
-        }
         public void StripComponentsInCurrentScene()
         {
             Scene scene = SceneManager.GetActiveScene();
             foreach (var root in scene.GetRootGameObjects())
             {
-                root.SetActive(false); // Prevents Awake/OnEnable
+                root.SetActive(false); 
 
                 foreach (var t in root.GetComponentsInChildren<Transform>(true))
                 {
                     var components = t.GetComponents<Component>()
                         .Where(c => !AllowedTypes.Contains(c.GetType())).ToList();
                     
-                    // Build a dependency graph
-                    var dependencyMap = new Dictionary<Type, HashSet<Type>>(); // key depends on value
+                    var dependencyMap = new Dictionary<Type, HashSet<Type>>(); 
                     var componentTypes = components.Select(c => c.GetType()).ToList();
 
                     foreach (var type in componentTypes)
@@ -93,16 +85,10 @@ namespace VRGreyboxing
                         }
                     }
 
-                    // Topologically sort components based on dependencies
                     List<Type> removalOrder = TopologicalSort(componentTypes, dependencyMap);
-                    if (removalOrder == null)
-                    {
-                        Debug.LogError("Cyclic dependency detected. Cannot safely remove components.");
-                        return;
-                    }
+                    if (removalOrder == null)return;
                     
                     removalOrder.Reverse();
-                    // Remove in topological order
                     foreach (var type in removalOrder)
                     {
                         Component comp = t.GetComponent(type);
@@ -114,7 +100,7 @@ namespace VRGreyboxing
 
                 }
 
-                root.SetActive(true); // Now re-activate if you want visuals
+                root.SetActive(true);
             }
         }
         private static List<Type> TopologicalSort(List<Type> types, Dictionary<Type, HashSet<Type>> dependencies)
@@ -125,7 +111,7 @@ namespace VRGreyboxing
 
             bool Visit(Type node)
             {
-                if (temp.Contains(node)) return false; // cycle
+                if (temp.Contains(node)) return false;
                 if (visited.Contains(node)) return true;
 
                 temp.Add(node);
@@ -147,7 +133,7 @@ namespace VRGreyboxing
 
             foreach (var type in types)
             {
-                if (!Visit(type)) return null; // cyclic
+                if (!Visit(type)) return null;
             }
 
             return result;
@@ -186,7 +172,7 @@ namespace VRGreyboxing
                 var persitentID = obj.AddComponent<PersistentID>();
                 var scene = SceneManager.GetActiveScene();
                 List<Vector3> positions = obj.GetComponent<ProBuilderMesh>().positions.ToList();
-                var createdObj = new CreatedObject(obj, persitentID.uniqueId, obj.transform.position, obj.transform.rotation, obj.transform.lossyScale, basePositions, positions,flipVertices, scene.path, true);
+                var createdObj = new CreatedObject(obj, persitentID.uniqueId, obj.transform.position, obj.transform.rotation, obj.transform.lossyScale,objectDeletion, basePositions, positions,flipVertices, scene.path, true);
                 createdObj.newParentID = parentPersitendID;
                 if (parentPersitendID == "" && editorDataSO.objectStates.Count > 0)
                 {
@@ -221,7 +207,7 @@ namespace VRGreyboxing
                 var persitentID = obj.AddComponent<PersistentID>();
                 var scene = SceneManager.GetActiveScene();
                 List<Vector3> positions = obj.GetComponent<ProBuilderMesh>() != null ? obj.GetComponent<ProBuilderMesh>().positions.ToList() : new List<Vector3>();
-                var spawnedObj = new SpawnedObject(obj,persitentID.uniqueId,obj.transform.position, obj.transform.rotation, obj.transform.lossyScale,positions, prefabIndex,scene.path,basePersistentID)
+                var spawnedObj = new SpawnedObject(obj,persitentID.uniqueId,obj.transform.position, obj.transform.rotation, obj.transform.localScale,objectDeletion,positions, prefabIndex,scene.path,basePersistentID)
                     {
                         justCreated = true
                     };
@@ -239,7 +225,7 @@ namespace VRGreyboxing
                 var persitentID = obj.AddComponent<PersistentID>();
                 var scene = SceneManager.GetActiveScene();
                 List<Vector3> positions = obj.GetComponent<ProBuilderMesh>() != null ? obj.GetComponent<ProBuilderMesh>().positions.ToList() : new List<Vector3>();
-                var spawnedObj = new SpawnedObject(obj,persitentID.uniqueId,obj.transform.position, obj.transform.rotation, obj.transform.lossyScale,positions, -1,scene.path,basePersistentID)
+                var spawnedObj = new SpawnedObject(obj,persitentID.uniqueId,obj.transform.position, obj.transform.rotation, obj.transform.lossyScale,objectDeletion,positions, -1,scene.path,basePersistentID)
                 {
                     justCreated = true
                 };
@@ -253,7 +239,7 @@ namespace VRGreyboxing
                 var persitentID = obj.AddComponent<PersistentID>();
                 var scene = SceneManager.GetActiveScene();
                 List<Vector3> positions = new List<Vector3>();
-                var markObj = new MarkerObject(obj,persitentID.uniqueId,obj.transform.position, obj.transform.rotation, obj.transform.lossyScale,positions,scene.path,markPoints,drawingOffsets,colliderCenters,colliderSizes,colors,lineWidths)
+                var markObj = new MarkerObject(obj,persitentID.uniqueId,obj.transform.position, obj.transform.rotation, obj.transform.lossyScale,objectDeletion,positions,scene.path,markPoints,drawingOffsets,colliderCenters,colliderSizes,colors,lineWidths)
                 {
                     justCreated = true
                 };
@@ -307,7 +293,7 @@ namespace VRGreyboxing
                         {
                             SpawnedObject spawnedState = baseState as SpawnedObject;
                             List<Vector3> positions = obj.GetComponent<ProBuilderMesh>() != null ? obj.GetComponent<ProBuilderMesh>().positions.ToList() : new List<Vector3>();
-                            var spawnedObject = new SpawnedObject(obj,baseState.persisentID, obj.transform.position, obj.transform.rotation, obj.transform.lossyScale,positions, spawnedState.prefabIndex, SceneManager.GetActiveScene().path,spawnedState.basePersistentID)
+                            var spawnedObject = new SpawnedObject(obj,baseState.persisentID, obj.transform.position, obj.transform.rotation, obj.transform.localScale,objectDeletion,positions, spawnedState.prefabIndex, SceneManager.GetActiveScene().path,spawnedState.basePersistentID)
                             {
                                 prevState = baseState
                             };
@@ -325,7 +311,7 @@ namespace VRGreyboxing
                         {
                             CreatedObject createdState = baseState as CreatedObject;
                             var createdObject = new CreatedObject(obj, createdState.persisentID, obj.transform.position,
-                                obj.transform.rotation, obj.transform.lossyScale, createdState.basePositions,
+                                obj.transform.rotation, obj.transform.lossyScale,objectDeletion, createdState.basePositions,
                                 obj.GetComponent<ProBuilderMesh>().positions.ToList(),createdState.flippedVertices, SceneManager.GetActiveScene().path, false)
                             {
                                 prevState = baseState
@@ -338,7 +324,7 @@ namespace VRGreyboxing
                         }
                         case MarkerObject:
                             MarkerObject markerState = baseState as MarkerObject;
-                            var markerObject = new MarkerObject(obj,baseState.persisentID, obj.transform.position, obj.transform.rotation, obj.transform.lossyScale, new List<Vector3>(),SceneManager.GetActiveScene().path,markerState.markPoints,drawingOffsets,markerState.colliderCenters,markerState.colliderSizes,markerState.colors,markerState.lineWidths)
+                            var markerObject = new MarkerObject(obj,baseState.persisentID, obj.transform.position, obj.transform.rotation, obj.transform.lossyScale,objectDeletion, new List<Vector3>(),SceneManager.GetActiveScene().path,markerState.markPoints,drawingOffsets,markerState.colliderCenters,markerState.colliderSizes,markerState.colors,markerState.lineWidths)
                             {
                                 prevState = baseState
                             };

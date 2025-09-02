@@ -12,6 +12,7 @@ namespace VRGreyboxing
 
         public Button maxSizeButton;
         public Button minSizeButton;
+        public Button defaultSizeButton;
         public Button quarterSizeButton;
         public Button threequarterSizeButton;
         
@@ -24,26 +25,27 @@ namespace VRGreyboxing
 
         private void Start()
         {
-            scaleSlider.minValue = PlayModeManager.Instance.editorDataSO.minimumZoom;
-            scaleSlider.maxValue = PlayModeManager.Instance.editorDataSO.maximumZoom;
-            scaleSlider.value = ActionManager.Instance.xROrigin.transform.localScale.x;
-            currentSize.text = ActionManager.Instance.xROrigin.transform.localScale.x.ToString();
+            scaleSlider.minValue = 1/PlayModeManager.Instance.editorDataSO.maximumZoom;
+            scaleSlider.maxValue = 1/PlayModeManager.Instance.editorDataSO.minimumZoom;
+            scaleSlider.value = 1/PlayModeManager.Instance.currentWorldScaler.scale;
+            currentSize.text = (1/PlayModeManager.Instance.currentWorldScaler.scale).ToString("0.00");
 
-            scaleSlider.onValueChanged.AddListener((value) => currentSize.text = value.ToString("0.000"));
-            currentSize.text = ActionManager.Instance.xROrigin.transform.localScale.x.ToString("0.000");
-            maxSizeButton.GetComponentInChildren<TextMeshProUGUI>().text = PlayModeManager.Instance.editorDataSO.maximumZoom.ToString();
-            minSizeButton.GetComponentInChildren<TextMeshProUGUI>().text = PlayModeManager.Instance.editorDataSO.minimumZoom.ToString();
-            threequarterSizeButton.GetComponentInChildren<TextMeshProUGUI>().text = (PlayModeManager.Instance.editorDataSO.maximumZoom*0.75f).ToString();
-            quarterSizeButton.GetComponentInChildren<TextMeshProUGUI>().text = (PlayModeManager.Instance.editorDataSO.maximumZoom*0.25f).ToString();
+            scaleSlider.onValueChanged.AddListener((value) => currentSize.text = value.ToString("0.00"));
+            maxSizeButton.GetComponentInChildren<TextMeshProUGUI>().text = (1/PlayModeManager.Instance.editorDataSO.minimumZoom).ToString("0.00");
+            minSizeButton.GetComponentInChildren<TextMeshProUGUI>().text = (1/PlayModeManager.Instance.editorDataSO.maximumZoom).ToString("0.00");
+            defaultSizeButton.GetComponentInChildren<TextMeshProUGUI>().text = PlayModeManager.Instance.editorDataSO.startingSize.ToString("0.00");
+            threequarterSizeButton.GetComponentInChildren<TextMeshProUGUI>().text = (1/Mathf.Sqrt(PlayModeManager.Instance.editorDataSO.minimumZoom*PlayModeManager.Instance.editorDataSO.startingSize)).ToString("0.00");
+            quarterSizeButton.GetComponentInChildren<TextMeshProUGUI>().text = (1/Mathf.Sqrt(PlayModeManager.Instance.editorDataSO.startingSize*PlayModeManager.Instance.editorDataSO.maximumZoom)).ToString("0.00");
             
             maxSizeButton.onClick.AddListener(delegate { ActionManager.Instance.ScalePlayer(PlayModeManager.Instance.editorDataSO.minimumZoom); });
             minSizeButton.onClick.AddListener(delegate { ActionManager.Instance.ScalePlayer(PlayModeManager.Instance.editorDataSO.maximumZoom); });
-            quarterSizeButton.onClick.AddListener(delegate { ActionManager.Instance.ScalePlayer((PlayModeManager.Instance.editorDataSO.minimumZoom*0.25f)); });
-            threequarterSizeButton.onClick.AddListener(delegate { ActionManager.Instance.ScalePlayer((PlayModeManager.Instance.editorDataSO.minimumZoom*0.75f)); });
-            increasingSizeButton.onClick.AddListener(delegate { scaleSlider.value = PlayModeManager.Instance.editorDataSO.minimumZoom/10 + scaleSlider.value; });
-            decreasingSizeButton.onClick.AddListener(delegate { scaleSlider.value = scaleSlider.value - PlayModeManager.Instance.editorDataSO.minimumZoom/10; });
+            defaultSizeButton.onClick.AddListener(delegate { ActionManager.Instance.ScalePlayer(PlayModeManager.Instance.editorDataSO.startingSize); });
+            threequarterSizeButton.onClick.AddListener(delegate { ActionManager.Instance.ScalePlayer((Mathf.Sqrt(PlayModeManager.Instance.editorDataSO.minimumZoom*PlayModeManager.Instance.editorDataSO.startingSize))); });
+            quarterSizeButton.onClick.AddListener(delegate { ActionManager.Instance.ScalePlayer((Mathf.Sqrt(PlayModeManager.Instance.editorDataSO.startingSize*PlayModeManager.Instance.editorDataSO.maximumZoom))); });
+            increasingSizeButton.onClick.AddListener(delegate { scaleSlider.value = PlayModeManager.Instance.editorDataSO.minimumZoom + scaleSlider.value; });
+            decreasingSizeButton.onClick.AddListener(delegate { scaleSlider.value = scaleSlider.value - PlayModeManager.Instance.editorDataSO.minimumZoom; });
 
-            confirmButton.onClick.AddListener(delegate { ActionManager.Instance.ScalePlayer(scaleSlider.value); });
+            confirmButton.onClick.AddListener(delegate { ActionManager.Instance.ScalePlayer(1/scaleSlider.value); });
             
         }
         

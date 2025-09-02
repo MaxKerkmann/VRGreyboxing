@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Attachment;
@@ -43,8 +44,11 @@ namespace VRGreyboxing
             if (transWidgetEditPoint != null)
             {
                 transWidgetEditPoint.playerTransformation.currentEditPoint = null;
-                if(ActionManager.Instance.GetSelectedObject() != null)
-                    ActionManager.Instance.GetSelectedObject().transform.parent = _oldParent != null ? _oldParent : null;
+                if (ActionManager.Instance.GetSelectedObject() != null && !PlayModeManager.Instance.currentWorldScaler.destroyed)
+                {
+                        ActionManager.Instance.GetSelectedObject().transform.parent =
+                            _oldParent == null ? null : _oldParent;
+                }
             }
             if(_scaleObject != null)
             {

@@ -11,12 +11,13 @@ namespace VRGreyboxing
         public bool flippedVertices;
         
 
-        public CreatedObject(GameObject gameObject, string persisentID, Vector3 position, Quaternion rotation, Vector3 scale, List<Vector3> basePositions,List<Vector3> positions,bool flippedVertices, string originalScenePath, bool justCreated) : base(gameObject, persisentID, position, rotation, scale,positions)
+        public CreatedObject(GameObject gameObject, string persisentID, Vector3 position, Quaternion rotation, Vector3 scale,bool deleted, List<Vector3> basePositions,List<Vector3> positions,bool flippedVertices, string originalScenePath, bool justCreated) : base(gameObject, persisentID, position, rotation, scale,positions)
         {
             this.basePositions = basePositions;
             OriginalScenePath = originalScenePath;
             this.justCreated = justCreated;
             this.flippedVertices = flippedVertices;
+            this.Deleted = deleted;
         }
         
         public override ObjectBaseState UndoChange()

@@ -8,6 +8,9 @@ using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 namespace VRGreyboxing
 {
+    /**
+     * Logic for handling creation and editing of player drawings
+     */
     public class PlayerCommunication : MonoBehaviour
     {
         public XRInteractionManager xrInteractionManager;
@@ -31,6 +34,10 @@ namespace VRGreyboxing
             SetColor(Color.black);
         }
 
+        
+        /**
+         * Setup line renderer to display player drawing and add new points to it
+         */
         public void DrawLine(Handedness handedness)
         {
             GameObject usedController = handedness == Handedness.Left ? _leftController : _rightController;
@@ -44,7 +51,7 @@ namespace VRGreyboxing
                 _currentDrawing.gameObject.tag = "VRG_Mark";
                 _currentDrawing.material = drawingMaterial;
                 _currentDrawing.startColor = _currentDrawing.endColor = _currentColor;
-                _currentDrawing.startWidth = _currentDrawing.endWidth = lineWidth*ActionManager.Instance.GetCurrentSizeRatio();
+                _currentDrawing.startWidth = _currentDrawing.endWidth = lineWidth;
                 _currentDrawing.positionCount = 1;
                 _currentDrawing.SetPosition(0, pos);
                 _currentDrawingObjects.Add(_currentDrawing.gameObject);
@@ -52,7 +59,7 @@ namespace VRGreyboxing
             else
             {
                 var currentPos = _currentDrawing.GetPosition(_currentIndex);
-                if (Vector3.Distance(currentPos, pos) > lineWidth*ActionManager.Instance.GetCurrentSizeRatio())
+                if (Vector3.Distance(currentPos, pos) > lineWidth)
                 {
                     _currentIndex++;
                     _currentDrawing.positionCount = _currentIndex+1;
@@ -104,7 +111,7 @@ namespace VRGreyboxing
                     Vector3 b = pointList[i + 1];
 
                     float distance = DistancePointToSegment(pos, a, b);
-                    if (distance < lineWidth*ActionManager.Instance.GetCurrentSizeRatio()*3)
+                    if (distance < lineWidth*3)
                     {
                         SplitLine(line, i + 1);
                         return;
@@ -225,14 +232,13 @@ namespace VRGreyboxing
                 Vector3[] positions = new Vector3[line.positionCount];
                 line.GetPositions(positions);
                 drawingpoints.Add(positions.ToList());
-                // Calculate bounds
+
                 Bounds bounds = new Bounds(positions[0], Vector3.zero);
                 for (int y = 1; y < positions.Length; y++)
                 {
                     bounds.Encapsulate(positions[y]);
                 }
 
-                // Create or update BoxCollider
                 BoxCollider box = drawing.transform.GetChild(i).gameObject.GetComponent<BoxCollider>();
                 if (box == null)
                 {
@@ -260,7 +266,6 @@ namespace VRGreyboxing
 
         public void EncapsulateDrawing(BoxCollider parentCollider, Collider[] drawingColliders)
         {
-            // Start with first child's bounds
             Bounds combinedBounds = drawingColliders[0].bounds;
 
             for (int i = 1; i < drawingColliders.Length; i++)
@@ -268,7 +273,6 @@ namespace VRGreyboxing
                 combinedBounds.Encapsulate(drawingColliders[i].bounds);
             }
 
-            // Convert world bounds to local space
             Vector3 localCenter = parentCollider.transform.InverseTransformPoint(combinedBounds.center);
             Vector3 localSize = parentCollider.transform.InverseTransformVector(combinedBounds.size);
 

@@ -37,12 +37,13 @@ MonoBehaviour:
   createdObjectMaterial: {fileID: 2100000, guid: dedb0a07c48453d4d89e25028f3bd602, type: 2}
   drawingMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
   sceneCleanUpPrefab: {fileID: 6608961106011826283, guid: a5bc67c07d0321d419192b2cdd856d23, type: 3}
-  lastOpenScene: Assets/Scenes/Spielwiese.unity
+  lastOpenScene: Assets/Scenes/VR_Rebecca.unity
   sceneNames:
   - Spielwiese
   - VR_Chris
   - VR_Jasmin
   - VR_Nils
+  - VR_Rebecca
   objectStates: []
   zoomMode: 0
   rotationMode: 0
@@ -65,10 +66,10 @@ MonoBehaviour:
   freeRotationCenterDistance: 0.15
   teleportationRotationDistance: 0.2
   zoomMenuTime: 0.25
-  restrictedRotation: 8
-  unrestrictedRotation: 7
-  teleportRotation: 5
-  gestureZoom: 9
+  restrictedRotation: 0
+  unrestrictedRotation: 0
+  teleportRotation: 0
+  gestureZoom: 0
   menuZoom: 0
-  redo: 3
-  undo: 29
+  redo: 0
+  undo: 0

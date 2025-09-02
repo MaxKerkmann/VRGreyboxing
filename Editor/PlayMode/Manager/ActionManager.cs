@@ -23,17 +23,18 @@ using Object = UnityEngine.Object;
 
 namespace VRGreyboxing
 {
+    /**
+     * Manager class containing main logic to handle player input and display ui
+     */
     public class ActionManager : MonoBehaviour
     {
-
-        public bool DebugBool;
         
         public static ActionManager Instance;
         public GameObject xROrigin;
         
         public XRInteractionManager xrInteractionManager;
         
-        //UI
+        //UI prefabs and instances
         public GameObject menuOptionButtonPrefab;
         
         public GameObject inventoryMenuPrefab;
@@ -52,6 +53,9 @@ namespace VRGreyboxing
         
         public GameObject inputFieldPrefab;
         public GameObject keyboardPrefab;
+        private bool _shift;
+        private List<KeyboardKey> _keyCaps;
+        private Image _shiftKeyImage;
         private bool _textSubmitted;
         
         public GameObject confirmMenuPrefab;
@@ -93,7 +97,7 @@ namespace VRGreyboxing
         
         public bool leaningPossible;
 
-        public Transform sceneMenuAnchor;
+        
         //PlayerInputs
         private VRGreyboxingInput playerInput;
         private InputAction i_grabLeft;
@@ -133,7 +137,6 @@ namespace VRGreyboxing
         private List<VertexEditPoint> _currentPolyShapePoints;
         private GameObject _currentPolyShape;
         private Handedness _currentPolyShapeHandedness;
-        
         
         [HideInInspector]
         public bool twoHandGrab;
@@ -222,7 +225,7 @@ namespace VRGreyboxing
         }
         private void OnDisable()
         {
-            /*i_grabLeft.Disable();
+            i_grabLeft.Disable();
             i_grabRight.Disable();
             i_triggerLeft.Disable();
             i_triggerRight.Disable();
@@ -235,7 +238,7 @@ namespace VRGreyboxing
             i_RightStick.Disable();
             i_LeftStick.Disable();
             i_StickPressLeft.Disable();
-            i_StickPressRight.Disable();*/
+            i_StickPressRight.Disable();
         }
 
         public void Start()
@@ -244,13 +247,11 @@ namespace VRGreyboxing
             leaningPossible = true;
         }
 
+        /**
+         * Check for player inputs according to selected edit mode from main menu
+         */
         private void Update()
         {
-            if (DebugBool)
-            {
-                DisplayMainMenu(leftController);
-                DebugBool = false;
-            }
             
             //Grace Timer
             _graceTimeLeft = _leftHandSingleInput ? _graceTimeLeft - Time.deltaTime : _graceTimeLeft;
@@ -466,7 +467,7 @@ namespace VRGreyboxing
             }
             if (i_triggerLeft.IsPressed() && _undoInput && _undoTimeLeft > 0)
             {
-                DeselectObject(Handedness.Left);
+                DeselectObject();
                 PlayModeManager.Instance.UndoObjectChange();
                 _undoInput = false;
                 _performedUndoRedo = true;
@@ -479,7 +480,7 @@ namespace VRGreyboxing
             }
             if (i_triggerRight.IsPressed() && _redoInput && _redoTimeRight > 0)
             {
-                DeselectObject(Handedness.Right);
+                DeselectObject();
                 PlayModeManager.Instance.RedoObjectChange();
                 _redoInput = false;
                 _performedUndoRedo = true;
@@ -1013,8 +1014,7 @@ namespace VRGreyboxing
         private bool HandleZoomRotation()
         {
             
-
-            if (i_triggerLeft.IsPressed() && i_triggerRight.IsPressed()&& !_grabLeft && !_grabRight)
+            if (i_triggerLeft.IsPressed() && i_triggerRight.IsPressed() && !_grabLeft && !_grabRight && _leftHandHoveredXRObject != null && _rightHandHoveredXRObject != null)
             {
                 _playerNavigation.PerformZoomRotation(leftControllerRaycaster.hit, rightControllerRaycaster.hit,true);
                 ResetGraceTime(Handedness.None);
@@ -1164,6 +1164,10 @@ namespace VRGreyboxing
         #endregion
 
         #region ObjectPreparation
+        
+        /**
+         * Add components to hovered object for interaction
+         */
         public void AssignHoverObject(GameObject hoveredObject, Handedness handedness)
         {
             if (handedness == Handedness.Left)
@@ -1236,6 +1240,10 @@ namespace VRGreyboxing
 
             }
         }
+        
+        /**
+         * Configure VR interaction components
+         */
         public void SetupInteractable(XRGrabInteractable interactable)
         {
             interactable.useDynamicAttach = true;
@@ -1258,8 +1266,7 @@ namespace VRGreyboxing
 
         public Vector3 GetUIPosition()
         {
-            //return xROrigin.transform.position+(xROrigin.GetComponentInChildren<Camera>().transform.localPosition-xROrigin.GetComponentInChildren<Camera>().transform.parent.localPosition)*GetCurrentSizeRatio()+xROrigin.GetComponentInChildren<Camera>().transform.forward*2*GetCurrentSizeRatio();
-            return xROrigin.GetComponentInChildren<Camera>().transform.position+xROrigin.GetComponentInChildren<Camera>().transform.forward * (2 * GetCurrentSizeRatio());
+            return xROrigin.GetComponentInChildren<Camera>().transform.position+xROrigin.GetComponentInChildren<Camera>().transform.forward * (2);
         }
         
         private void CloseAllMenus()
@@ -1281,7 +1288,6 @@ namespace VRGreyboxing
             _inventoryInstance = Instantiate(inventoryMenuPrefab,GetUIPosition(), Quaternion.identity);
             _inventoryInstance.transform.forward = xROrigin.GetComponentInChildren<Camera>().gameObject.transform.forward;
             _inventoryInstance.GetComponent<InventoryMenu>().FillInventoryMenu();
-            _inventoryInstance.transform.localScale *= GetCurrentSizeRatio();
         }
    
         public void CloseInventory()
@@ -1317,7 +1323,6 @@ namespace VRGreyboxing
         {
             _movementOptionsMenuInstance = Instantiate(movementOptionsMenuPrefab,GetUIPosition(), Quaternion.identity);
             _movementOptionsMenuInstance.transform.forward = xROrigin.GetComponentInChildren<Camera>().gameObject.transform.forward;
-            _movementOptionsMenuInstance.transform.localScale *= GetCurrentSizeRatio();
 
             foreach (var dropdown in _movementOptionsMenuInstance.GetComponentsInChildren<TMP_Dropdown>())
             {
@@ -1357,7 +1362,6 @@ namespace VRGreyboxing
             _selectionMenuInstance = Instantiate(selectionMenuPrefab,GetUIPosition(), Quaternion.identity);
             _selectionMenuInstance.transform.forward = xROrigin.GetComponentInChildren<Camera>().gameObject.transform.forward;
             _selectionMenuInstance.GetComponentInChildren<Button>().onClick.AddListener(CloseSelectionMenu);
-            _selectionMenuInstance.transform.localScale *= GetCurrentSizeRatio();
             GameObject content = _selectionMenuInstance.GetComponentInChildren<GridLayoutGroup>().gameObject;
             
             //Deletion
@@ -1419,7 +1423,6 @@ namespace VRGreyboxing
             {
                 _selectionMenuLoadingProgressInstance = Instantiate(selectionMenuLoadingProgressPrefab,GetUIPosition(), Quaternion.identity);
                 _selectionMenuLoadingProgressInstance.transform.forward = xROrigin.GetComponentInChildren<Camera>().gameObject.transform.forward;
-                _selectionMenuLoadingProgressInstance.transform.localScale *= GetCurrentSizeRatio();
             }
             _selectionMenuLoadingProgressInstance.GetComponent<SelectionMenuLoadingInfo>().DisplayLoadingProgress(currentTime,maxTime);
         }
@@ -1468,7 +1471,6 @@ namespace VRGreyboxing
         {
             _colorPickerInstance = Instantiate(colorPickerPrefab, GetUIPosition(), Quaternion.identity);
             _colorPickerInstance.transform.forward = xROrigin.GetComponentInChildren<Camera>().gameObject.transform.forward;
-            _colorPickerInstance.transform.localScale *= GetCurrentSizeRatio();
         }
 
         private void CloseColorPickerMenu()
@@ -1481,18 +1483,13 @@ namespace VRGreyboxing
         #endregion
 
         #region InputMenu
-
-        public bool shift;
-        private List<KeyboardKey> _keyCaps;
-        private Image _shiftKeyImage;
+        
         public async Task<string> DisplayInputMenu(string descriptiontext)
         {
             GameObject input = Instantiate(inputFieldPrefab,GetUIPosition(), Quaternion.identity);
             GameObject keyboard = Instantiate(keyboardPrefab,GetUIPosition()-Vector3.down, Quaternion.identity);
             input.transform.forward  = xROrigin.GetComponentInChildren<Camera>().gameObject.transform.forward;
-            input.transform.localScale *= GetCurrentSizeRatio();
             keyboard.transform.forward  = -xROrigin.GetComponentInChildren<Camera>().gameObject.transform.forward;
-            keyboard.transform.localScale *= GetCurrentSizeRatio();
             TMP_InputField inputText = input.GetComponentInChildren<TMP_InputField>();
             _keyCaps = new List<KeyboardKey>();
             foreach (var keyboardKey in keyboard.GetComponentsInChildren<KeyboardKey>())
@@ -1507,12 +1504,12 @@ namespace VRGreyboxing
                 
                 keyboardKey.GetComponent<Button>().onClick.AddListener(delegate
                 {
-                    keyboardKey.PressKey(inputText, shift);
+                    keyboardKey.PressKey(inputText, _shift);
                 });
 
             }
 
-            shift = true;
+            _shift = true;
             ToggleShift(this,EventArgs.Empty);
             _textSubmitted = false;
             input.GetComponentInChildren<TextMeshProUGUI>().text = descriptiontext;
@@ -1534,8 +1531,8 @@ namespace VRGreyboxing
 
         private void ToggleShift(object sender, EventArgs e)
         {
-            shift = !shift;
-            if (shift)
+            _shift = !_shift;
+            if (_shift)
             {
                 _shiftKeyImage.color = Color.blue;
                 foreach (var keyCap in _keyCaps)
@@ -1558,11 +1555,11 @@ namespace VRGreyboxing
         #endregion
         
         #region ConfirmMenu
-        public void DisplayConfirmMenu(UnityAction confirmAction, UnityAction cancelAction, string confirmText)
+
+        private void DisplayConfirmMenu(UnityAction confirmAction, UnityAction cancelAction, string confirmText)
         {
             _confirmMenuInstance = Instantiate(confirmMenuPrefab,GetUIPosition(), Quaternion.identity);
             _confirmMenuInstance.transform.forward = xROrigin.GetComponentInChildren<Camera>().gameObject.transform.forward;
-            _confirmMenuInstance.transform.localScale *= GetCurrentSizeRatio();
             GameObject content = _confirmMenuInstance.GetComponentInChildren<GridLayoutGroup>().gameObject;
             _confirmMenuInstance.GetComponentInChildren<Text>().text = confirmText;
 
@@ -1594,7 +1591,6 @@ namespace VRGreyboxing
         private void DisplayMainMenu(GameObject controller)
         {
             _mainMenuInstance = Instantiate(mainMenuPrefab,controller.transform.position,controller.transform.rotation);
-            _mainMenuInstance.transform.localScale *= GetCurrentSizeRatio();
             _sceneMenuIndex = mainMenuOptionNames.IndexOf("Scenes");
             _closeIndex = mainMenuOptionNames.IndexOf("Close");
             
@@ -1649,12 +1645,11 @@ namespace VRGreyboxing
 
         #region SceneSelection
 
-        public void DisplaySceneSelectionMenu(Vector3 offset = default(Vector3))
+        private void DisplaySceneSelectionMenu(Vector3 offset = default)
         {
             _sceneMenuInstance = Instantiate(sceneMenuPrefab,GetUIPosition(), Quaternion.identity);
             _sceneMenuInstance.transform.position += offset;
             _sceneMenuInstance.transform.forward = xROrigin.GetComponentInChildren<Camera>().gameObject.transform.forward;
-            _sceneMenuInstance.transform.localScale *= GetCurrentSizeRatio();
             _sceneMenuInstance.GetComponentInChildren<Button>().onClick.AddListener(CloseSceneSelectionMenu);
             GameObject content = _sceneMenuInstance.GetComponentInChildren<GridLayoutGroup>().gameObject;
             foreach (var sceneName in PlayModeManager.Instance.editorDataSO.sceneNames)
@@ -1668,14 +1663,14 @@ namespace VRGreyboxing
             }
         }
 
-        public void CloseSceneSelectionMenu()
+        private void CloseSceneSelectionMenu()
         {
             if(_sceneMenuInstance == null) return;
             Destroy(_sceneMenuInstance);
             _sceneMenuInstance = null;
         }
 
-        public void SwitchToScene(string sceneName)
+        private void SwitchToScene(string sceneName)
         {
             PlayModeManager.Instance.ResetWorldScale();
             SceneManager.LoadScene(sceneName);
@@ -1694,10 +1689,9 @@ namespace VRGreyboxing
             }
             _scaleMenuInstance = Instantiate(scaleMenuPrefab,GetUIPosition(), Quaternion.identity);
             _scaleMenuInstance.transform.forward = xROrigin.GetComponentInChildren<Camera>().gameObject.transform.forward;
-            _scaleMenuInstance.transform.localScale *= GetCurrentSizeRatio();
         }
 
-        public void CloseZoomMenu()
+        private void CloseZoomMenu()
         {
             if(_scaleMenuInstance == null) return;
             Destroy(_scaleMenuInstance);
@@ -1720,7 +1714,6 @@ namespace VRGreyboxing
             _keyFrameMenuInstance = Instantiate(keyFrameMenuPrefab,keyPosition+Vector3.up*0.5f, Quaternion.identity);
             _keyFrameMenuInstance.transform.forward = xROrigin.GetComponentInChildren<Camera>().gameObject.transform.forward;
             _keyFrameMenuInstance.GetComponentInChildren<Button>().onClick.AddListener(CloseKeyframeEditMenu);
-            _keyFrameMenuInstance.transform.localScale *= GetCurrentSizeRatio();
             GameObject content = _keyFrameMenuInstance.GetComponentInChildren<ContentSizeFitter>().gameObject;
             for (int i = 0; i < content.GetComponentsInChildren<Slider>().Length; i++)
             {
@@ -1812,7 +1805,7 @@ namespace VRGreyboxing
 
         #region Movement
 
-        public void FollowCameraPath(CameraFigure cameraFigure)
+        private void FollowCameraPath(CameraFigure cameraFigure)
         {
             _playerTransformation.EnterCameraFigure();
             _playerNavigation.FollowCameraPath(cameraFigure);
@@ -1885,7 +1878,7 @@ namespace VRGreyboxing
             return null;
         }
 
-        public void SelectObject(Handedness handedness,GameObject selectedObject)
+        private void SelectObject(Handedness handedness,GameObject selectedObject)
         {
             CloseSelectionMenu();
             switch (_currentEditMode)
@@ -1915,7 +1908,7 @@ namespace VRGreyboxing
             }
         }
 
-        public void DeselectObject(Handedness handedness)
+        private void DeselectObject()
         {
             switch (_currentEditMode)
             {
@@ -1936,11 +1929,7 @@ namespace VRGreyboxing
             foreach (var field in fields) field.SetValue(copy, field.GetValue(original));
             return copy as T;
         }
-
-        public float GetCurrentSizeRatio()
-        {
-            return xROrigin.transform.localScale.x / PlayModeManager.Instance.editorDataSO.startingSize;
-        }
+        
         
         #endregion
     }

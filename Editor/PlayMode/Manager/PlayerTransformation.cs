@@ -49,7 +49,6 @@ namespace VRGreyboxing
         public GameObject selectedObject;
         private bool _justSelected;
         private GameObject _currentTransWidget;
-        public Vector3 currentWidgetCenter;
         private Handedness _selectTransformHandedness;
         public GameObject currentSelectedTransWidgetPoint;
         public Quaternion currentStartRotation;
@@ -104,7 +103,6 @@ namespace VRGreyboxing
                 if (handedness == Handedness.Right)
                 {
 
-                        //xrInteractionManager.SelectExit(_leftController.GetComponentInChildren<IXRSelectInteractor>(),interactable);
                         interactable.trackRotation = true;
                         
                         xrInteractionManager.SelectEnter(_leftController.GetComponentInChildren<IXRSelectInteractor>(),
@@ -114,7 +112,6 @@ namespace VRGreyboxing
                 }
                 else
                 {
-                    //xrInteractionManager.SelectExit(_rightController.GetComponentInChildren<IXRSelectInteractor>(),interactable);
                     interactable.trackRotation = true;
 
                     xrInteractionManager.SelectEnter(_rightController.GetComponentInChildren<IXRSelectInteractor>(),interactable);
@@ -275,7 +272,6 @@ namespace VRGreyboxing
             Transform t = _currentTransWidget.transform;
             Vector3 e = objBounds.extents;
             float objSizeFactor = (objBounds.size.x+ objBounds.size.y+ objBounds.size.z)/3;
-            currentWidgetCenter = objBounds.center;
             foreach (var editPoint in _currentTransWidget.GetComponentsInChildren<TransWidgetEditPoint>())
             {
                 editPoint.playerTransformation = this;
@@ -391,35 +387,35 @@ namespace VRGreyboxing
                     case TransWidgetTransformType.ScaleCorner:
                         switch (cornerScaleCounter)
                         {
-                            case 0://LUF
+                            case 0:
                                 editPoint.transform.position -= t.right * e.x + t.up * e.y+t.forward * e.z;
                                 cornerScaleCounter++;
                                 break;
-                            case 1://RUF
+                            case 1:
                                 editPoint.transform.position += t.right * e.x + t.up * e.y+t.forward * e.z;
                                 cornerScaleCounter++;
                                 break;
-                            case 2://RUB
+                            case 2:
                                 editPoint.transform.position += t.right * e.x + t.up * e.y-t.forward * e.z;
                                 cornerScaleCounter++;   
                                 break;
-                            case 3://LLF
+                            case 3:
                                 editPoint.transform.position -= t.right * e.x - t.up * e.y+t.forward * e.z;
                                 cornerScaleCounter++;
                                 break;
-                            case 4://RLF
+                            case 4:
                                 editPoint.transform.position += t.right * e.x - t.up * e.y+t.forward * e.z;
                                 cornerScaleCounter++;
                                 break;
-                            case 5://LLB
+                            case 5:
                                 editPoint.transform.position -= t.right * e.x - t.up * e.y-t.forward * e.z;
                                 cornerScaleCounter++;
                                 break;
-                            case 6://RLB
+                            case 6:
                                 editPoint.transform.position += t.right * e.x - t.up * e.y-t.forward * e.z;
                                 cornerScaleCounter++;
                                 break;
-                            case 7://LUB
+                            case 7:
                                 editPoint.transform.position -= t.right * e.x + t.up * e.y-t.forward * e.z;
                                 cornerScaleCounter++;
                                 break;
@@ -497,7 +493,8 @@ namespace VRGreyboxing
         {
             GameObject go = Instantiate(prefab,buttonTransform.position,Quaternion.identity);
             go.transform.up = Vector3.up;
-            go.transform.localScale *= ActionManager.Instance.GetCurrentSizeRatio();
+            go.transform.parent = PlayModeManager.Instance.currentWorldScaler.transform;
+            go.transform.localScale = prefab.transform.localScale;
 
             if (go.GetComponentInChildren<Collider>() == null)
             {

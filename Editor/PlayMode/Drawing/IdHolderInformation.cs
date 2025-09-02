@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace VRGreyboxing
 {
+    /**
+     * Information holder in case persistent id does sit on the object directly 
+     */
     public class IdHolderInformation : MonoBehaviour
     {
         public Transform iDHolder;

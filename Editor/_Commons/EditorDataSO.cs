@@ -5,6 +5,9 @@ using UnityEngine;
 
 namespace VRGreyboxing
 {
+    /**
+     * Persistent data between edit and play mode
+     */
     public class EditorDataSO : ScriptableObject
     {
         [Header("Universal Data")]

@@ -5,8 +5,11 @@ using UnityEngine.PlayerLoop;
 
 namespace VRGreyboxing
 {
+    
+    /**
+     * Add button to inspector ui of CameraFigure component
+     */
     [CustomEditor(typeof(CameraFigure))]
-
     public class CameraFigureInspector : Editor
     {
         public override void OnInspectorGUI()
@@ -14,7 +17,7 @@ namespace VRGreyboxing
             DrawDefaultInspector();
             if (GUILayout.Button("Show Camera Path"))
             {
-                EditorManager.StartCameraPath((CameraFigure)target);
+                EditorManager.StartCameraMovement((CameraFigure)target);
             }
         }
 

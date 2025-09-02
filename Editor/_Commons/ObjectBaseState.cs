@@ -3,7 +3,11 @@ using UnityEngine;
 
 namespace VRGreyboxing
 {
- [System.Serializable]
+    
+    /**
+     * Base class for saving object changes during greyboxing
+     */
+    [System.Serializable]
     public class ObjectBaseState
     {
         public GameObject gameObject;
@@ -32,17 +36,26 @@ namespace VRGreyboxing
             disabled = false;
             this.gameObject = gameObject;
         }
-
+        
+        /**
+         * Set state of object to saved previous state to undo last changes
+         */
         public virtual ObjectBaseState UndoChange()
         {
             return null;
         }
 
+        /**
+         * Set state of object to saved next state to redo already made changes
+         */
         public virtual ObjectBaseState RedoChange()
         {
             return null;
         }
 
+        /**
+         * Delete object indefinitely when object was removed and new changes were performed
+         */
         public virtual void RemoveChange()
         {
             ObjectBaseState next = this;

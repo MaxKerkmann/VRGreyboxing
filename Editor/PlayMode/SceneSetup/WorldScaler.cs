@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -8,6 +9,7 @@ namespace VRGreyboxing
         [Range(0.1f, 5f)] public float scale = 1f;
 
         private float _lastScale = 1f;
+        public bool destroyed;
 
         void Update()
         {
@@ -33,6 +35,11 @@ namespace VRGreyboxing
         {
             scale = newScale;
             ApplyScale();
+        }
+
+        private void OnDestroy()
+        {
+            destroyed = true;
         }
     }
 }
