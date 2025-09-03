@@ -12,7 +12,7 @@ namespace VRGreyboxing
     {
         [Header("Universal Data")]
         public Object prefabSaveDirectory;
-        public List<DefaultAsset> prefabDirectories;
+        public List<DefaultAsset> prefabSourceDirectories;
         public DefaultAsset defaultPrefabFolder;
         public List<GameObject> availablePrefabs;
         public bool setupTags;
@@ -21,6 +21,7 @@ namespace VRGreyboxing
         [Header("Editor Data")] 
         public GameObject editorBasePrefab;
         public bool usingBuildScenesOnly;
+        public EditorBuildSettingsScene[] originalBuildScenes;
         public bool usingGreyboxingEditor;
         public Material createdObjectMaterial;
         public Material drawingMaterial;
@@ -32,8 +33,8 @@ namespace VRGreyboxing
         public List<ObjectBaseState> objectStates;
         
         [Header("Usage Modes")]
-        public int zoomMode;
-        public int rotationMode;
+        public ZoomMode zoomMode;
+        public RotationMode rotationMode;
         public bool restrictToStickMovement;
         public bool restrictToTeleport;
         public bool enableStickLeaning;
@@ -64,6 +65,18 @@ namespace VRGreyboxing
         public int menuZoom;
         public int redo;
         public int undo;
+    }
 
+    public enum RotationMode
+    {
+        Restricted = 0,
+        Unrestricted = 1,
+        Teleport = 2
+    }
+
+    public enum ZoomMode
+    {
+        Gesture = 0,
+        Menu = 1
     }
 }

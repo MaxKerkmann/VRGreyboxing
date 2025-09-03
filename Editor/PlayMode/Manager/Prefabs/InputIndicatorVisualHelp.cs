@@ -14,9 +14,9 @@ namespace VRGreyboxing
         public Canvas indicatorCanvas;
         public GameObject teleportIndicatorFigure;
 
-        public void DisplayIndicators(Vector3 movementInput, float activationThreshold, GameObject displayInstance, float indicatorDistance, int rotationMode,bool leaningTeleport)
+        public void DisplayIndicators(Vector3 movementInput, float activationThreshold, GameObject displayInstance, float indicatorDistance, RotationMode rotationMode,bool leaningTeleport)
         {
-            if (rotationMode == 2)
+            if (rotationMode == RotationMode.Teleport)
             {
                 turnLeftIndicator.enabled = false;
                 turnRightIndicator.enabled = false;
@@ -69,7 +69,7 @@ namespace VRGreyboxing
                         movementInput.magnitude / activationThreshold >= 1f ? Color.green : Color.red;
                 }
 
-                if (rotationMode == 1)
+                if (rotationMode == RotationMode.Unrestricted)
                 {
                     Vector3 projected = Vector3.ProjectOnPlane(movementInput, forward).normalized;
                     float planeAngle = Vector3.SignedAngle(right, projected, forward);
@@ -80,7 +80,7 @@ namespace VRGreyboxing
                 Vector3 eulerOrigin = ActionManager.Instance.xROrigin.transform.rotation.eulerAngles;
                 Vector3 combinedEuler = new Vector3(eulerOrigin.x, eulerCam.y, eulerOrigin.z);
                 transform.rotation = Quaternion.Euler(combinedEuler);
-                if (rotationMode == 1)
+                if (rotationMode == RotationMode.Unrestricted)
                 {
                     movementDirectionIndicator.enabled = true;
                     movementDirectionIndicator.transform.parent.forward = movementInput.normalized;

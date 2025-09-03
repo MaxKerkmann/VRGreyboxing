@@ -116,10 +116,10 @@ namespace VRGreyboxing
             {
                 switch (PlayModeManager.Instance.editorDataSO.rotationMode)
                 {
-                    case 0:
+                    case RotationMode.Restricted:
                         PlayModeManager.Instance.editorDataSO.restrictedRotation++;
                         break;
-                    case 1:
+                    case RotationMode.Unrestricted:
                         PlayModeManager.Instance.editorDataSO.unrestrictedRotation++;
                         break;
                 }
@@ -180,7 +180,7 @@ namespace VRGreyboxing
                 }
 
                 movementCounter = 1;
-                if(PlayModeManager.Instance.editorDataSO.zoomMode == 1 && !performRotation)
+                if(PlayModeManager.Instance.editorDataSO.zoomMode == ZoomMode.Menu && !performRotation)
                     _zoomMenuTimer = PlayModeManager.Instance.editorDataSO.zoomMenuTime;
                 return;
             }
@@ -214,7 +214,7 @@ namespace VRGreyboxing
                         PerformRestrictedRotation(leftControllerSide);
                     }
                 }
-                else if (PlayModeManager.Instance.editorDataSO.rotationMode == 1)
+                else if (PlayModeManager.Instance.editorDataSO.rotationMode == RotationMode.Unrestricted)
                 {
                     if (_displayInstance == null)
                     {
@@ -238,7 +238,7 @@ namespace VRGreyboxing
                         PerformUnrestrictedRotation(movementInput, controllerCenter);
                     }
                 }
-                else if (PlayModeManager.Instance.editorDataSO.rotationMode == 2)
+                else if (PlayModeManager.Instance.editorDataSO.rotationMode == RotationMode.Teleport)
                 {
                     PerformTeleportRotation();
                 }

@@ -14,7 +14,7 @@ namespace VRGreyboxing
         
         [SerializeField] private List<DefaultAsset> prefabSourceDirectories = new List<DefaultAsset>();
 
-        private SerializedObject serializedObject;
+        private SerializedObject editorData;
         private SerializedProperty foldersProperty;
         
         [MenuItem("Tools/Greyboxing Editor")]
@@ -34,17 +34,31 @@ namespace VRGreyboxing
             }
             EditorManager.editorDataSo.usingBuildScenesOnly = GUILayout.Toggle(EditorManager.editorDataSo.usingBuildScenesOnly, "Use Build Scenes Only");
             EditorGUILayout.Space(15f);
+            
+            
             EditorManager.editorDataSo.prefabSaveDirectory = EditorGUILayout.ObjectField("Prefab Save directory", EditorManager.editorDataSo.prefabSaveDirectory, typeof(Object), false);
-            if (serializedObject == null || serializedObject.targetObject !=  EditorManager.editorDataSo)
+            if (editorData == null || editorData.targetObject !=  EditorManager.editorDataSo)
             {
-                serializedObject = new SerializedObject(EditorManager.editorDataSo);
-                foldersProperty = serializedObject.FindProperty("prefabDirectories");
+                editorData = new SerializedObject(EditorManager.editorDataSo);
+                foldersProperty = editorData.FindProperty("prefabSourceDirectories");
             }
-            serializedObject.Update();
+            editorData.Update();
 
             EditorGUILayout.PropertyField(foldersProperty, true);
-            serializedObject.ApplyModifiedProperties();
-            EditorManager.editorDataSo.prefabDirectories = prefabSourceDirectories;
+            editorData.ApplyModifiedProperties();
+            EditorManager.editorDataSo.prefabSourceDirectories = prefabSourceDirectories;
+            EditorGUILayout.Space(15f);
+
+            if (GUILayout.Button("Display Config File"))
+            {
+                var obj = AssetDatabase.LoadAssetAtPath<Object>("Packages/com.bcatstudio.vrgreyboxing/EditorData.asset");
+                if (obj != null)
+                {
+                    EditorUtility.FocusProjectWindow();
+                    Selection.activeObject = obj;
+                    EditorGUIUtility.PingObject(obj);
+                }
+            }
         }
     }
 }

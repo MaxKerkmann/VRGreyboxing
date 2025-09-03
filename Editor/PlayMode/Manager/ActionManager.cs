@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -1328,18 +1329,18 @@ namespace VRGreyboxing
             {
                 if (dropdown.options.Count == 3)
                 {
-                    dropdown.value = PlayModeManager.Instance.editorDataSO.rotationMode;
+                    dropdown.value = (int)PlayModeManager.Instance.editorDataSO.rotationMode;
                     dropdown.onValueChanged.AddListener(delegate
                     {
-                        PlayModeManager.Instance.editorDataSO.rotationMode = dropdown.value;
+                        PlayModeManager.Instance.editorDataSO.rotationMode = (RotationMode)dropdown.value;
                     });
                 }
                 else
                 {
-                    dropdown.value = PlayModeManager.Instance.editorDataSO.zoomMode;
+                    dropdown.value = (int)PlayModeManager.Instance.editorDataSO.zoomMode;
                     dropdown.onValueChanged.AddListener(delegate
                     {
-                        PlayModeManager.Instance.editorDataSO.zoomMode = dropdown.value;
+                        PlayModeManager.Instance.editorDataSO.zoomMode = (ZoomMode)dropdown.value;
                     });
                 }
             }

@@ -25,7 +25,7 @@ namespace VRGreyboxing
     public static class EditorManager
     {
 
-        private static List<string> _scenePaths;
+        private static List<string> _sceneIDs;
         private static GameObject cam;
         
         private static readonly HashSet<Type> AllowedPrefabTypes = new HashSet<Type>
@@ -38,7 +38,6 @@ namespace VRGreyboxing
         public static EditorDataSO editorDataSo;
         
         private static float startTime;
-        private static bool isRunning;
         private static float currentRuntime;
         private static float moveTime;
         private static float rotateTime;
@@ -137,13 +136,13 @@ namespace VRGreyboxing
         {
             List<GameObject> result = new List<GameObject>(2);
             List<string> temp = new List<string>();
-            if (editorDataSo.prefabDirectories.Count == 0)
+            if (editorDataSo.prefabSourceDirectories.Count == 0)
             {
                 temp = AssetDatabase.GetAllAssetPaths().ToList();
             }
             else
             {
-                List<DefaultAsset> directories = editorDataSo.prefabDirectories.ToList();
+                List<DefaultAsset> directories = editorDataSo.prefabSourceDirectories.ToList();
                 directories.Add(editorDataSo.defaultPrefabFolder);
                 foreach (var folder in directories)
                 {
@@ -250,8 +249,8 @@ namespace VRGreyboxing
          */
         private static void ApplySceneChanges()
         {
-            _scenePaths = AssetDatabase.FindAssets("t:Scene").ToList();
-            List<Scene> scenes = GetScenesFromGUIDs(_scenePaths,editorDataSo.usingGreyboxingEditor);
+            _sceneIDs = AssetDatabase.FindAssets("t:Scene").ToList();
+            List<Scene> scenes = GetScenesFromGUIDs(_sceneIDs,editorDataSo.usingGreyboxingEditor);
             
             
             foreach (Scene scene in scenes)
@@ -362,7 +361,7 @@ namespace VRGreyboxing
             pbm.Optimize();
             if (createdObject.newParentID != "")
             {
-                GameObject obj = Object.FindObjectsOfType<PersistentID>().FirstOrDefault(id => id.uniqueId == createdObject.newParentID)?.gameObject;
+                GameObject obj = Object.FindObjectsByType<PersistentID>(FindObjectsSortMode.None).FirstOrDefault(id => id.uniqueId == createdObject.newParentID)?.gameObject;
                 if (obj != null) go.transform.SetParent(obj.transform);
             }
         }
@@ -487,8 +486,23 @@ namespace VRGreyboxing
          */
         private static void PrepareScenes(bool remove)
         {
-            _scenePaths = AssetDatabase.FindAssets("t:Scene").ToList();
-            List<Scene> scenes = GetScenesFromGUIDs(_scenePaths,editorDataSo.usingGreyboxingEditor);
+            _sceneIDs = AssetDatabase.FindAssets("t:Scene").ToList();
+            
+            if (!editorDataSo.usingBuildScenesOnly)
+            {
+                if (remove)
+                {
+                    EditorApplication.delayCall += () => EditorBuildSettings.scenes = editorDataSo.originalBuildScenes;
+                }
+                else
+                {
+                    editorDataSo.originalBuildScenes = EditorBuildSettings.scenes;
+                    var allScenes = _sceneIDs.Select(scene => new EditorBuildSettingsScene(AssetDatabase.GUIDToAssetPath(scene), true)).ToArray();
+                    EditorBuildSettings.scenes = allScenes;
+                }
+            }
+            
+            List<Scene> scenes = GetScenesFromGUIDs(_sceneIDs,editorDataSo.usingGreyboxingEditor);
             foreach (Scene scene in scenes)
             {
 
@@ -601,7 +615,6 @@ namespace VRGreyboxing
         public static void StartCameraMovement(CameraFigure cameraFigure)
         {
             if(cameraFigure.keyFrames.Count == 0) return;
-            isRunning = true;
             startTime = (float)EditorApplication.timeSinceStartup;
             EditorApplication.update += Update;
             keyframes = cameraFigure.keyFrames;
@@ -630,7 +643,6 @@ namespace VRGreyboxing
                 if (keyframeIndex == keyframes.Count - 1)
                 {
                     EditorApplication.update -= Update;
-                    isRunning = false;
                     SceneView sceneView = SceneView.lastActiveSceneView;
                     sceneView.LookAt(originalPosition, originalRotation, originalDistance, false, false);
                     return;
