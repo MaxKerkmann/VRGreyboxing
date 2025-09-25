@@ -7,6 +7,9 @@ namespace VRGreyboxing
 {
 
 
+    /**
+     * Initialize duplication of selected object
+     */
     public class ObjectDuplicationButton : MonoBehaviour, IPointerClickHandler
     {
 
@@ -14,11 +17,9 @@ namespace VRGreyboxing
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            // XR Interaction Toolkit passes TrackedDeviceEventData
             var trackedData = eventData as TrackedDeviceEventData;
             if (trackedData != null)
             {
-                // This is the interactor that triggered the click
                 var interactor = trackedData.interactor;
                 if (interactor is XRBaseInteractor xrInteractor)
                 {

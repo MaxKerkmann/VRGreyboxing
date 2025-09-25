@@ -3,41 +3,48 @@ using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Attachment;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Transformers;
-using VRGreyboxing;
 
-public class NoneConstrainGrabTransformer : XRBaseGrabTransformer, IFarAttachProvider
+namespace VRGreyboxing
 {
-    public InteractableFarAttachMode farAttachMode { get; set; }
-    public Vector3 offset;
-    public EditWidgetEditPoint editWidgetEditPoint { get; set; }
-
-    public override void OnLink(XRGrabInteractable grabInteractable)
+    /**
+     * Allow free grab movement while applying changes to selected object
+     */
+    public class NoneConstrainGrabTransformer : XRBaseGrabTransformer, IFarAttachProvider
     {
-        editWidgetEditPoint = gameObject.GetComponent<EditWidgetEditPoint>();
-        base.OnLink(grabInteractable);
-    }
+        public InteractableFarAttachMode farAttachMode { get; set; }
+        public Vector3 offset;
+        public EditWidgetEditPoint editWidgetEditPoint { get; set; }
 
-    public override void OnGrab(XRGrabInteractable grabInteractable)
-    {
-        base.OnGrab(grabInteractable);
-        if(editWidgetEditPoint != null)
-            editWidgetEditPoint.playerEdit.DisableEditWidget(gameObject);
-    }
+        public override void OnLink(XRGrabInteractable grabInteractable)
+        {
+            editWidgetEditPoint = gameObject.GetComponent<EditWidgetEditPoint>();
+            base.OnLink(grabInteractable);
+        }
 
-    public override void OnUnlink(XRGrabInteractable grabInteractable)
-    {
-        base.OnUnlink(grabInteractable);
-        if(editWidgetEditPoint != null)
-            editWidgetEditPoint.playerEdit.currentEditPoint = null;
-    }
+        public override void OnGrab(XRGrabInteractable grabInteractable)
+        {
+            base.OnGrab(grabInteractable);
+            if (editWidgetEditPoint != null)
+                editWidgetEditPoint.playerEdit.DisableEditWidget(gameObject);
+        }
 
-    public override void Process(XRGrabInteractable grabInteractable, XRInteractionUpdateOrder.UpdatePhase updatePhase, ref Pose targetPose, ref Vector3 localScale)
-    {
-        Vector3 objectPos = grabInteractable.transform.position;
-        Vector3 movement = targetPose.position - objectPos;
+        public override void OnUnlink(XRGrabInteractable grabInteractable)
+        {
+            base.OnUnlink(grabInteractable);
+            if (editWidgetEditPoint != null)
+                editWidgetEditPoint.playerEdit.currentEditPoint = null;
+        }
 
-        targetPose.position = objectPos+movement;
-        if(editWidgetEditPoint != null)
-            editWidgetEditPoint.playerEdit.EditSelectedObjectVertices(targetPose.position,editWidgetEditPoint.handledPositionIndices);
+        public override void Process(XRGrabInteractable grabInteractable,
+            XRInteractionUpdateOrder.UpdatePhase updatePhase, ref Pose targetPose, ref Vector3 localScale)
+        {
+            Vector3 objectPos = grabInteractable.transform.position;
+            Vector3 movement = targetPose.position - objectPos;
+
+            targetPose.position = objectPos + movement;
+            if (editWidgetEditPoint != null)
+                editWidgetEditPoint.playerEdit.EditSelectedObjectVertices(targetPose.position,
+                    editWidgetEditPoint.handledPositionIndices);
+        }
     }
 }

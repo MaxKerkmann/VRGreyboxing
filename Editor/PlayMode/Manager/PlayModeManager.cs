@@ -11,6 +11,9 @@ using UnityEngine.ProBuilder;
 
 namespace VRGreyboxing
 {
+    /**
+     * Manager class to handle and save changes across different scenes
+     */
     public class PlayModeManager : MonoBehaviour
     {
         public static PlayModeManager Instance;
@@ -50,6 +53,9 @@ namespace VRGreyboxing
             _actionStackIndex = -1;
         }
         
+        /**
+         * Remove all unwanted components from objects in the scene.
+         **/
         public void StripComponentsInCurrentScene()
         {
             Scene scene = SceneManager.GetActiveScene();
@@ -103,6 +109,10 @@ namespace VRGreyboxing
                 root.SetActive(true);
             }
         }
+        
+        /**
+         * Sort components of object in way that they can be deleted without dependency issues
+         **/
         private static List<Type> TopologicalSort(List<Type> types, Dictionary<Type, HashSet<Type>> dependencies)
         {
             var result = new List<Type>();
@@ -139,6 +149,9 @@ namespace VRGreyboxing
             return result;
         }
 
+        /**
+         * Create world scale object in scene and make it the parent of all objects
+         **/
         public void PlaceWorldScaler()
         {
             GameObject worldScaler = new GameObject("WorldScaler");
@@ -152,6 +165,9 @@ namespace VRGreyboxing
 
         }
 
+        /**
+         * Reset scale of world scaler
+         **/
         public void ResetWorldScale()
         {
             if(currentWorldScaler == null) return;
@@ -164,9 +180,13 @@ namespace VRGreyboxing
             }
         }
 
-        public void RegisterObjectChange(GameObject obj,bool firstSelection = false, int prefabIndex = -1, bool objectCreation = false, bool objectDeletion = false, string basePersistentID = "",string parentPersitendID = "",List<Vector3> basePositions = null,bool flipVertices = false,List<List<Vector3>> markPoints = null,List<Vector3> drawingOffsets = null,List<Vector3> colliderCenters = null,List<Vector3> colliderSizes = null,List<Color> colors = null,List<float> lineWidths = null,CameraFigure cameraFigure = null)
+        /**
+         * Save changes of passed objects as ObjectState variances depending on passed variables
+         **/
+        public void RegisterObjectChange(GameObject obj,bool firstSelection = false, int prefabIndex = -1, bool objectCreation = false, bool objectDeletion = false, string basePersistentID = "",string parentPersitendID = "",List<Vector3> basePositions = null,bool flipVertices = false,List<List<Vector3>> markPoints = null,List<Vector3> drawingOffsets = null,List<Vector3> colliderCenters = null,List<Vector3> colliderSizes = null,List<Color> colors = null,List<float> lineWidths = null)
         {
 
+            //Case: Object has not been saved before
             if (objectCreation)
             {
                 var persitentID = obj.AddComponent<PersistentID>();
@@ -248,6 +268,7 @@ namespace VRGreyboxing
                 _actionStackIndex++;
                 _actionStack[_actionStackIndex] = markObj;
             }
+            //Case: object was already saved before
             else
             {
                 var persistentID = obj.GetComponent<PersistentID>();
@@ -356,6 +377,9 @@ namespace VRGreyboxing
             return editorDataSO.objectStates.FirstOrDefault(obs => obs.persisentID == persistentID.uniqueId);
         }
 
+        /**
+         * Trigger undo change of last action in action stack
+         **/
         public void UndoObjectChange()
         {
             if(_actionStackIndex < 0) return;
@@ -376,6 +400,9 @@ namespace VRGreyboxing
             }
         }
 
+        /**
+         * Trigger redo change of last action in action stack
+         **/
         public void RedoObjectChange()
         {
             if(_actionStackIndex < 0) return;

@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace VRGreyboxing
 {
+    /**
+     * Container component to set all managers and vr rig to DontDestroyOnLoad
+     */
     public class PersistentContainer : MonoBehaviour
     {
         [HideInInspector]

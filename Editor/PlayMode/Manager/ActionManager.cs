@@ -248,11 +248,20 @@ namespace VRGreyboxing
             leaningPossible = true;
         }
 
+
+        public bool _debugBool;
+        
         /**
          * Check for player inputs according to selected edit mode from main menu
          */
         private void Update()
         {
+
+            if (_debugBool)
+            {
+                _debugBool = false;
+                SwitchToScene("Spielwiese");
+            }
             
             //Grace Timer
             _graceTimeLeft = _leftHandSingleInput ? _graceTimeLeft - Time.deltaTime : _graceTimeLeft;
@@ -380,6 +389,9 @@ namespace VRGreyboxing
         }
         
 
+        /**
+         * Recoloring of raycast if invalid object is hovered in edit mode
+         */
         private void LateUpdate()
         {
             LineRenderer leftConLineRenderer = leftController.GetComponentInChildren<NearFarInteractor>().GetComponentInChildren<LineRenderer>(true);
@@ -395,6 +407,10 @@ namespace VRGreyboxing
             }
         }
 
+        
+        /**
+         * All methods in this region handle specific player inputs and trigger the respective functions to perform the actions.
+         */
         #region Input
 
         private bool CheckBackButtonPress(Handedness handedness)
@@ -412,6 +428,7 @@ namespace VRGreyboxing
             return false;
         }
         
+
         private void HandleMainMenu()
         {
             if (_mainMenuInstance == null)
@@ -452,6 +469,7 @@ namespace VRGreyboxing
             }
         }
 
+
         private void SelectMainMenuOption()
         {
             int selectedOption = _mainMenuInstance.GetComponent<RadialSelection>().currentSelectedPart;
@@ -459,6 +477,7 @@ namespace VRGreyboxing
             HandleMainMenuSelection(selectedOption);
             _mainMenuHandedness = Handedness.None;
         }
+
 
         private void HandleUndoRedo()
         {
@@ -503,6 +522,7 @@ namespace VRGreyboxing
             _performedUndoRedo = false;
         }
         
+
         private void HandleTransformSelect()
         {
             if (i_triggerLeft.IsPressed() && !_mainMenuChangedMode)
@@ -638,6 +658,7 @@ namespace VRGreyboxing
             }
         }
         
+
         private void HandleEditSelect()
         {
             if (i_triggerLeft.IsPressed() && !_mainMenuChangedMode)
@@ -704,6 +725,7 @@ namespace VRGreyboxing
 
             }
         }
+
 
         private void HandleEditGrab()
         {
@@ -774,6 +796,7 @@ namespace VRGreyboxing
             }
         }
         
+
         private void HandleTransformGrab()
         {
             if (i_grabLeft.IsPressed() && _leftHandHoverObject != null && _leftHandHoverObject == _leftHandHoveredXRObject)
@@ -840,6 +863,8 @@ namespace VRGreyboxing
                 twoHandGrab = false;
             }
         }
+        
+        
         private void HandleInventory()
         {
             if ((i_axLeft.IsPressed() || i_axRight.IsPressed()) && !_inventoryChanged)
@@ -917,7 +942,7 @@ namespace VRGreyboxing
                 _drawingConfirmMenuChanged = false;
             }
         }
-
+        
         private void HandleComSelect()
         { 
             if (i_triggerLeft.IsPressed()  && !_mainMenuChangedMode)
@@ -955,7 +980,7 @@ namespace VRGreyboxing
                 _mainMenuChangedMode = false; 
             }
         }
-
+        
         private void HandleComGrab()
         {
             if (i_grabLeft.IsPressed())
@@ -1088,7 +1113,7 @@ namespace VRGreyboxing
                     DisplayConfirmMenu(delegate
                     {
                         _playerTransformation.PlaceCameraKeyframe();
-                        PlayModeManager.Instance.RegisterObjectChange(_playerTransformation.currentCameraFigure,cameraFigure: _playerTransformation.currentCameraFigure.GetComponent<CameraFigure>());
+                        PlayModeManager.Instance.RegisterObjectChange(_playerTransformation.currentCameraFigure);
                     },CloseConfirmMenu,"Place Keyframe?");
                 }
             }else if (!i_axLeft.IsPressed() && !i_axRight.IsPressed())
@@ -1262,9 +1287,11 @@ namespace VRGreyboxing
         
         #endregion
 
+        /**
+         * Methods to open and close ui elements. Additionally, methods to trigger logic from the ui
+         */
         #region UI
-
-
+        
         public Vector3 GetUIPosition()
         {
             return xROrigin.GetComponentInChildren<Camera>().transform.position+xROrigin.GetComponentInChildren<Camera>().transform.forward * (2);
@@ -1396,7 +1423,7 @@ namespace VRGreyboxing
                     cameraPathButton.GetComponentInChildren<Image>().sprite = selectionMenuCameraIcon;
                     cameraPathButton.GetComponent<Button>().onClick.AddListener(delegate
                     {
-                        FollowCameraPath(GetSelectedObject().GetComponent<CameraFigure>());
+                        FollowCameraMovement(GetSelectedObject().GetComponent<CameraFigure>());
                     });
                 }
             }
@@ -1741,7 +1768,7 @@ namespace VRGreyboxing
                 DisplayConfirmMenu(delegate
                 {
                     _playerTransformation.DeleteCameraKeyframe(keyFrameIndex);
-                    PlayModeManager.Instance.RegisterObjectChange(_playerTransformation.currentCameraFigure,cameraFigure: _playerTransformation.currentCameraFigure.GetComponent<CameraFigure>());
+                    PlayModeManager.Instance.RegisterObjectChange(_playerTransformation.currentCameraFigure);
                     CloseKeyframeEditMenu();
                     CloseConfirmMenu();
                 }, CloseConfirmMenu,"Delete Keyframe");
@@ -1783,9 +1810,11 @@ namespace VRGreyboxing
         }
         
         #endregion
-
+        
+        /**
+         * Set and get different drawing parameters
+         */
         #region Drawing
-
         public void ChangeDrawColor(Color color)
         {
             _playerCommunication.SetColor(color);
@@ -1806,13 +1835,19 @@ namespace VRGreyboxing
 
         #region Movement
 
-        private void FollowCameraPath(CameraFigure cameraFigure)
+        /**
+         * Enter camera figure and start following its recorded movement
+         */
+        private void FollowCameraMovement(CameraFigure cameraFigure)
         {
             _playerTransformation.EnterCameraFigure();
-            _playerNavigation.FollowCameraPath(cameraFigure);
+            _playerNavigation.FollowCameraMovement(cameraFigure);
         }
 
-        public void ExitCameraPath()
+        /**
+         * Exit current camera figure
+         */
+        public void ExitCameraMovement()
         {
             _playerTransformation.ExitCameraFigure();
             _playerTransformation.currentCameraFigure = null;
@@ -1821,6 +1856,9 @@ namespace VRGreyboxing
 
         #endregion
         
+        /**
+         * Get and set references
+         */
         #region ObjectAssignment
         public void XRHoverEventLeft(HoverEnterEventArgs args)
         {
@@ -1867,6 +1905,7 @@ namespace VRGreyboxing
             _rightHandHoveredUI = null;
         }
 
+
         public GameObject GetSelectedObject()
         {
             switch (_currentEditMode)
@@ -1878,6 +1917,7 @@ namespace VRGreyboxing
             }
             return null;
         }
+
 
         private void SelectObject(Handedness handedness,GameObject selectedObject)
         {
@@ -1903,7 +1943,7 @@ namespace VRGreyboxing
                         _playerTransformation.ApplyTransWidgetToSelectedObject();
                         break;
                     case EditMode.Edit:
-                        _playerEdit.ApplyTransWidgetToSelectedObject();
+                        _playerEdit.ApplyEditWidgetToSelectedObject();
                         break;
                 }
             }
@@ -1922,6 +1962,9 @@ namespace VRGreyboxing
             }
         }
         
+        /**
+         * Copy component and apply all set fields from the original
+         */
         public T CopyComponent<T>(T original, GameObject destination) where T : Component
         {
             var type = original.GetType();

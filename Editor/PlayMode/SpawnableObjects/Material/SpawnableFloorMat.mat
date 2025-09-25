@@ -50,7 +50,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: SpawnableFloorMat
-  m_Shader: {fileID: -6465566751694194690, guid: f69b2c388f4c3e949bee920839f78dac, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 4d4ce6a180d04304abeb6698e6f856c1, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -172,6 +172,7 @@ Material:
     - _AlphaTestRef: 0.5
     - _Amplitude: 0.33928573
     - _Angle: 0.46428573
+    - _AtmosphereThickness: 1
     - _BUILTIN_QueueControl: 0
     - _BUILTIN_QueueOffset: 0
     - _BlendMode: 0
@@ -193,6 +194,7 @@ Material:
     - _EnableBlendModePreserveSpecularLighting: 1
     - _EnableFogOnTransparent: 1
     - _ExcludeFromTUAndAA: 0
+    - _Exposure: 1.3
     - _Gloss: 0.5
     - _Glossiness: 0.48
     - _Lightmapping: 1
@@ -232,6 +234,9 @@ Material:
     - _StencilWriteMaskDistortionVec: 4
     - _StencilWriteMaskGBuffer: 15
     - _StencilWriteMaskMV: 41
+    - _SunDisk: 2
+    - _SunSize: 0.04
+    - _SunSizeConvergence: 5
     - _SupportDecals: 1
     - _SurfaceType: 0
     - _TopScale: 2
@@ -248,6 +253,7 @@ Material:
     - _VertexOffsetX: 0
     - _VertexOffsetY: 0
     - _Wavelength: 0.17857142
+    - _WorldScale: 1
     - _ZTestDepthEqualForOpaque: 3
     - _ZTestGBuffer: 4
     - _ZTestTransparent: 4
@@ -263,7 +269,9 @@ Material:
     - _EmissionColorUI: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColorWithMapUI: {r: 1, g: 1, b: 1, a: 1}
     - _FaceColor: {r: 1, g: 1, b: 1, a: 1}
+    - _GroundColor: {r: 0.36899996, g: 0.34899998, b: 0.34099993, a: 1}
     - _Indicator: {r: 1, g: 0, b: 0, a: 1}
+    - _SkyTint: {r: 0.5, g: 0.5, b: 0.5, a: 1}
     - _SpecularColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

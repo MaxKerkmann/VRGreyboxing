@@ -2,6 +2,9 @@ using UnityEngine;
 
 namespace VRGreyboxing
 {
+    /**
+     * Keyframe component to save camera movement data
+     */
     [System.Serializable]
     public class CameraKeyFrame
     {

@@ -7,10 +7,14 @@ using UnityEngine.UI;
 #if UNITY_EDITOR
 namespace VRGreyboxing
 {
+    /**
+     * Inventory display
+     */
     public class InventoryMenu : MonoBehaviour
     {
         private List<PrefabPreviewTarget> _pendingPreviews = new();
         public GameObject inventoryOptionButtonPrefab;
+        public int previewImageCheckAttempts;
 
         
         [System.Serializable]
@@ -21,6 +25,9 @@ namespace VRGreyboxing
             public int retryCount;
         }
         
+        /**
+         * Fill inventory menu with all prefabs in the editor data
+         */
         public void FillInventoryMenu()
         {
             _pendingPreviews = new List<PrefabPreviewTarget>();
@@ -61,6 +68,9 @@ namespace VRGreyboxing
             }
         }
         
+        /**
+         * Check if preview image of prefab is loaded until configured retry count is reached
+         */
         private void CheckPreviewStatus()
         {
             for (int i = _pendingPreviews.Count - 1; i >= 0; i--)
@@ -78,7 +88,7 @@ namespace VRGreyboxing
                     target.retryCount++;
                     _pendingPreviews[i] = target;
 
-                    if (target.retryCount > 5)
+                    if (target.retryCount > previewImageCheckAttempts)
                     {
                         target.renderer.enabled = true;
                         target.renderer.gameObject.transform.localScale = Vector3.one;
@@ -92,6 +102,10 @@ namespace VRGreyboxing
                 EditorApplication.update -= CheckPreviewStatus;
             }
         }
+        
+        /**
+         * Set preview image of prefab in menu
+         */
         private void ApplyPreviewSprite(Image image, Texture2D texture)
         {
             var sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f), 2);

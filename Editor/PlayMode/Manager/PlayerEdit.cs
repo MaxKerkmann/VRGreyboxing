@@ -11,6 +11,9 @@ using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 namespace VRGreyboxing
 {
+    /**
+     * Logic for changing the shapes of objects and create new ones
+     */
     public class PlayerEdit : MonoBehaviour
     {
         public XRInteractionManager xrInteractionManager;
@@ -47,6 +50,9 @@ namespace VRGreyboxing
             _placedVertexEditPoints = new List<GameObject>();
         }
 
+        /**
+         * Check for edit points at the position of controller. Save and mark them if they inside a set distance of controller
+         */
         public void CheckForVertexPositions()
         {
             Vector3 posLeft = _leftController.GetComponentInChildren<XRControllerRaycaster>().pokePointTransform.position;
@@ -107,6 +113,9 @@ namespace VRGreyboxing
             }
         }
 
+        /**
+         * Removing all floating edit points in the scene
+         */
         public void ClearFloatingPoints()
         {
             foreach (var floatingObject in _placedVertexEditPoints.ToList())
@@ -116,6 +125,10 @@ namespace VRGreyboxing
             _placedVertexEditPoints = new List<GameObject>();
         }
         
+        /**
+         * Place new vertex edit point at the position of the controller. If an edit points was placed before or is selected, connect it to the new one.
+         * 
+         */
         public List<VertexEditPoint> PlaceSelectVertex(Handedness handedness)
         {
             GameObject usedController = handedness == Handedness.Left ? _leftController : _rightController;
@@ -179,7 +192,10 @@ namespace VRGreyboxing
             return null;
         }
 
-        public void InvalidVertexConnection(List<VertexEditPoint> vertexEditPoints)
+        /**
+         * Remove all current connections of placed edit points in the scene and color the points red
+         */
+        private void InvalidVertexConnection(List<VertexEditPoint> vertexEditPoints)
         {
             foreach (var editPoint in vertexEditPoints)
             {
@@ -189,6 +205,9 @@ namespace VRGreyboxing
             _invalidConnections = vertexEditPoints;
         }
         
+        /**
+         * Create poly-shape from passed edit points with the distance of the controller to center of the base points as height
+         */
         public void ScaleCurrentPolyShape(Handedness handedness,GameObject polyShape,List<VertexEditPoint> vertexEditPoints)
         {
             GameObject usedController = handedness == Handedness.Left ? _leftController : _rightController;
@@ -247,6 +266,9 @@ namespace VRGreyboxing
             }
         }
 
+        /**
+         * Center the poly-shape position
+         */
         public void CenterPolyshapePosition(GameObject polyShape)
         {
             ProBuilderMesh pbm = polyShape.GetComponent<ProBuilderMesh>();
@@ -264,6 +286,10 @@ namespace VRGreyboxing
             pbm.Refresh();
         }
         
+        /**
+         * Select currently hovered object.
+         * If it´s an edit point make the user grab, otherwise display the edit point widget around it.
+         */
         public void SelectObject(Handedness handedness, GameObject obj)
         {
             var constrainGrabTransformer = obj.GetComponent<NoneConstrainGrabTransformer>();
@@ -300,8 +326,12 @@ namespace VRGreyboxing
             selectedObject = obj;
             _selectEditHandedness = Handedness.None;
             _justSelected = true;
-            ApplyTransWidgetToSelectedObject();
+            ApplyEditWidgetToSelectedObject();
         }
+        
+        /**
+         *  If the current selected object is an edit point, end the grab of the object and display the edit widget again
+         */
         public void EndSelection(GameObject obj)
         {
             if (_selectEditHandedness != Handedness.None)
@@ -316,7 +346,7 @@ namespace VRGreyboxing
                 if (currentSelectedEditWidgetPoint != null)
                 {
                     currentSelectedEditWidgetPoint = null;
-                    ApplyTransWidgetToSelectedObject();
+                    ApplyEditWidgetToSelectedObject();
                 }
             }
             else
@@ -325,16 +355,22 @@ namespace VRGreyboxing
             }
         }
 
-        public void ApplyTransWidgetToSelectedObject()
+        /**
+         * Create a new edit widget for the selected object, destroy the old one
+         */
+        public void ApplyEditWidgetToSelectedObject()
         {
             GameObject transWidget = new GameObject("TransWidget");
             transWidget.transform.position = selectedObject.transform.position;
             if(_currentEditWidget != null)
                 Destroy(_currentEditWidget);
             _currentEditWidget = transWidget;
-            SetCurrentTransWidgetPositions();
+            SetCurrentEditWidgetPositions();
         }
 
+        /**
+         * Disable all parts of the current edit widget except the one being grabbed
+         */
         public void DisableEditWidget(GameObject currentCube)
         {
             for (int i = 0;i < _currentEditWidget.transform.childCount;i++)
@@ -344,7 +380,10 @@ namespace VRGreyboxing
             }
         }
         
-        public void SetCurrentTransWidgetPositions()
+        /**
+         * Place the edit widget points the vertices and edges of the selected object
+         */
+        public void SetCurrentEditWidgetPositions()
         {
             ProBuilderMesh pbm = selectedObject.GetComponent<ProBuilderMesh>();
             List<Vector3> worldPositions = pbm.positions.Select(v => pbm.transform.TransformPoint(v)).ToList();
@@ -362,7 +401,7 @@ namespace VRGreyboxing
                     Vector3 a = pbm.transform.TransformPoint(pbm.positions[edge.a]);
                     Vector3 b = pbm.transform.TransformPoint(pbm.positions[edge.b]);
                     Vector3 center = (a + b) * 0.5f;
-                    Vector3Int key = RoundedPositionKey(center, 0.05f); // Coarse to absorb floating point offset
+                    Vector3Int key = RoundedPositionKey(center, 0.05f);
 
                     var handledIndices = new List<List<int>>
                     {
@@ -425,6 +464,10 @@ namespace VRGreyboxing
                 Mathf.RoundToInt(pos.z / precision)
             );
         }
+        
+        /**
+         * Check if current list of vertices would create a flat mesh
+         */
         private bool IsMeshFlat(List<Vector3> points, float tolerance)
         {
             if (points.Count < 3)
@@ -442,12 +485,18 @@ namespace VRGreyboxing
             return true;
         }
         
+        /**
+         * Remove current edit widget and reset selected object variable
+         */
         public void DeselectObject()
         {
             Destroy(_currentEditWidget); 
             selectedObject = null;
         }
 
+        /**
+         * Move vertices of object according to grab changes by the player
+         */
         public void EditSelectedObjectVertices(Vector3 transformPos,List<List<int>> vertexIndices)
         {
             ProBuilderMesh pbm = selectedObject.GetComponent<ProBuilderMesh>();

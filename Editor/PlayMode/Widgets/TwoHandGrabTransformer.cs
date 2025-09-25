@@ -6,6 +6,9 @@ using UnityEngine.XR.Interaction.Toolkit.Transformers;
 
 namespace VRGreyboxing
 {
+    /**
+     * Allow rotation of grabbed object when both hands are used
+     */
     public class TwoHandGrabTransformer : XRBaseGrabTransformer
     {
         public override void Process(XRGrabInteractable grabInteractable, XRInteractionUpdateOrder.UpdatePhase updatePhase, ref Pose targetPose, ref Vector3 localScale)

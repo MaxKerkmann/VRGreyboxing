@@ -130,7 +130,7 @@ namespace VRGreyboxing
         }
 
         /**
-         * Get all prefabs in projekt file or just those in configured folders
+         * Get all prefabs in project file or just those in configured folders
          */
         private static List<GameObject> GetAvailablePrefabs()
         {
@@ -228,6 +228,9 @@ namespace VRGreyboxing
             return scenes;
         }
 
+        /**
+         * When play mode ends reset scenes and apply saved changes
+         **/
         private static void OnPlayModeChanged(PlayModeStateChange newState)
         {
             if (newState == PlayModeStateChange.EnteredEditMode && editorDataSo.usingGreyboxingEditor)
@@ -246,7 +249,7 @@ namespace VRGreyboxing
         
         /**
          * Apply all saves changes from greyboxing phase in vr to scenes in edit mode
-         */
+         **/
         private static void ApplySceneChanges()
         {
             _sceneIDs = AssetDatabase.FindAssets("t:Scene").ToList();
@@ -299,6 +302,9 @@ namespace VRGreyboxing
             }
         }
 
+        /**
+         * Spawn object from available prefabs by saved index
+         */
         private static void SpawnObject(SpawnedObject spawnedObject, Scene scene)
         {
             if (spawnedObject.prefabIndex == -1) return;
@@ -326,6 +332,9 @@ namespace VRGreyboxing
             }
         }
 
+        /**
+         * Create costum object by saved edge points
+         */
         private static void CreateObject(CreatedObject createdObject, Scene scene)
         {
             GameObject go = new GameObject("CreatedObject");
@@ -366,6 +375,9 @@ namespace VRGreyboxing
             }
         }
 
+        /**
+         * Recreate drawing with saved positions from the line renderer
+         */
         private static void DrawObject(MarkerObject markerObject, Scene scene)
         {
             GameObject go = new GameObject("DrawContainer");

@@ -6,7 +6,6 @@ namespace VRGreyboxing
     {
         Transformation,
         Edit,
-        Communicate,
-        View
+        Communicate
     }
 }

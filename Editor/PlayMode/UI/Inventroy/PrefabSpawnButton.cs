@@ -12,7 +12,9 @@ using UnityEngine.XR.Interaction.Toolkit.UI;
 
 namespace VRGreyboxing
 {
-
+    /**
+     * Menu item in inventory to spawn set prefab
+     */
     public class PrefabSpawnButton : MonoBehaviour, IPointerClickHandler
     {
 
@@ -21,11 +23,9 @@ namespace VRGreyboxing
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            // XR Interaction Toolkit passes TrackedDeviceEventData
             var trackedData = eventData as TrackedDeviceEventData;
             if (trackedData != null)
             {
-                // This is the interactor that triggered the click
                 var interactor = trackedData.interactor;
                 if (interactor is XRBaseInteractor xrInteractor)
                 {

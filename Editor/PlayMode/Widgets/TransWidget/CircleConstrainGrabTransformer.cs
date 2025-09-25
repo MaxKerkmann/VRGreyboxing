@@ -4,10 +4,13 @@ using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Attachment;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Transformers;
-using VRGreyboxing;
 
 namespace VRGreyboxing
 {
+    
+    /**
+    * Allow grab movement on circle around selected object while applying rotation changes to selected object
+    */
     public class CircleConstrainGrabTransformer : ConstrainGrabTransformer, IFarAttachProvider
     {
 
@@ -56,17 +59,13 @@ namespace VRGreyboxing
         {
             Vector3 origVec = transWidgetEditPoint.transform.position - _center;
 
-            // Project the grab position onto the plane
             Vector3 projected = Vector3.ProjectOnPlane(targetPose.position - _center, _planeNormal).normalized * _radius;
             Vector3 lockedPos = _center + projected;
 
-            // Lock the gizmo's position to the circular path
             targetPose.position = lockedPos;
 
-            // Vector from center to current (constrained) gizmo position
             Vector3 alteredVec = lockedPos - _center;
 
-            // Compute rotation between original and current vector
             Quaternion deltaRotation = Quaternion.FromToRotation(origVec, alteredVec);
 
             transWidgetEditPoint.playerTransformation.TransformSelectedObject(transWidgetEditPoint.transWidgetTransformType,Vector3.zero, deltaRotation);

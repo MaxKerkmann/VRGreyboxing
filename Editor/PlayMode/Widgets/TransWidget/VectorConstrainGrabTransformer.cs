@@ -6,7 +6,9 @@ using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 namespace VRGreyboxing
 {
-    
+    /**
+     * Allow grab movement on specific vector and apply scaling changes to selected object
+     */
     public class VectorConstrainGrabTransformer : ConstrainGrabTransformer, IFarAttachProvider
     {
         public InteractableFarAttachMode farAttachMode { get; set; }

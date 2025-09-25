@@ -37,6 +37,9 @@ namespace VRGreyboxing
         ScaleCorner
     }
     
+    /**
+     * Logic to apply transform changes to objects in the scene
+     */
     public class PlayerTransformation : MonoBehaviour
     {
         public XRInteractionManager xrInteractionManager;
@@ -79,6 +82,9 @@ namespace VRGreyboxing
         
 
 
+        /**
+         * Grab interactable object with one or two hands using the XR Interaction Manager
+         */
         public void PerformGrab(Handedness handedness,XRGrabInteractable interactable)
         {
             if (interactable.gameObject.GetComponentInChildren<MeshCollider>())
@@ -126,6 +132,10 @@ namespace VRGreyboxing
                     interactable);
             }
         }
+        
+        /**
+         * End grabbing of object and reset variables
+         */
         public void EndGrab(Handedness handedness)
         {
 
@@ -154,6 +164,10 @@ namespace VRGreyboxing
 
         }
 
+        /**
+        * Select currently hovered object.
+        * If it´s a transform point make the user grab, otherwise display the transform point widget around it.
+        */
         public void SelectObject(Handedness handedness,GameObject obj)
         {
             var constrainGrabTransformer = obj.GetComponent<ConstrainGrabTransformer>();
@@ -209,6 +223,9 @@ namespace VRGreyboxing
             ApplyTransWidgetToSelectedObject();
         }
 
+        /**
+        *  If the current selected object is a transform point, end the grab of the object and display the transform widget again
+        */
         public void EndSelection(GameObject obj)
         {
             if (_selectTransformHandedness != Handedness.None)
@@ -231,6 +248,9 @@ namespace VRGreyboxing
             }
         }
 
+        /**
+        * Create a new transform widget for the selected object, destroy the old one
+        */
         public void ApplyTransWidgetToSelectedObject()
         {
             GameObject transWidget = Instantiate(transWidgetPrefab, selectedObject.transform.position,Quaternion.identity);
@@ -239,7 +259,10 @@ namespace VRGreyboxing
             _currentTransWidget = transWidget;
             SetCurrentTransWidgetPositions();
         }
-
+        
+        /**
+         * Disable all parts of the current transform widget except the one being grabbed
+         */
         public void DisableTransWidget(bool exceptCurrentTransWidgetPoint)
         {
             foreach (var editPoint in _currentTransWidget.GetComponentsInChildren<TransWidgetEditPoint>())
@@ -249,6 +272,9 @@ namespace VRGreyboxing
             }
         }
         
+        /**
+        * Place the transform widget points the vertices, edges and faces of the selected object
+        */
         public void SetCurrentTransWidgetPositions()
         {
             Quaternion originalRotation = selectedObject.transform.rotation;
@@ -429,6 +455,9 @@ namespace VRGreyboxing
 
         }
         
+        /**
+        * Remove current transform widget and reset selected object variable
+        */
         public void DeselectObject()
         {
             Destroy(_currentTransWidget);
@@ -436,7 +465,9 @@ namespace VRGreyboxing
             selectedObject = null;
         }
         
-        
+        /**
+         * Move or rotate the selected objects depending on which type of transform point has been grabbed
+         */
         public void TransformSelectedObject(TransWidgetTransformType transWidgetPoint,Vector3 transformation, Quaternion deltaRotation)
         {
             switch (transWidgetPoint)
@@ -456,9 +487,13 @@ namespace VRGreyboxing
                     break;
             }
         }
-        public void ScaleSelectedObjectFromCorner(Vector3 fixedCornerWS, Vector3 transWidgetPointWS, Vector3 cornerPointWS, GameObject scaleObject)
+        
+        /**
+         * Scale the selected object depending on the position of the grabbed transform point either just on one axis or all at the same time
+         */
+        public void ScaleSelectedObjectFromCorner(Vector3 fixedCorner, Vector3 transWidgetPoint, Vector3 cornerPoint, GameObject scaleObject)
         {
-            var oldVector = fixedCornerWS - cornerPointWS;
+            var oldVector = fixedCorner - cornerPoint;
             var rotatedOldVector = Quaternion.Inverse(selectedObject.transform.rotation) * oldVector;
             if (Math.Abs(rotatedOldVector.x) <= 0.01)
                 rotatedOldVector.x = 0;
@@ -468,8 +503,8 @@ namespace VRGreyboxing
                 rotatedOldVector.z = 0;
             
 
-            float oldDiagonal = Vector3.Distance(fixedCornerWS,cornerPointWS);
-            float newDiagonal = Vector3.Distance(fixedCornerWS, transWidgetPointWS);
+            float oldDiagonal = Vector3.Distance(fixedCorner,cornerPoint);
+            float newDiagonal = Vector3.Distance(fixedCorner, transWidgetPoint);
             float ratio = newDiagonal / oldDiagonal;
 
             if (rotatedOldVector.x == 0 || rotatedOldVector.y == 0 || rotatedOldVector.z == 0)
@@ -485,10 +520,11 @@ namespace VRGreyboxing
             {
                 scaleObject.transform.localScale = new Vector3(ratio,ratio,ratio);
             }
-            
-           
-
         }
+        
+        /**
+         *  Spawn selected prefab from the inventory in front of the player and grab the object the controller used to select it in the menu
+         */
         public GameObject CreatePrefabFromMenu(GameObject prefab,int prefabIndex,Transform buttonTransform)
         {
             GameObject go = Instantiate(prefab,buttonTransform.position,Quaternion.identity);
@@ -514,6 +550,9 @@ namespace VRGreyboxing
             return go;
         }
 
+        /**
+         * Delete the selected object and save the action
+         */
         public void DeleteSelectedObject()
         {
             PlayModeManager.Instance.RegisterObjectChange(selectedObject,false,-1,false,true);
@@ -523,6 +562,9 @@ namespace VRGreyboxing
             ActionManager.Instance.CloseSelectionMenu();
         }
 
+        /**
+         * Create a copy of the selected object and grab it with the controller used to select the option
+         */
         public GameObject DuplicateSelectedObject()
         {
             ActionManager.Instance.CloseSelectionMenu();
@@ -553,6 +595,9 @@ namespace VRGreyboxing
         }
         
 
+        /**
+         * Save the selected object as prefab in the project files
+         */
         public async void SaveSelectedObject()
         {
             ActionManager.Instance.CloseSelectionMenu();
@@ -593,6 +638,10 @@ namespace VRGreyboxing
 
         }
 
+        /**
+         * Set the player in the place of the selected camera figure and adjust the size of the player to match the dimensions of the figure
+         * Save the original transform of the player
+         */
         public void EnterCameraFigure()
         {
             GameObject xrorigin = ActionManager.Instance.xROrigin;
@@ -630,6 +679,9 @@ namespace VRGreyboxing
             ActionManager.Instance.CloseSelectionMenu();
         }
 
+        /**
+         * Reset the player position and scale to the saved transform before entering the camera figure
+         */
         public void ExitCameraFigure()
         {
             ActionManager.Instance.CloseConfirmMenu();
@@ -666,6 +718,10 @@ namespace VRGreyboxing
             PlayModeManager.Instance.RegisterObjectChange(currentCameraFigure);
         }
 
+        /**
+         * Place a new camera keyframe at the position and rotation of the player.
+         * Initialize movement and rotation time
+         */
         public void PlaceCameraKeyframe()
         {
             ActionManager.Instance.CloseConfirmMenu();
@@ -681,6 +737,9 @@ namespace VRGreyboxing
             cameraFigure.keyFrames.Add(cameraKeyFrame);
         }
 
+        /**
+         * Remove selected camera keyframe
+         */
         public void DeleteCameraKeyframe(int index)
         {
             CameraFigure cameraFigure = currentCameraFigure.GetComponent<CameraFigure>();
@@ -697,7 +756,9 @@ namespace VRGreyboxing
             DisplayCameraKeyframes();
         }
 
-        
+        /**
+         * Display all camera keyframes of the selected camera figure in the area
+         */
         public void DisplayCameraKeyframes()
         {
             CameraFigure cameraFigure = selectedObject.GetComponent<CameraFigure>();
@@ -720,6 +781,9 @@ namespace VRGreyboxing
             }
         }
 
+        /**
+         * Hide keyframe display from player
+         **/
         public void RemoveKeyFrameDisplays()
         {
             foreach (var keyFrameDisplay in _keyFrameDisplays.ToList())

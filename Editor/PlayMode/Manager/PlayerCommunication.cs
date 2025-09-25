@@ -67,6 +67,9 @@ namespace VRGreyboxing
                 }
             }
         }
+        /**
+         * Center the current drawing and reset the variable to start a new drawing
+         */
         public void ResetDrawing()
         {
             if(_currentDrawing==null) return;
@@ -87,6 +90,9 @@ namespace VRGreyboxing
 
         }
 
+        /**
+         * Check for parts of a drawing at the position of the controller. Split the line at the position and remove the parts of the line at the controller position
+         */
         public void EraseLine(Handedness handedness)
         {
             GameObject usedController = handedness == Handedness.Left ? _leftController : _rightController;
@@ -120,6 +126,9 @@ namespace VRGreyboxing
             }
         }
         
+        /**
+         * Check distance between line and controller. 
+         */
         private float DistancePointToSegment(Vector3 point, Vector3 a, Vector3 b)
         {
             Vector3 ab = b - a;
@@ -129,6 +138,9 @@ namespace VRGreyboxing
             return Vector3.Distance(point, closestPoint);
         }
 
+        /**
+         * Create two line renderer from one by splitting them at the index of the erased part of a line
+         */
         private void SplitLine(LineRenderer original, int splitIndex)
         {
             int total = original.positionCount;
@@ -163,6 +175,9 @@ namespace VRGreyboxing
             Destroy(original.gameObject);
         }
 
+        /**
+         * Create new line renderer with important attributes of the original line renderer
+         */
         private void SetupLineCopy(LineRenderer original, LineRenderer copy, Vector3[] points)
         {
             copy.positionCount = points.Length;
@@ -186,6 +201,9 @@ namespace VRGreyboxing
             copy.gameObject.transform.position = center;
         }
 
+        /**
+         * Create new drawing container to encapsulate all drawn lines and center drawings
+         */
         public void ConfirmDrawing()
         {
             GameObject drawingContainer = new GameObject("DrawingContainer");
@@ -209,6 +227,9 @@ namespace VRGreyboxing
             ActionManager.Instance.CloseConfirmMenu();
         }
         
+        /**
+         * Give the created drawing container it´s components for vr interaction. Setup saving process of the drawing
+         */
         private void SaveDrawing(GameObject drawing)
         {
 
@@ -264,6 +285,9 @@ namespace VRGreyboxing
             PlayModeManager.Instance.RegisterObjectChange(drawing,false,-1,false,false,"","",new List<Vector3>(),false,drawingpoints,drawingOffsets,colliderCenters,colliderSizes,drawingColors,lineWidths);
         }
 
+        /**
+         * Encapsulate the bounds of the current drawing in the collider of the drawing container
+         */
         public void EncapsulateDrawing(BoxCollider parentCollider, Collider[] drawingColliders)
         {
             Bounds combinedBounds = drawingColliders[0].bounds;
@@ -280,6 +304,9 @@ namespace VRGreyboxing
             parentCollider.size = localSize;
         }
 
+        /**
+         * Cancel the current drawing and remove all of its lines
+         */
         public void RevokeDrawing()
         {
             foreach (var drawing in _currentDrawingObjects.ToList())
@@ -290,6 +317,9 @@ namespace VRGreyboxing
             ActionManager.Instance.CloseConfirmMenu();
         }
         
+        /**
+         * Set the current drawing color. Change the visual color displayed on the controller
+         */
         public void SetColor(Color color)
         {
             _currentColor = color;

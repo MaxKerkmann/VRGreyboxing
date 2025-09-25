@@ -163,6 +163,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inventoryOptionButtonPrefab: {fileID: 8048543734897224155, guid: 078e7421747695c45ac9af66c758a389, type: 3}
+  previewImageCheckAttempts: 5
 --- !u!1 &1622486548411016450
 GameObject:
   m_ObjectHideFlags: 0

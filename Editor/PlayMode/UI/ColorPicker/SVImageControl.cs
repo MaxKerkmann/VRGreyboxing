@@ -5,6 +5,10 @@ using UnityEngine.UI;
 
 namespace VRGreyboxing
 {
+    
+    /**i
+     * Update selected colour on drag of colour picker depending on position on ui
+     */
     public class SVImageControl : MonoBehaviour, IDragHandler, IPointerClickHandler
     {
 

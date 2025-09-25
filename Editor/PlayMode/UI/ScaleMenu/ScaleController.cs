@@ -6,6 +6,9 @@ using UnityEngine.UI;
 
 namespace VRGreyboxing
 { 
+    /**
+     * Initialize scaling menu
+     */
     public class ScaleController : MonoBehaviour
     {
         public TextMeshProUGUI currentSize;

@@ -8,6 +8,9 @@ using UnityEngine.XR.Interaction.Toolkit.Transformers;
 
 namespace VRGreyboxing
 {
+    /**
+     * Allow grab movement on one axis while applying position changes to selected object
+     */
     public class AxisConstrainGrabTransformer : ConstrainGrabTransformer, IFarAttachProvider
     {
         public InteractableFarAttachMode farAttachMode { get; set; }

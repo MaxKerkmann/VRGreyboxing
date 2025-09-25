@@ -27,6 +27,9 @@ namespace VRGreyboxing
             base.OnUnlink(grabInteractable);
         }
 
+        /**
+         * Apply grab movement to draw container object instead of the drawing directly
+         */
         public override void Process(XRGrabInteractable grabInteractable, XRInteractionUpdateOrder.UpdatePhase updatePhase, ref Pose targetPose, ref Vector3 localScale)
         {
             if (!ActionManager.Instance.twoHandGrab)

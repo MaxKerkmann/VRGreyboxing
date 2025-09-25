@@ -6,6 +6,9 @@ using UnityEngine.ProBuilder;
 
 namespace VRGreyboxing
 {
+    /**
+     * Placeable vertex to create new objects
+     */
     public class VertexEditPoint : MonoBehaviour
     {
         public VertexEditPoint connectedObject;
@@ -27,6 +30,10 @@ namespace VRGreyboxing
             }
         }
 
+        /**
+         * Connect placed vertex visually and save connection
+         * If connection loops initialize shape creation
+         **/
         public List<VertexEditPoint> Connect(VertexEditPoint obj, Handedness handedness,PlayerEdit playerEdit)
         {
             connectedObject = obj;
@@ -49,6 +56,9 @@ namespace VRGreyboxing
             return null;
         }
 
+        /**
+         * Clear connection to vertex
+         */
         public void ClearConnection()
         {
             _lineRenderer.SetPosition(0, transform.position);

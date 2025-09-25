@@ -5,6 +5,10 @@ using UnityEngine.UI;
 
 namespace VRGreyboxing
 {
+    
+    /**
+     * Menu to change drawing settings
+     */
     public class ColorPickerControl : MonoBehaviour
     {
         public float currentHue;
@@ -27,12 +31,15 @@ namespace VRGreyboxing
         public Color selectedColor;
 
 
+        /**
+         * Initialize colour picker components
+         */
         private void Start()
         {
             CreateHueImage();
             CreateSVImage();
             CreateOutputImage();
-            UpdateOutPutImage();
+            UpdateOutputImage();
             Button button = gameObject.GetComponentInChildren<Button>();
             button.onClick.AddListener(delegate { ActionManager.Instance.ChangeDrawColor(selectedColor); });
             lineWidthText.text = (ActionManager.Instance.GetCurrentLineWidth() * 100f).ToString("0.00");
@@ -40,6 +47,9 @@ namespace VRGreyboxing
 
         }
 
+        /**
+         * Create background image for hue selection
+         */
         private void CreateHueImage()
         {
             _hueTexture = new Texture2D(1, 16);
@@ -48,13 +58,16 @@ namespace VRGreyboxing
 
             for (int i = 0; i < _hueTexture.height; i++)
             {
-                _hueTexture.SetPixel(0, i, Color.HSVToRGB((float)i / _hueTexture.height, 1, /*0.05f*/ 1));
+                _hueTexture.SetPixel(0, i, Color.HSVToRGB((float)i / _hueTexture.height, 1, 1));
             }
             _hueTexture.Apply();
             currentHue = 0;
             hueImage.texture = _hueTexture;
         }
 
+        /**
+         * Create initial selection image for saturation and value
+         */
         private void CreateSVImage()
         {
             _svTexture = new Texture2D(16, 16);
@@ -75,6 +88,9 @@ namespace VRGreyboxing
             satValImage.texture = _svTexture;
         }
 
+        /**
+         * Display initial selected colour in output image
+         */
         private void CreateOutputImage()
         {
             _outputTexture = new Texture2D(1, 16);
@@ -91,7 +107,10 @@ namespace VRGreyboxing
             valueImage.texture = _outputTexture;
         }
 
-        private void UpdateOutPutImage()
+        /**
+         * Update colour of output image depending on current hue,saturation and value
+         */
+        private void UpdateOutputImage()
         {
             Color currentColor = Color.HSVToRGB(currentHue, currentSaturation, currentValue);
             for (int i = 0; i < _outputTexture.height; i++)
@@ -102,13 +121,19 @@ namespace VRGreyboxing
             selectedColor = currentColor;
         }
 
+        /**
+         * Set new saturation and value values
+         */
         public void SetSV(float s, float v)
         {
             currentSaturation = s;
             currentValue = v;
-            UpdateOutPutImage();
+            UpdateOutputImage();
         }
 
+        /**
+         * Update selection image of saturation and value depending on current hue
+         */
         public void UpdateSVImage()
         {
             currentHue = hueSlider.value;
@@ -120,9 +145,12 @@ namespace VRGreyboxing
                 }
             }
             _svTexture.Apply();
-            UpdateOutPutImage();
+            UpdateOutputImage();
         }
 
+        /**
+         * Change line width depending on slider value
+         */
         public void UpdateLineWidth()
         {
             float lineWidth = lineWidthSlider.value;

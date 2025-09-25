@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace VRGreyboxing
 {
+    /**
+     * Connect camera keyframes visually
+     */
     public class KeyFrameDisplay : MonoBehaviour
     {
         public int keyFrameIndex;

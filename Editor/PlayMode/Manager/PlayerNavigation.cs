@@ -12,6 +12,9 @@ using Vector3 = UnityEngine.Vector3;
 
 namespace VRGreyboxing
 {
+    /**
+     * Logic to navigate the player around the scene
+     */
     public class PlayerNavigation : MonoBehaviour
     {
         public GameObject navigationInputDisplay;
@@ -103,6 +106,11 @@ namespace VRGreyboxing
             
         }
 
+        
+        /**
+         * Actions triggered when movement inputs are stopped being pressed:
+         * Increase usage counts, perform teleport, open scale menu
+         */
         public void StopMovement()
         {
             movementCounter = 2;
@@ -136,6 +144,9 @@ namespace VRGreyboxing
             }
         }
 
+        /**
+         * Lean player into the direction provided by the joystick input 
+         */
         public void PerformLeaning(Vector2 direction)
         {
             Transform cam = _originTransform.GetComponentInChildren<Camera>().transform;
@@ -153,6 +164,9 @@ namespace VRGreyboxing
             }
         }
 
+        /**
+         * Start and setup rotation or scale movement depending on input and set mode of rotation and scale
+         */
         public void PerformZoomRotation(RaycastHit hitLeft, RaycastHit hitRight, bool performRotation)
         {
             if (movementCounter == 0)
@@ -252,6 +266,9 @@ namespace VRGreyboxing
             }
         }
 
+        /**
+         * Scale object to match size of target object with a multiplier
+         */
         private void ScaleToTargetSize(GameObject obj, GameObject target, float relativeSize)
         {
             Renderer objRend = obj.GetComponentInChildren<Renderer>();
@@ -273,6 +290,9 @@ namespace VRGreyboxing
             obj.transform.localScale *= uniformScaleFactor;
         }
 
+        /**
+         * Rotate player freely around target object by controller movement input
+         */
         private void PerformUnrestrictedRotation(Vector3 movementInput, Vector3 controllerCenter)
         {
             Vector3 centerToAnchor = _originControllerCenter - _turnAnchor;
@@ -312,6 +332,9 @@ namespace VRGreyboxing
             
         }
 
+        /**
+         * Display teleportation indicator and save player input
+         */
         private void PerformTeleportRotation()
         {
             if (_displayInstance == null)
@@ -352,6 +375,9 @@ namespace VRGreyboxing
 
         }
 
+        /**
+         * Teleport player to location using previously saved player input 
+         */
         private void TeleportRotation()
         {
             _originTransform.RotateAround(_turnAnchorObject.transform.position,
@@ -366,6 +392,10 @@ namespace VRGreyboxing
             PlayModeManager.Instance.editorDataSO.teleportRotation++;
         }
         
+        
+        /**
+         * Rotate player around targeted point on object on a circle
+         */
         private void PerformRestrictedRotation(Handedness controllerSide)
         {
             if (controllerSide == Handedness.Right)
@@ -388,6 +418,9 @@ namespace VRGreyboxing
             }
         }
 
+        /**
+         * Calculate change of world scale tracking the controller positions
+         */
         private void PerformGestureZoom()
         {
             var oldDistance = Vector3.Distance(_leftControllerZoomOrigin, _rightControllerZoomOrigin);
@@ -416,6 +449,9 @@ namespace VRGreyboxing
             }
         }
 
+        /**
+         * Trigger world scale from menu
+         */
         public void PerformMenuZoom(float sizeValue)
         {
             PlayModeManager.Instance.currentWorldScaler.SetScale(sizeValue);
@@ -429,6 +465,9 @@ namespace VRGreyboxing
             PlayModeManager.Instance.editorDataSO.menuZoom++;
         }
         
+        /**
+         *  Raycast from controller to aim at teleport position and safe target position
+         */
         public void PerformTeleportRaycast(Handedness handedness)
         {
             LineRenderer usedLine = handedness == Handedness.Left ? _leftTeleportLine : _rightTeleportLine;
@@ -472,6 +511,9 @@ namespace VRGreyboxing
             }
         }
 
+        /**
+         * Teleport player to previously saved teleport position
+         */
         public void PerformTeleport()
         {
             if(_lastTeleportPosition != Vector3.zero)
@@ -485,6 +527,9 @@ namespace VRGreyboxing
 
         }
         
+        /**
+         * Rotate Vector3 position in world space around pivot position
+         */
         private Vector3 RotatePointAroundPivot(Vector3 point,Vector3 pivot, Vector3 angles){
             var dir = point - pivot; 
             dir = Quaternion.Euler(angles) * dir; 
@@ -492,6 +537,9 @@ namespace VRGreyboxing
             return point; 
         }
 
+        /**
+         * Move player into passed direction on the x and z axis
+         */
         public void PerformLinearMovement(Vector2 movement)
         {
             GameObject xrOrigin = ActionManager.Instance.xROrigin;
@@ -502,6 +550,9 @@ namespace VRGreyboxing
             xrOrigin.GetComponent<CharacterController>().Move(moveDirection * (PlayModeManager.Instance.editorDataSO.movementSpeed * Time.deltaTime));
         }
         
+        /**
+         * Move player into passed direction on the y axis
+         */
         public void PerformFlyingMovement(Vector2 movement)
         {
             GameObject xrOrigin = ActionManager.Instance.xROrigin;
@@ -510,7 +561,10 @@ namespace VRGreyboxing
             xrOrigin.GetComponent<CharacterController>().Move(moveDirection * (PlayModeManager.Instance.editorDataSO.movementSpeed * Time.deltaTime));
         }
         
-        public void FollowCameraPath(CameraFigure cameraFigure)
+        /**
+         * Setup start of camera movement
+         */
+        public void FollowCameraMovement(CameraFigure cameraFigure)
         {
             _keyFrameIndex = 0;
             currentCameraKeyFrame = cameraFigure.keyFrames[_keyFrameIndex];
@@ -523,6 +577,9 @@ namespace VRGreyboxing
             _originalChildWorldPosition = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
         }
 
+        /**
+         * Move player smoothly to next camera keyframe in the configured time. Rotate player view to the rotation of the next keyframe in the configured time
+         */
         private void MoveCamera()
         {
             GameObject xrOrigin = ActionManager.Instance.xROrigin;
@@ -561,7 +618,7 @@ namespace VRGreyboxing
                 currentCameraKeyFrame = _keyFrameIndex == _currentCameraFigure.keyFrames.Count ? null : _currentCameraFigure.keyFrames[_keyFrameIndex];
                 if (currentCameraKeyFrame == null)
                 {
-                    ActionManager.Instance.ExitCameraPath();
+                    ActionManager.Instance.ExitCameraMovement();
                 }
                 else
                 {

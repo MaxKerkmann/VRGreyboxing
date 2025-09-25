@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: EditorData
   m_EditorClassIdentifier: 
   prefabSaveDirectory: {fileID: 102900000, guid: 9849c14007a48ff468124923f344da01, type: 3}
-  prefabDirectories:
+  prefabSourceDirectories:
   - {fileID: 102900000, guid: 7754c6d4024bb774a9d837118d48dc4b, type: 3}
   defaultPrefabFolder: {fileID: 102900000, guid: fea9b485b914a5247b846857542e9dc6, type: 3}
   availablePrefabs:
@@ -32,18 +32,47 @@ MonoBehaviour:
   - VRG_SpawnableObject
   - VRG_Mark
   editorBasePrefab: {fileID: 2645691870601836178, guid: 03905e106306fbd40800bdc7308f0608, type: 3}
-  usingBuildScenesOnly: 1
+  usingBuildScenesOnly: 0
+  originalBuildScenes:
+  - m_enabled: 1
+    m_path: Assets/Scenes/Spielwiese.unity
+  - m_enabled: 1
+    m_path: Assets/Scenes/VR_Chris.unity
+  - m_enabled: 1
+    m_path: Assets/Scenes/VR_Jasmin.unity
+  - m_enabled: 1
+    m_path: Assets/Scenes/VR_Nils.unity
+  - m_enabled: 1
+    m_path: Assets/Scenes/VR_Rebecca.unity
+  - m_enabled: 1
+    m_path: Assets/Scenes/VR_Lea.unity
   usingGreyboxingEditor: 1
   createdObjectMaterial: {fileID: 2100000, guid: dedb0a07c48453d4d89e25028f3bd602, type: 2}
   drawingMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
   sceneCleanUpPrefab: {fileID: 6608961106011826283, guid: a5bc67c07d0321d419192b2cdd856d23, type: 3}
-  lastOpenScene: Assets/Scenes/VR_Rebecca.unity
+  lastOpenScene: Assets/Scenes/Unity_Papa.unity
   sceneNames:
   - Spielwiese
+  - Unity_Chris
+  - Unity_Dominic
+  - Unity_Dominik
+  - Unity_Jasmin
+  - Unity_Kira
+  - Unity_Lea
+  - Unity_Nils
+  - Unity_Papa
+  - Unity_Rebecca
   - VR_Chris
+  - VR_Dominic
+  - VR_Dominik
   - VR_Jasmin
+  - VR_Kira
+  - VR_Lea
   - VR_Nils
+  - VR_Papa
   - VR_Rebecca
+  - Demo_Character
+  - DemoScene
   objectStates: []
   zoomMode: 0
   rotationMode: 0
@@ -66,10 +95,10 @@ MonoBehaviour:
   freeRotationCenterDistance: 0.15
   teleportationRotationDistance: 0.2
   zoomMenuTime: 0.25
-  restrictedRotation: 0
+  restrictedRotation: 7
   unrestrictedRotation: 0
   teleportRotation: 0
-  gestureZoom: 0
+  gestureZoom: 8
   menuZoom: 0
   redo: 0
   undo: 0
