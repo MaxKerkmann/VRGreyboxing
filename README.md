@@ -40,8 +40,8 @@ Zur Verwendung müssen beide Programme auf dem PC auf dem auch Unity läuft gest
 
 1: Trigger
 2: Grip
-3: Primary
-4: Secondary
+3: Primary (A/X)
+4: Secondary (B/Y)
 5: Joystick
 
 (L): Links
