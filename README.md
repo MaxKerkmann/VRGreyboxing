@@ -37,6 +37,7 @@ Zur Verwendung müssen beide Programme auf dem PC auf dem auch Unity läuft gest
 ## Steuerung
 
 ![Controller-Image][def]
+<img width="478" height="303" alt="htc-vive-focus3-controllers" src="https://github.com/user-attachments/assets/907ba3ac-acb8-401b-88a2-67e49183be4a" />
 
 1: Trigger
 2: Grip
