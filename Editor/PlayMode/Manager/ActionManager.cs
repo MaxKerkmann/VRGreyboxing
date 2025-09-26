@@ -353,6 +353,7 @@ namespace VRGreyboxing
             if (_currentEditMode == EditMode.Edit)
             {
                 _playerEdit.CheckForVertexPositions();
+                HandleMovementOptionsMenu();
                 HandleEditGrab();
                 HandleEditSelect();
                 if (_currentPolyShape != null)
