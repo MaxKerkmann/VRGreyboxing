@@ -30,13 +30,14 @@ Zur Verwendung und Konfiguration des VRGreyboxing Tools muss dazu das entspreche
 Zuletzt besteht noch die Möglichkeit sich die Konfigurationsdatei anzuzeigen, in welcher die Daten des Tools gespeichert werden.
 
 ### Verbindung zu PC (HTC VIVE HMD)
-Für die Verbindung von VR-Brille und PC werden, abhänging vom Hersteller, zusätzlich unterschiedliche Programme benötigt. Hier wird das genutzte Setup für die HTC Vive Focus Vision beschrieben: 
+Für die Verbindung von VR-Brille und PC werden, abhängig vom Hersteller, zusätzlich unterschiedliche Programme benötigt. Hier wird das genutzte Setup für die HTC Vive Focus Vision beschrieben: 
 Für die Verbindung wurden folgende Programme verwendet: VIVE Hub und SteamVR.
 Zur Verwendung müssen beide Programme auf dem PC auf dem auch Unity läuft gestartet werden. Anschließend kann das HMD mit dem PC verbunden werden. Eine entsprechende Anleitung zeigt VIVE Hub. Um Unity im Play-Mode auf der VR-Brille zu zeigen, kann die App VIVE Business Streaming auf der Brille verwendet werden.
 
 ## Steuerung
 
 ![Controller-Image][def]
+
 1: Trigger
 2: Grip
 3: Primary
