@@ -17,11 +17,15 @@ Dadurch sollten auch alle angezeigten Error Logs auf Konsole verschwinden.
 Die weitere Installation hängt von dem verwendeten Head-Mounted Display ab. Zur Entwicklung wurde die HTC Vive Focus Vision verwendet und die weitere Installationsbeschreibung ist auf dieses Gerät abgestimmt. Hierbei wird die Verbindung der VR-Brille zu Unity konfiguriert.
 Unter VIVE/OpenXR Installer/Install or Update latest version wird das VIVE OpenXR Plugin Version 2.5.1 installiert (die Version nicht spezifisch angeben, dies führt zu Fehlern).
 
+Außerdem wird *TextMeshPro* benötigt. Die Installation erfolgt über Window/TextMeshPro/Import TMP Essential Resources
+
 ### Konfiguration
 
 Innerhalb der Projects Settings unter Edit/Project Settings... müssen unterhalb der Kategorie XR Plug-in Management verschiedene Einstellungen vorgenommen werden:
 
-Unter Project Validation sollten zunächst alle angezeigten Probleme behoben werden. Dazu sollte die Verwendung des angezeigten Fix All Button genügen bis auf einen Punkt. Für diesen muss unter dem Bereich OpenXR ein Interaction Profile hinzugefügt werden. Hier ist das Profil *VIVE Cosmos Controller Interaction* auszuwählen.
+Direkt unter XR Plug-in Management muss bei Plug-in Providers ein Haken bei *OpenXR* gesetzt werden.
+
+Unter Project Validation sollten zunächst alle angezeigten Probleme behoben werden. Die Verwendung des Fix-All-Buttons genügt. Unter dem Bereich OpenXR ein Interaction Profile hinzugefügt werden. Hier ist das Profil *VIVE Cosmos Controller Interaction* auszuwählen.
 Damit sind die Project Settings abgeschlossen.
 
 Zur Verwendung und Konfiguration des VRGreyboxing Tools muss dazu das entsprechende Editor Fenster über  Tools/Greyboxing Editor geöffnet werden.

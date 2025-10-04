@@ -528,6 +528,7 @@ namespace VRGreyboxing
         public GameObject CreatePrefabFromMenu(GameObject prefab,int prefabIndex,Transform buttonTransform)
         {
             GameObject go = Instantiate(prefab,buttonTransform.position,Quaternion.identity);
+            go = PlayModeManager.Instance.StripGameObject(go);
             go.transform.up = Vector3.up;
             go.transform.parent = PlayModeManager.Instance.currentWorldScaler.transform;
             go.transform.localScale = prefab.transform.localScale;

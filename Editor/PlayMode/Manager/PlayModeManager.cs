@@ -60,54 +60,60 @@ namespace VRGreyboxing
             Scene scene = SceneManager.GetActiveScene();
             foreach (var root in scene.GetRootGameObjects())
             {
-                root.SetActive(false); 
+                root.SetActive(false);
 
-                foreach (var t in root.GetComponentsInChildren<Transform>(true))
-                {
-                    var components = t.GetComponents<Component>()
-                        .Where(c => !AllowedTypes.Contains(c.GetType())).ToList();
-                    
-                    var dependencyMap = new Dictionary<Type, HashSet<Type>>(); 
-                    var componentTypes = components.Select(c => c.GetType()).ToList();
-
-                    foreach (var type in componentTypes)
-                    {
-                        if (!dependencyMap.ContainsKey(type))
-                            dependencyMap[type] = new HashSet<Type>();
-
-                        var requires = type.GetCustomAttributes(typeof(RequireComponent), true)
-                            .Cast<RequireComponent>();
-
-                        foreach (var req in requires)
-                        {
-                            foreach (var requiredType in new[] { req.m_Type0, req.m_Type1, req.m_Type2 })
-                            {
-                                if (requiredType != null && componentTypes.Contains(requiredType))
-                                {
-                                    dependencyMap[type].Add(requiredType);
-                                }
-                            }
-                        }
-                    }
-
-                    List<Type> removalOrder = TopologicalSort(componentTypes, dependencyMap);
-                    if (removalOrder == null)return;
-                    
-                    removalOrder.Reverse();
-                    foreach (var type in removalOrder)
-                    {
-                        Component comp = t.GetComponent(type);
-                        if (comp != null)
-                        {
-                            DestroyImmediate(comp);
-                        }
-                    }
-
-                }
+                StripGameObject(root);
 
                 root.SetActive(true);
             }
         }
+
+        public GameObject StripGameObject(GameObject root)
+        {
+            foreach (var t in root.GetComponentsInChildren<Transform>(true))
+            {
+                var components = t.GetComponents<Component>()
+                    .Where(c => !AllowedTypes.Contains(c.GetType())).ToList();
+                    
+                var dependencyMap = new Dictionary<Type, HashSet<Type>>(); 
+                var componentTypes = components.Select(c => c.GetType()).ToList();
+
+                foreach (var type in componentTypes)
+                {
+                    if (!dependencyMap.ContainsKey(type))
+                        dependencyMap[type] = new HashSet<Type>();
+
+                    var requires = type.GetCustomAttributes(typeof(RequireComponent), true)
+                        .Cast<RequireComponent>();
+
+                    foreach (var req in requires)
+                    {
+                        foreach (var requiredType in new[] { req.m_Type0, req.m_Type1, req.m_Type2 })
+                        {
+                            if (requiredType != null && componentTypes.Contains(requiredType))
+                            {
+                                dependencyMap[type].Add(requiredType);
+                            }
+                        }
+                    }
+                }
+
+                List<Type> removalOrder = TopologicalSort(componentTypes, dependencyMap);
+                if (removalOrder == null)return root;
+                    
+                removalOrder.Reverse();
+                foreach (var type in removalOrder)
+                {
+                    Component comp = t.GetComponent(type);
+                    if (comp != null)
+                    {
+                        DestroyImmediate(comp);
+                    }
+                }
+
+            }
+            return root;
+        } 
         
         /**
          * Sort components of object in way that they can be deleted without dependency issues
