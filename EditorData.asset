@@ -16,14 +16,60 @@ MonoBehaviour:
   prefabSourceDirectories: []
   defaultPrefabFolder: {fileID: 102900000, guid: fea9b485b914a5247b846857542e9dc6, type: 3}
   availablePrefabs:
-  - {fileID: 6104924563686646878, guid: 1c56965bc78fc6549b35b16addd156ca, type: 3}
   - {fileID: 532905774368977377, guid: 41a30abcafe37234a93c703182f79b9c, type: 3}
   - {fileID: 3841199886107054436, guid: 8dcde1e039a02d146a97f3bd5da535d0, type: 3}
   - {fileID: 7990256629529080593, guid: 65647a78d4cf9af4f81f0b333f7501da, type: 3}
+  - {fileID: 6104924563686646878, guid: 1c56965bc78fc6549b35b16addd156ca, type: 3}
   - {fileID: 6329100999940102789, guid: c5ff4bbe20b990a45bb5ace0252f7379, type: 3}
+  - {fileID: 6647369244572926527, guid: 1004336e9ed494a489fabcaee7b6a672, type: 3}
+  - {fileID: 5434075652240169476, guid: 17ff8f8b1e84b0a40932bbc3babc2497, type: 3}
+  - {fileID: 4125421792874400280, guid: 27024f5809f4a4347b9cd7f26a1bdf93, type: 3}
   - {fileID: 3769683026937319967, guid: 57ccdc639eb25d84eac6d2850b9aba60, type: 3}
+  - {fileID: 7152668487518777765, guid: 9731229184277b54ba66bffd1633169b, type: 3}
+  - {fileID: 1060243933316379515, guid: 6821e1b7f44d8c44b8a2ba02f37309d5, type: 3}
+  - {fileID: 670559718997833774, guid: 88246f8e9c3765d49be8da34eca3c630, type: 3}
+  - {fileID: 5277967938119028541, guid: 6920a1d2bb2938a4a81cc1ea017b3610, type: 3}
+  - {fileID: 8748868027195207512, guid: 893219773891c784ab469a39151879b4, type: 3}
+  - {fileID: 990858489271001578, guid: 0a805b7325a1a974298ff405e6568e04, type: 3}
+  - {fileID: 3449784919008568370, guid: fad94b617f0540568dbf4c9c4011248c, type: 3}
+  - {fileID: 1717954561962503725, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
+  - {fileID: 7734889806894075718, guid: bb91fcbcb3cc896468b372b1c762bfab, type: 3}
+  - {fileID: 1115197594339449303, guid: eb9ed222853ca3542b2e2677d717016d, type: 3}
+  - {fileID: 8429981633443581377, guid: 6c8af5c8012f01440af6cb2bc3eb987c, type: 3}
+  - {fileID: 3953970342314940650, guid: 2ea572d587ee60f44bd5baa3bc2d6503, type: 3}
+  - {fileID: 7733875955768408218, guid: 2e16046ebcbcb6742a86569d82e56cce, type: 3}
+  - {fileID: 4769098102207602867, guid: 2ed984a58a974166bf92c82a74380454, type: 3}
+  - {fileID: 1565887663814566040, guid: 3e07eccb5e6f459d886de95044adb1d9, type: 3}
+  - {fileID: 4266640295717640279, guid: beb4e2871579447497fe41dfb108e2cd, type: 3}
+  - {fileID: 6910721658033247306, guid: fe7fcf44eedd467489de26ce92577bc3, type: 3}
+  - {fileID: 7254385229234264256, guid: aa8f4d91d4c1c8047ba9e3b314447195, type: 3}
+  - {fileID: 7664534398159292964, guid: c64fa77ba170ca542ae191305dfb1da6, type: 3}
+  - {fileID: 5078423398334037729, guid: a6579de606ad5b54893722f363b5371d, type: 3}
+  - {fileID: 4922582553321831162, guid: 76f3439a0ae796e4b81bee3f91f888ee, type: 3}
+  - {fileID: 7585962579481558136, guid: a0ea40bd139aedc43b0e8374d6139437, type: 3}
+  - {fileID: 473967898006735999, guid: e05cd47ab8981f64badd3bfe29af8f4e, type: 3}
+  - {fileID: 1337024436769953104, guid: 01372e2815129ca4a9eb1bbb79cb15ca, type: 3}
+  - {fileID: 4806409459047702212, guid: 010c0098d232cb0428f42a48488a6255, type: 3}
+  - {fileID: 5843497292548984443, guid: c116b7497ab8ca34c9188965d4295e27, type: 3}
+  - {fileID: 7620199573934257166, guid: 02a3bc45c8b055049bac3d6a792481b6, type: 3}
+  - {fileID: 7517549319329480230, guid: 521327bdbcb341f782d36f02cab76cb0, type: 3}
+  - {fileID: 2645691870601836178, guid: 03905e106306fbd40800bdc7308f0608, type: 3}
+  - {fileID: 268508938848858109, guid: 037ba65d346be2a48ad006b9a9a3873e, type: 3}
+  - {fileID: 8758423527188247893, guid: 1392f805216c47742996d4742c80721c, type: 3}
+  - {fileID: 5705580279468903836, guid: 1f62bdd0e59688d4bb754afe89fa2f5a, type: 3}
+  - {fileID: 7128330710180914111, guid: 833cb867d186193418fc107735ae3139, type: 3}
+  - {fileID: 6209309998178532447, guid: b3830b3b2f190ee46a9c88433e985221, type: 3}
+  - {fileID: 7336771369383194100, guid: 3479a972c0ca20a4dbcd93c65a46b584, type: 3}
+  - {fileID: 5371200254662772689, guid: 34dc9833e3126a240887de210a8108b6, type: 3}
+  - {fileID: 6689992741278781415, guid: 3549fdaf258e11846b85a316c16c699c, type: 3}
+  - {fileID: 3308162198220175456, guid: 652585f331bff7e44afb8fe71ec2119f, type: 3}
   - {fileID: 2381034826839843033, guid: 65ea0cb3f14ff8c4590efab2c98361cb, type: 3}
-  setupTags: 1
+  - {fileID: 5064053430091179792, guid: 9509b79ef3c9a1944a4979f71a12828a, type: 3}
+  - {fileID: 4257412417454173071, guid: d5615d616019430d9c2e8727e71c97fb, type: 3}
+  - {fileID: 1017698943250256213, guid: f5ee409d69254d64da7a3b74d31a5a40, type: 3}
+  - {fileID: 3177232254315139758, guid: a3fde713df4d99042a0403c4be9eea32, type: 3}
+  - {fileID: 4283425761326543017, guid: 9f3369e30fbd31f4bb596b1a99babe83, type: 3}
+  setupTags: 0
   tags:
   - VRG
   - VRG_CameraFigure
@@ -34,18 +80,63 @@ MonoBehaviour:
   usingBuildScenesOnly: 0
   originalBuildScenes:
   - m_enabled: 1
+    m_path: Assets/Samples/XR Interaction Toolkit/3.0.5/Starter Assets/DemoScene.unity
+  - m_enabled: 1
     m_path: Assets/Scenes/Spielwiese.unity
+  - m_enabled: 1
+    m_path: Assets/Scenes/Unity_Chris.unity
+  - m_enabled: 1
+    m_path: Assets/Scenes/Unity_Dominic.unity
+  - m_enabled: 1
+    m_path: Assets/Scenes/Unity_Dominik.unity
+  - m_enabled: 1
+    m_path: Assets/Scenes/Unity_Jasmin.unity
+  - m_enabled: 1
+    m_path: Assets/Scenes/Unity_Kira.unity
+  - m_enabled: 1
+    m_path: Assets/Scenes/Unity_Lea.unity
+  - m_enabled: 1
+    m_path: Assets/Scenes/Unity_Nils.unity
+  - m_enabled: 1
+    m_path: Assets/Scenes/Unity_Papa.unity
+  - m_enabled: 1
+    m_path: Assets/Scenes/Unity_Rebecca.unity
   - m_enabled: 1
     m_path: Assets/Scenes/VR_Chris.unity
   - m_enabled: 1
+    m_path: Assets/Scenes/VR_Dominic.unity
+  - m_enabled: 1
+    m_path: Assets/Scenes/VR_Dominik.unity
+  - m_enabled: 1
     m_path: Assets/Scenes/VR_Jasmin.unity
+  - m_enabled: 1
+    m_path: Assets/Scenes/VR_Kira.unity
+  - m_enabled: 1
+    m_path: Assets/Scenes/VR_Lea.unity
   - m_enabled: 1
     m_path: Assets/Scenes/VR_Nils.unity
   - m_enabled: 1
+    m_path: Assets/Scenes/VR_Papa.unity
+  - m_enabled: 1
     m_path: Assets/Scenes/VR_Rebecca.unity
   - m_enabled: 1
-    m_path: Assets/Scenes/VR_Lea.unity
-  usingGreyboxingEditor: 0
+    m_path: Assets/Stylized Character_Archer/Scenes/Demo_Character.unity
+  - m_enabled: 1
+    m_path: Packages/com.unity.ai.navigation/Tests/PrebuiltAssets/Test_Links_Created_With_2_0_0.unity
+  - m_enabled: 1
+    m_path: Packages/com.unity.render-pipelines.universal/Editor/SceneTemplates/Basic.unity
+  - m_enabled: 1
+    m_path: Packages/com.unity.render-pipelines.universal/Editor/SceneTemplates/Standard.unity
+  - m_enabled: 1
+    m_path: Packages/com.unity.xr.core-utils/Tests/Runtime/Scenes/ConvexHullPerformanceTest.unity
+  - m_enabled: 1
+    m_path: Packages/com.unity.xr.core-utils/Tests/Runtime/Scenes/CustomApproximatelyPerformanceTest.unity
+  - m_enabled: 1
+    m_path: Packages/com.unity.xr.core-utils/Tests/Runtime/Scenes/PointInPolygonPerformanceTest.unity
+  - m_enabled: 1
+    m_path: Packages/com.unity.xr.interaction.toolkit/Tests/Tests/Conecast Stress
+      Test.unity
+  usingGreyboxingEditor: 1
   createdObjectMaterial: {fileID: 2100000, guid: dedb0a07c48453d4d89e25028f3bd602, type: 2}
   drawingMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
   sceneCleanUpPrefab: {fileID: 6608961106011826283, guid: a5bc67c07d0321d419192b2cdd856d23, type: 3}

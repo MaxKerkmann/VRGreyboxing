@@ -85,7 +85,7 @@ namespace VRGreyboxing
                         tagManager.ApplyModifiedProperties();
                     }
                 }
-                editorDataSo.setupTags = true;
+                //editorDataSo.setupTags = true;
             }
             
             //Initialize data
