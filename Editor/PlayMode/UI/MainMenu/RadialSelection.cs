@@ -99,6 +99,7 @@ namespace VRGreyboxing
                 radialPart.transform.position = mainMenuCanvas.position;
                 radialPart.transform.localEulerAngles = radialPartEulerAngle;
                 radialPart.GetComponent<Image>().color = Color.grey;
+                
 
 
                 Vector3 partVector =
@@ -110,7 +111,7 @@ namespace VRGreyboxing
                                                 partVector * (optionRadius * mainMenuCanvas.localScale.x);
                 optionIcon.transform.eulerAngles = Vector3.zero;
                 optionIcon.GetComponent<Image>().sprite = optionImages[i];
-                optionIcon.transform.right = usedController.transform.right;
+                optionIcon.transform.forward = radialPart.transform.forward;
                 radialPart.GetComponent<Image>().fillAmount = (1 / (float)_numberOfParts) - (angleSpacing / 360);
 
                 _radialParts.Add(radialPart);

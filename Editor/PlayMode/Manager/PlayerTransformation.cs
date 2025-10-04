@@ -555,7 +555,7 @@ namespace VRGreyboxing
          */
         public void DeleteSelectedObject()
         {
-            PlayModeManager.Instance.RegisterObjectChange(selectedObject,false,-1,false,true);
+            PlayModeManager.Instance.RegisterObjectChange(selectedObject, objectDeletion: true);
             Destroy(_currentTransWidget); 
             selectedObject.SetActive(false);
             selectedObject = null;
@@ -687,7 +687,9 @@ namespace VRGreyboxing
             ActionManager.Instance.CloseConfirmMenu();
             foreach (var camFigure in FindObjectsByType<CameraFigure>(FindObjectsInactive.Include,FindObjectsSortMode.None))
             {
-                camFigure.gameObject.SetActive(true);
+                ObjectBaseState state = PlayModeManager.Instance.GetObjectTypeForPersistentID(camFigure.GetComponent<PersistentID>());
+                if(!state.deleted)
+                    camFigure.gameObject.SetActive(true);
             }
 
             usingCameraFigure = false;

@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: EditorData
   m_EditorClassIdentifier: 
   prefabSaveDirectory: {fileID: 102900000, guid: 9849c14007a48ff468124923f344da01, type: 3}
-  prefabSourceDirectories:
-  - {fileID: 102900000, guid: 7754c6d4024bb774a9d837118d48dc4b, type: 3}
+  prefabSourceDirectories: []
   defaultPrefabFolder: {fileID: 102900000, guid: fea9b485b914a5247b846857542e9dc6, type: 3}
   availablePrefabs:
   - {fileID: 6104924563686646878, guid: 1c56965bc78fc6549b35b16addd156ca, type: 3}
@@ -46,11 +45,11 @@ MonoBehaviour:
     m_path: Assets/Scenes/VR_Rebecca.unity
   - m_enabled: 1
     m_path: Assets/Scenes/VR_Lea.unity
-  usingGreyboxingEditor: 1
+  usingGreyboxingEditor: 0
   createdObjectMaterial: {fileID: 2100000, guid: dedb0a07c48453d4d89e25028f3bd602, type: 2}
   drawingMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
   sceneCleanUpPrefab: {fileID: 6608961106011826283, guid: a5bc67c07d0321d419192b2cdd856d23, type: 3}
-  lastOpenScene: Assets/Scenes/Unity_Papa.unity
+  lastOpenScene: Assets/Scenes/Spielwiese.unity
   sceneNames:
   - Spielwiese
   - Unity_Chris
@@ -95,10 +94,10 @@ MonoBehaviour:
   freeRotationCenterDistance: 0.15
   teleportationRotationDistance: 0.2
   zoomMenuTime: 0.25
-  restrictedRotation: 7
+  restrictedRotation: 0
   unrestrictedRotation: 0
   teleportRotation: 0
-  gestureZoom: 8
+  gestureZoom: 0
   menuZoom: 0
   redo: 0
   undo: 0

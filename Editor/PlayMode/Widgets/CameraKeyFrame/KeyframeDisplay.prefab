@@ -18,9 +18,10 @@ GameObject:
   - component: {fileID: 3147583652570486307}
   - component: {fileID: 4834660382159988420}
   - component: {fileID: 8651317183914052936}
+  - component: {fileID: -6228218402106375933}
   m_Layer: 0
   m_Name: KeyframeDisplay
-  m_TagString: VRG_WidgetCube
+  m_TagString: VRG
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -473,7 +474,7 @@ MonoBehaviour:
   m_SmoothPosition: 0
   m_SmoothPositionAmount: 8
   m_TightenPosition: 0.1
-  m_TrackRotation: 0
+  m_TrackRotation: 1
   m_SmoothRotation: 0
   m_SmoothRotationAmount: 8
   m_TightenRotation: 0.1
@@ -520,7 +521,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_PermittedDisplacementAxes: -1
   m_ConstrainedAxisDisplacementMode: 0
-  m_TwoHandedRotationMode: 0
+  m_TwoHandedRotationMode: 1
   m_AllowOneHandedScaling: 0
   m_AllowTwoHandedScaling: 0
   m_OneHandedScaleSpeed: 0.5
@@ -636,6 +637,18 @@ LineRenderer:
   m_UseWorldSpace: 1
   m_Loop: 0
   m_ApplyActiveColorSpace: 1
+--- !u!114 &-6228218402106375933
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 593017024666216360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bce67c2996b070a48a79172d8ddae905, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2497939208358603561
 GameObject:
   m_ObjectHideFlags: 0

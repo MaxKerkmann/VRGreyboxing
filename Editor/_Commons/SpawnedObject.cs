@@ -10,14 +10,13 @@ namespace VRGreyboxing
         public int prefabIndex;
         public List<CameraKeyFrame> keyFrames;
         public string basePersistentID;
-        public string OriginalScenePath;
 
-        public SpawnedObject(GameObject gameObject, string persistentId,Vector3 position, Quaternion rotation, Vector3 scale,bool deleted,List<Vector3> positions, int prefabIndex, string scene,string basePersistentID) : base(gameObject,persistentId,position, rotation, scale,positions)
+        public SpawnedObject(GameObject gameObject, string persistentId,Vector3 position, Quaternion rotation, Vector3 scale,bool deleted,List<Vector3> positions, int prefabIndex, string originalScenePath,string basePersistentID) : base(gameObject,persistentId,position, rotation, scale,originalScenePath,positions)
         {
             this.prefabIndex = prefabIndex;
-            this.OriginalScenePath = scene;
+            this.originalScenePath = originalScenePath;
             this.basePersistentID = basePersistentID;
-            this.Deleted = deleted;
+            this.deleted = deleted;
         }
 
         public override ObjectBaseState UndoChange()
@@ -32,13 +31,27 @@ namespace VRGreyboxing
             }
             
             SpawnedObject spawnedPrevObject = prevState as SpawnedObject;
-            if (!spawnedPrevObject.Deleted)
+            if (!spawnedPrevObject.deleted)
             {
                 gameObject.SetActive(true);
+                for (int i = 0; i < gameObject.transform.childCount; i++)
+                {
+                    if (gameObject.transform.GetChild(i).GetComponent<PersistentID>() != null)
+                    {
+                        var persistentChildID = gameObject.transform.GetChild(i).GetComponent<PersistentID>();
+                        if (persistentChildID == null)
+                        {
+                            persistentChildID = gameObject.transform.GetChild(i).GetComponent<IdHolderInformation>().GetIDHolder().GetComponentInParent<PersistentID>();
+                        }
+                        ObjectBaseState childBaseState = PlayModeManager.Instance.GetObjectTypeForPersistentID(persistentChildID);
+                        if(childBaseState != null)
+                            childBaseState.deleted = false;
+                    }
+                }
             }
-            gameObject.transform.position = spawnedPrevObject.Position;
-            gameObject.transform.rotation = spawnedPrevObject.Rotation;
-            gameObject.transform.localScale = spawnedPrevObject.Scale;
+            gameObject.transform.position = spawnedPrevObject.position;
+            gameObject.transform.rotation = spawnedPrevObject.rotation;
+            gameObject.transform.localScale = spawnedPrevObject.scale;
             if (spawnedPrevObject.alteredPositions.Count > 0)
             {
                 ProBuilderMesh pbm = gameObject.GetComponent<ProBuilderMesh>();
@@ -64,13 +77,27 @@ namespace VRGreyboxing
                 return this;
             }
             
-            if (spawnedNextState.Deleted)
+            if (spawnedNextState.deleted)
             {
                 gameObject.SetActive(false);
+                for (int i = 0; i < gameObject.transform.childCount; i++)
+                {
+                    if (gameObject.transform.GetChild(i).GetComponent<PersistentID>() != null)
+                    {
+                        var persistentChildID = gameObject.transform.GetChild(i).GetComponent<PersistentID>();
+                        if (persistentChildID == null)
+                        {
+                            persistentChildID = gameObject.transform.GetChild(i).GetComponent<IdHolderInformation>().GetIDHolder().GetComponentInParent<PersistentID>();
+                        }
+                        ObjectBaseState childBaseState = PlayModeManager.Instance.GetObjectTypeForPersistentID(persistentChildID);
+                        if(childBaseState != null)
+                            childBaseState.deleted = true;
+                    }
+                }
             }
-            gameObject.transform.position = spawnedNextState.Position;
-            gameObject.transform.rotation = spawnedNextState.Rotation;
-            gameObject.transform.localScale = spawnedNextState.Scale;
+            gameObject.transform.position = spawnedNextState.position;
+            gameObject.transform.rotation = spawnedNextState.rotation;
+            gameObject.transform.localScale = spawnedNextState.scale;
             if (spawnedNextState.alteredPositions.Count > 0)
             {
                 ProBuilderMesh pbm = gameObject.GetComponent<ProBuilderMesh>();

@@ -9,21 +9,35 @@ namespace VRGreyboxing
 
         public List<CameraKeyFrame> keyFrames;
         
-        public AlteredObject(GameObject gameObject, string persisentID, Vector3 position, Quaternion rotation, Vector3 scale,bool deleted, List<Vector3> alteredPositions) : base(gameObject, persisentID, position, rotation, scale,alteredPositions)
+        public AlteredObject(GameObject gameObject, string persisentID, Vector3 position, Quaternion rotation, Vector3 scale,bool deleted,string originalScenePath, List<Vector3> alteredPositions) : base(gameObject, persisentID, position, rotation, scale,originalScenePath,alteredPositions)
         {
-            Deleted = deleted;
+            base.deleted = deleted;
         }
 
         public override ObjectBaseState UndoChange()
         {
             AlteredObject alteredPrevState = prevState as AlteredObject;
-            if (!alteredPrevState.Deleted)
+            if (!alteredPrevState.deleted)
             {
                 gameObject.SetActive(true);
+                for (int i = 0; i < gameObject.transform.childCount; i++)
+                {
+                    if (gameObject.transform.GetChild(i).GetComponent<PersistentID>() != null)
+                    {
+                        var persistentChildID = gameObject.transform.GetChild(i).GetComponent<PersistentID>();
+                        if (persistentChildID == null)
+                        {
+                            persistentChildID = gameObject.transform.GetChild(i).GetComponent<IdHolderInformation>().GetIDHolder().GetComponentInParent<PersistentID>();
+                        }
+                        ObjectBaseState childBaseState = PlayModeManager.Instance.GetObjectTypeForPersistentID(persistentChildID);
+                        if(childBaseState != null)
+                            childBaseState.deleted = false;
+                    }
+                }
             }
-            gameObject.transform.position = alteredPrevState.Position;
-            gameObject.transform.rotation = alteredPrevState.Rotation;
-            gameObject.transform.localScale = alteredPrevState.Scale;
+            gameObject.transform.position = alteredPrevState.position;
+            gameObject.transform.rotation = alteredPrevState.rotation;
+            gameObject.transform.localScale = alteredPrevState.scale;
             if (alteredPrevState.alteredPositions.Count > 0)
             {
                 ProBuilderMesh pbm = gameObject.GetComponent<ProBuilderMesh>();
@@ -41,13 +55,27 @@ namespace VRGreyboxing
         public override ObjectBaseState RedoChange()
         {
             AlteredObject alteredNextState = nextState as AlteredObject;
-            if (alteredNextState.Deleted)
+            if (alteredNextState.deleted)
             {
                 gameObject.SetActive(false);
+                for (int i = 0; i < gameObject.transform.childCount; i++)
+                {
+                    if (gameObject.transform.GetChild(i).GetComponent<PersistentID>() != null)
+                    {
+                        var persistentChildID = gameObject.transform.GetChild(i).GetComponent<PersistentID>();
+                        if (persistentChildID == null)
+                        {
+                            persistentChildID = gameObject.transform.GetChild(i).GetComponent<IdHolderInformation>().GetIDHolder().GetComponentInParent<PersistentID>();
+                        }
+                        ObjectBaseState childBaseState = PlayModeManager.Instance.GetObjectTypeForPersistentID(persistentChildID);
+                        if(childBaseState != null)
+                            childBaseState.deleted = true;
+                    }
+                }
             }
-            gameObject.transform.position = nextState.Position;
-            gameObject.transform.rotation = nextState.Rotation;
-            gameObject.transform.localScale = nextState.Scale;
+            gameObject.transform.position = nextState.position;
+            gameObject.transform.rotation = nextState.rotation;
+            gameObject.transform.localScale = nextState.scale;
             if (nextState.alteredPositions.Count > 0)
             {
                 ProBuilderMesh pbm = gameObject.GetComponent<ProBuilderMesh>();

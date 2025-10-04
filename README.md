@@ -4,7 +4,7 @@ Hier eine kurze Anleitung zur Installation und Konfiguration des Tools
 
 ### Installation
 
-Das System wurde in der Unity Version 6000.0.25f1 erstellt und auch nur in diesem getestet. Es kann in einem  leeren Projekt oder in einem bereits bestehenden Projekt installiert werden.
+Das System wurde in der Unity Version 6000.0.25f1 erstellt und auch nur in diesem getestet. Es kann in einem leeren Projekt oder in einem bereits bestehenden Projekt installiert werden.
 
 Innerhalb des Projekts kann das Package entweder über den Package Manager unter Window/Package Manager installiert werden oder direkt über die beigelegte .unitypackage Datei.
 
@@ -15,7 +15,7 @@ In beiden Fällen müssen außerdem die Starter Assets des XR Interaction Toolki
 Dadurch sollten auch alle angezeigten Error Logs auf Konsole verschwinden.
 
 Die weitere Installation hängt von dem verwendeten Head-Mounted Display ab. Zur Entwicklung wurde die HTC Vive Focus Vision verwendet und die weitere Installationsbeschreibung ist auf dieses Gerät abgestimmt. Hierbei wird die Verbindung der VR-Brille zu Unity konfiguriert.
-Unter VIVE/OpenXR Installer/Install or Update latest version wird das VIVE OpenXR Plugin Version 2.5.1 installiert.
+Unter VIVE/OpenXR Installer/Install or Update latest version wird das VIVE OpenXR Plugin Version 2.5.1 installiert (die Version nicht spezifisch angeben, dies führt zu Fehlern).
 
 ### Konfiguration
 
@@ -32,12 +32,13 @@ Zuletzt besteht noch die Möglichkeit sich die Konfigurationsdatei anzuzeigen, i
 ### Verbindung zu PC (HTC VIVE HMD)
 Für die Verbindung von VR-Brille und PC werden, abhängig vom Hersteller, zusätzlich unterschiedliche Programme benötigt. Hier wird das genutzte Setup für die HTC Vive Focus Vision beschrieben: 
 Für die Verbindung wurden folgende Programme verwendet: VIVE Hub und SteamVR.
-Zur Verwendung müssen beide Programme auf dem PC auf dem auch Unity läuft gestartet werden. Anschließend kann das HMD mit dem PC verbunden werden. Eine entsprechende Anleitung zeigt VIVE Hub. Um Unity im Play-Mode auf der VR-Brille zu zeigen, kann die App VIVE Business Streaming auf der Brille verwendet werden.
+Zur Verwendung müssen beide Programme auf dem PC auf dem auch Unity läuft gestartet werden. Anschließend kann das HMD mit dem PC verbunden werden. Dazu muss in den Einstellungen der Brille der PC entweder über WIFI oder Kabel ausgewählt werden. Um Unity im Play-Mode auf der VR-Brille zu zeigen, kann die App SteamVR auf der Brille verwendet werden.
 
 ## Steuerung
 
 ![Controller-Image][def]
 <img width="478" height="303" alt="htc-vive-focus3-controllers" src="https://github.com/user-attachments/assets/907ba3ac-acb8-401b-88a2-67e49183be4a" />
+(Bild eventuell 2x angezeigt, je nachdem, ob eingebettete und/oder verlinkte Bilder funktionieren)
 
 1: Trigger
 2: Grip

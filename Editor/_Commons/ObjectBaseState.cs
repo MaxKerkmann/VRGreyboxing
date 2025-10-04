@@ -12,27 +12,29 @@ namespace VRGreyboxing
     {
         public GameObject gameObject;
         public string persisentID;
-        public Vector3 Position;
-        public Quaternion Rotation;
-        public Vector3 Scale;
-        public bool Deleted;
-        public bool Untouched;
+        public Vector3 position;
+        public Quaternion rotation;
+        public Vector3 scale;
+        public bool deleted;
+        public bool untouched;
         public bool justCreated;
         public bool disabled;
         public string newParentID;
         public List<Vector3> alteredPositions;
+        public string originalScenePath;
         public ObjectBaseState prevState;
         public ObjectBaseState nextState;
 
-        protected ObjectBaseState(GameObject gameObject, string persisentID, Vector3 position, Quaternion rotation, Vector3 scale, List<Vector3> alteredPositions)
+        protected ObjectBaseState(GameObject gameObject, string persisentID, Vector3 position, Quaternion rotation, Vector3 scale,string originalScenePath , List<Vector3> alteredPositions)
         {
             this.persisentID = persisentID;
-            this.Position = position;
-            this.Rotation = rotation;
-            Scale = scale;
+            this.position = position;
+            this.rotation = rotation;
+            this.scale = scale;
             this.alteredPositions = alteredPositions;
-            Deleted = false;
-            Untouched = false;
+            this.originalScenePath = originalScenePath;
+            deleted = false;
+            untouched = false;
             disabled = false;
             this.gameObject = gameObject;
         }
@@ -61,7 +63,7 @@ namespace VRGreyboxing
             ObjectBaseState next = this;
             do
             {
-                if (next.Deleted)
+                if (next.deleted)
                 {
                     Object.Destroy(gameObject);
                     return;

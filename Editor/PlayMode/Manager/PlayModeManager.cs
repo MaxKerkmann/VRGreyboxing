@@ -49,8 +49,7 @@ namespace VRGreyboxing
         public void Awake()
         {
             Instance = this;
-            _actionStack = new List<ObjectBaseState>();
-            _actionStackIndex = -1;
+            ResetActionStack();
         }
         
         /**
@@ -174,9 +173,9 @@ namespace VRGreyboxing
             currentWorldScaler.SetScale(1);
             foreach (var objectState in editorDataSO.objectStates)
             {
-                if(objectState.gameObject.scene != SceneManager.GetActiveScene()) continue;
-                objectState.Position = objectState.gameObject.transform.position;
-                objectState.Scale = objectState.gameObject.transform.localScale;
+                if(objectState.originalScenePath != SceneManager.GetActiveScene().path) continue;
+                objectState.position = objectState.gameObject.transform.position;
+                objectState.scale = objectState.gameObject.transform.localScale;
             }
         }
 
@@ -279,12 +278,29 @@ namespace VRGreyboxing
                 ObjectBaseState baseState = editorDataSO.objectStates.FirstOrDefault(obs => obs.persisentID == persistentID.uniqueId);
                 if (baseState != null && !firstSelection)
                 {
+                    if (objectDeletion)
+                    {
+                        for (int i = 0; i < baseState.gameObject.transform.childCount; i++)
+                        {
+                            if (baseState.gameObject.transform.GetChild(i).GetComponent<PersistentID>() != null)
+                            {
+                                var persistentChildID = baseState.gameObject.transform.GetChild(i).GetComponent<PersistentID>();
+                                if (persistentChildID == null)
+                                {
+                                    persistentChildID = baseState.gameObject.transform.GetChild(i).GetComponent<IdHolderInformation>().GetIDHolder().GetComponentInParent<PersistentID>();
+                                }
+                                ObjectBaseState childBaseState = editorDataSO.objectStates.FirstOrDefault(obs => obs.persisentID == persistentChildID.uniqueId);
+                                childBaseState.deleted = true;
+                            }
+                        }
+                    }
+                    
                     switch (baseState)
                     {
                         case AlteredObject:
                         {
                             List<Vector3> positions = obj.GetComponent<ProBuilderMesh>() != null ? obj.GetComponent<ProBuilderMesh>().positions.ToList() : new List<Vector3>();
-                            var alteredObject = new AlteredObject(obj,baseState.persisentID, obj.transform.position, obj.transform.rotation, obj.transform.lossyScale, objectDeletion,positions)
+                            var alteredObject = new AlteredObject(obj,baseState.persisentID, obj.transform.position, obj.transform.rotation, obj.transform.lossyScale, objectDeletion,SceneManager.GetActiveScene().path,positions)
                             {
                                 prevState = baseState
                             };
@@ -293,7 +309,7 @@ namespace VRGreyboxing
                                 alteredObject.keyFrames = obj.GetComponent<CameraFigure>().keyFrames;
                             }
                             editorDataSO.objectStates[editorDataSO.objectStates.IndexOf(baseState)] = alteredObject;
-                            if (baseState.Untouched)
+                            if (baseState.untouched)
                                 _actionStackIndex++;
                             if (_actionStackIndex >= _actionStack.Count)
                             {
@@ -323,7 +339,7 @@ namespace VRGreyboxing
                                 spawnedObject.keyFrames = obj.GetComponent<CameraFigure>().keyFrames;
                             }
                             editorDataSO.objectStates[editorDataSO.objectStates.IndexOf(baseState)] = spawnedObject;
-                            if (baseState.Untouched)
+                            if (baseState.untouched)
                                 _actionStackIndex++;
                             _actionStack[_actionStackIndex] = spawnedObject;
                             break;
@@ -338,7 +354,7 @@ namespace VRGreyboxing
                                 prevState = baseState
                             };
                             editorDataSO.objectStates[editorDataSO.objectStates.IndexOf(baseState)] = createdObject;
-                            if (baseState.Untouched)
+                            if (baseState.untouched)
                                 _actionStackIndex++;
                             _actionStack[_actionStackIndex] = createdObject;
                             break;
@@ -350,7 +366,7 @@ namespace VRGreyboxing
                                 prevState = baseState
                             };
                             editorDataSO.objectStates[editorDataSO.objectStates.IndexOf(baseState)] = markerObject;
-                            if (baseState.Untouched)
+                            if (baseState.untouched)
                                 _actionStackIndex++;
                             _actionStack[_actionStackIndex] = markerObject;
                             break;
@@ -359,9 +375,9 @@ namespace VRGreyboxing
                 else if(baseState == null)
                 {
                     List<Vector3> positions = obj.GetComponent<ProBuilderMesh>() != null ? obj.GetComponent<ProBuilderMesh>().positions.ToList() : new List<Vector3>();
-                    AlteredObject alteredObject = new AlteredObject(obj, persistentID.uniqueId, obj.transform.position, obj.transform.rotation, obj.transform.localScale, objectDeletion,positions)
+                    AlteredObject alteredObject = new AlteredObject(obj, persistentID.uniqueId, obj.transform.position, obj.transform.rotation, obj.transform.localScale, objectDeletion,SceneManager.GetActiveScene().path,positions)
                     {
-                        Untouched = true
+                        untouched = true
                     };
                     if (obj.GetComponent<CameraFigure>() != null)
                     {
@@ -419,6 +435,35 @@ namespace VRGreyboxing
                 _actionStackIndex++;
                 RedoObjectChange();
             }
+        }
+
+        private void ResetActionStack()
+        {
+            _actionStack = new List<ObjectBaseState>();
+            _actionStackIndex = -1;
+        }
+
+        public void RefreshObjectStates()
+        {
+            foreach (var objectState in editorDataSO.objectStates)
+            {
+                if (objectState.originalScenePath == SceneManager.GetActiveScene().path)
+                {
+                    PersistentID id = FindObjectsByType<PersistentID>(FindObjectsSortMode.None)
+                        .FirstOrDefault(persID => persID.uniqueId == objectState.persisentID);
+                    if(id != null)
+                        objectState.gameObject = id.gameObject;
+                }
+            }
+        }
+        
+        public void SwitchToScene(string sceneName)
+        {
+            RefreshObjectStates();
+            ResetWorldScale();
+            ResetActionStack();
+            SceneManager.LoadScene(sceneName);
+            RefreshObjectStates();
         }
     }
 

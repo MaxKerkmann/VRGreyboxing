@@ -593,24 +593,9 @@ namespace VRGreyboxing
                 
                 _movementTimer += Time.deltaTime;
             }
-
-            _rotationTimer += Time.deltaTime;
-
             
-            if (_rotationTimer / currentCameraKeyFrame.cameraRotateTime <= 1)
-            {
-                Quaternion currentLocalRotation = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.localRotation;
-                Quaternion dynamicTargetWorldRotation = _savedChildWorldRotation * currentLocalRotation;
-                Quaternion interpolatedWorldRotation = Quaternion.Slerp(_originalChildWorldRotation, dynamicTargetWorldRotation, _rotationTimer / currentCameraKeyFrame.cameraRotateTime);
-                Quaternion requiredParentRotation = interpolatedWorldRotation * Quaternion.Inverse(currentLocalRotation);
-
-                Vector3 rotatedOffset = requiredParentRotation * ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.localPosition;
-                Vector3 requiredParentPosition = _originalChildWorldPosition - rotatedOffset;
-                
-                ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.parent.rotation = requiredParentRotation;
-                ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.parent.position = requiredParentPosition;
-
-            }
+            _rotationTimer += Time.deltaTime;
+            
 
             if (_movementTimer / currentCameraKeyFrame.cameraMoveTime >= 1 && _rotationTimer / currentCameraKeyFrame.cameraRotateTime >= 1)
             {

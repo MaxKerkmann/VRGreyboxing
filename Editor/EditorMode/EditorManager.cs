@@ -263,18 +263,18 @@ namespace VRGreyboxing
                 foreach (var objectState in editorDataSo.objectStates)
                 {
                     bool found = false;
-                    if (objectState.disabled || objectState.Deleted)
+                    if (objectState.disabled || objectState.deleted)
                     {
                         found = true;
                     }
                     else if (objectState is SpawnedObject spawnedObject)
                     {
-                        if(spawnedObject.OriginalScenePath != scene.path) continue;
+                        if(spawnedObject.originalScenePath != scene.path) continue;
                         found = true;
                         SpawnObject(spawnedObject,scene);
                     }else if (objectState is CreatedObject createdObject)
                     {
-                        if(createdObject.OriginalScenePath != scene.path) continue;
+                        if(createdObject.originalScenePath != scene.path) continue;
                         found = true;
                         CreateObject(createdObject,scene);
                     }
@@ -309,8 +309,10 @@ namespace VRGreyboxing
         {
             if (spawnedObject.prefabIndex == -1) return;
             Transform obj = ((GameObject)PrefabUtility.InstantiatePrefab(editorDataSo.availablePrefabs[spawnedObject.prefabIndex],scene)).transform;
-            obj.SetPositionAndRotation(spawnedObject.Position, spawnedObject.Rotation);
-            obj.localScale = spawnedObject.Scale;
+            PersistentID persistentID = obj.gameObject.AddComponent<PersistentID>();
+            persistentID.uniqueId = spawnedObject.persisentID;
+            obj.SetPositionAndRotation(spawnedObject.position, spawnedObject.rotation);
+            obj.localScale = spawnedObject.scale;
             if (obj.GetComponentInChildren<ProBuilderMesh>() != null)
             {
                 var pbm = obj.GetComponentInChildren<ProBuilderMesh>();
@@ -338,9 +340,11 @@ namespace VRGreyboxing
         private static void CreateObject(CreatedObject createdObject, Scene scene)
         {
             GameObject go = new GameObject("CreatedObject");
+            PersistentID persistentID = go.AddComponent<PersistentID>();
+            persistentID.uniqueId = createdObject.persisentID;
             SceneManager.MoveGameObjectToScene(go,scene);
-            go.transform.SetPositionAndRotation(createdObject.Position, createdObject.Rotation);
-            go.transform.localScale = createdObject.Scale;
+            go.transform.SetPositionAndRotation(createdObject.position, createdObject.rotation);
+            go.transform.localScale = createdObject.scale;
             MeshCollider col = go.AddComponent<MeshCollider>();
             col.convex = true;
             ProBuilderMesh pbm = go.AddComponent<ProBuilderMesh>();
@@ -373,6 +377,8 @@ namespace VRGreyboxing
                 GameObject obj = Object.FindObjectsByType<PersistentID>(FindObjectsSortMode.None).FirstOrDefault(id => id.uniqueId == createdObject.newParentID)?.gameObject;
                 if (obj != null) go.transform.SetParent(obj.transform);
             }
+
+            go.transform.localRotation = Quaternion.identity;
         }
 
         /**
@@ -381,10 +387,12 @@ namespace VRGreyboxing
         private static void DrawObject(MarkerObject markerObject, Scene scene)
         {
             GameObject go = new GameObject("DrawContainer");
+            PersistentID persistentID = go.AddComponent<PersistentID>();
+            persistentID.uniqueId = markerObject.persisentID;
             go.tag = "VRG_Mark";
             SceneManager.MoveGameObjectToScene(go,scene);
-            go.transform.SetPositionAndRotation(markerObject.Position, markerObject.Rotation);
-            go.transform.localScale = markerObject.Scale;
+            go.transform.SetPositionAndRotation(markerObject.position, markerObject.rotation);
+            go.transform.localScale = markerObject.scale;
             BoxCollider containerCollider = go.AddComponent<BoxCollider>();
             List<BoxCollider> drawingColliders = new List<BoxCollider>();
             for(int i = 0; i < markerObject.markPoints.Count; i++)
@@ -434,11 +442,13 @@ namespace VRGreyboxing
                 if (duplication != null && duplication.basePersistentID == persistentID.uniqueId)
                 {
                     GameObject obj = Object.Instantiate(root);
+                    PersistentID persID = obj.gameObject.AddComponent<PersistentID>();
+                    persID.uniqueId = duplication.persisentID;
                     SceneManager.MoveGameObjectToScene(obj,root.scene);
                     Transform objTrans = obj.transform;
                     obj.name = "Duplicate of " + root.name;
-                    objTrans.SetPositionAndRotation(duplication.Position, duplication.Rotation);
-                    objTrans.localScale = duplication.Scale;
+                    objTrans.SetPositionAndRotation(duplication.position, duplication.rotation);
+                    objTrans.localScale = duplication.scale;
                     if (obj.GetComponentInChildren<ProBuilderMesh>() != null)
                     {
                         var pbm = obj.GetComponentInChildren<ProBuilderMesh>();
@@ -462,7 +472,7 @@ namespace VRGreyboxing
                 AlteredObject alteredObject = editorDataSo.objectStates.First(state => state.persisentID == persistentID.uniqueId) as AlteredObject;
                 if (alteredObject != null)
                 {
-                    if (alteredObject.Deleted)
+                    if (alteredObject.deleted)
                     {
                         editorDataSo.objectStates.Remove(editorDataSo.objectStates.FirstOrDefault(state => state.persisentID == persistentID.uniqueId));
                         Object.DestroyImmediate(root.gameObject);
@@ -476,8 +486,8 @@ namespace VRGreyboxing
                         pbm.ToMesh();
                         pbm.Refresh();
                     }
-                    root.transform.SetPositionAndRotation(alteredObject.Position, alteredObject.Rotation);
-                    root.transform.localScale = alteredObject.Scale;
+                    root.transform.SetPositionAndRotation(alteredObject.position, alteredObject.rotation);
+                    root.transform.localScale = alteredObject.scale;
                     if (alteredObject.keyFrames != null)
                     {
                         root.gameObject.GetComponent<CameraFigure>().keyFrames = alteredObject.keyFrames;

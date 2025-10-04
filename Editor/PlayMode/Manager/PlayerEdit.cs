@@ -68,7 +68,6 @@ namespace VRGreyboxing
                         if (hit.collider.gameObject.GetComponent<VertexEditPoint>() == null)
                         {
                             hit.collider.gameObject.AddComponent<VertexEditPoint>();
-                            ActionManager.Instance.CopyComponent(vertexEditPointPrefab.GetComponent<LineRenderer>(), hit.collider.gameObject);
                             hit.collider.gameObject.GetComponent<LineRenderer>().sharedMaterial = vertexEditPointPrefab.GetComponent<LineRenderer>().sharedMaterial;
                         }
                     }
@@ -87,7 +86,6 @@ namespace VRGreyboxing
                         if (hit.collider.gameObject.GetComponent<VertexEditPoint>() == null)
                         {
                             hit.collider.gameObject.AddComponent<VertexEditPoint>();
-                            ActionManager.Instance.CopyComponent(vertexEditPointPrefab.GetComponent<LineRenderer>(), hit.collider.gameObject);
                             hit.collider.gameObject.GetComponent<LineRenderer>().sharedMaterial = vertexEditPointPrefab.GetComponent<LineRenderer>().sharedMaterial;
                         }
                     }
@@ -106,7 +104,6 @@ namespace VRGreyboxing
                         if (vertex.GetComponent<VertexEditPoint>().connectedObject == null)
                         {
                             Destroy(vertex.GetComponent<VertexEditPoint>());
-                            Destroy(vertex.GetComponent<LineRenderer>());
                         }
                     }
                 }
@@ -383,17 +380,21 @@ namespace VRGreyboxing
         /**
          * Place the edit widget points the vertices and edges of the selected object
          */
-        public void SetCurrentEditWidgetPositions()
+        private void SetCurrentEditWidgetPositions()
         {
-            ProBuilderMesh pbm = selectedObject.GetComponent<ProBuilderMesh>();
-            List<Vector3> worldPositions = pbm.positions.Select(v => pbm.transform.TransformPoint(v)).ToList();
+
             Bounds objBounds = selectedObject.GetComponentInChildren<Renderer>() != null ? selectedObject.GetComponentInChildren<Renderer>().bounds : selectedObject.GetComponentInChildren<Collider>().bounds;
             float objSizeFactor = (objBounds.size.x+ objBounds.size.y+ objBounds.size.z)/3;
-
-            bool isFlat = IsMeshFlat(worldPositions, 0.001f);
-
-            Dictionary<Vector3Int, EditWidgetEditPoint> edgeMarkersByRoundedCenter = new Dictionary<Vector3Int, EditWidgetEditPoint>();
             
+            Dictionary<Vector3Int, EditWidgetEditPoint> edgeMarkersByRoundedCenter = new Dictionary<Vector3Int, EditWidgetEditPoint>();
+            Dictionary<Vector3Int, EditWidgetEditPoint> cornerMarkers = new Dictionary<Vector3Int, EditWidgetEditPoint>();
+
+            ProBuilderMesh pbm = selectedObject.GetComponent<ProBuilderMesh>();  
+            
+            List<Vector3> worldPositions = pbm.positions.Select(v => pbm.transform.TransformPoint(v)).ToList();
+            bool isFlat = IsMeshFlat(worldPositions, 0.01f);
+
+
             foreach (var face in pbm.faces)
             {
                 foreach (var edge in face.edges)
@@ -405,8 +406,10 @@ namespace VRGreyboxing
 
                     var handledIndices = new List<List<int>>
                     {
-                        Enumerable.Range(0, pbm.positions.Count).Where(i => pbm.positions[i] == pbm.positions[edge.a]).ToList(),
-                        Enumerable.Range(0, pbm.positions.Count).Where(i => pbm.positions[i] == pbm.positions[edge.b]).ToList()
+                        Enumerable.Range(0, pbm.positions.Count)
+                            .Where(i => pbm.positions[i] == pbm.positions[edge.a]).ToList(),
+                        Enumerable.Range(0, pbm.positions.Count)
+                            .Where(i => pbm.positions[i] == pbm.positions[edge.b]).ToList()
                     };
 
                     if (isFlat && edgeMarkersByRoundedCenter.TryGetValue(key, out var existing))
@@ -416,7 +419,9 @@ namespace VRGreyboxing
                     else if (!edgeMarkersByRoundedCenter.ContainsKey(key))
                     {
                         GameObject widgetPoint = Instantiate(editWidgetPointPrefab, _currentEditWidget.transform);
-                        widgetPoint.transform.localScale = Vector3.one * (objSizeFactor*PlayModeManager.Instance.editorDataSO.widgetScaleSize);
+                        widgetPoint.transform.localScale = Vector3.one *
+                                                           (objSizeFactor * PlayModeManager.Instance.editorDataSO
+                                                               .widgetScaleSize);
                         widgetPoint.transform.position = center;
                         var editPoint = widgetPoint.GetComponent<EditWidgetEditPoint>();
                         editPoint.playerEdit = this;
@@ -428,7 +433,6 @@ namespace VRGreyboxing
                 }
             }
 
-            Dictionary<Vector3Int, EditWidgetEditPoint> cornerMarkers = new Dictionary<Vector3Int, EditWidgetEditPoint>();
 
             foreach (var shared in pbm.sharedVertices)
             {
@@ -444,17 +448,20 @@ namespace VRGreyboxing
                 {
                     GameObject widgetPoint = Instantiate(editWidgetPointPrefab, _currentEditWidget.transform);
                     widgetPoint.transform.position = worldPos;
-                    widgetPoint.transform.localScale = Vector3.one * (objSizeFactor*PlayModeManager.Instance.editorDataSO.widgetScaleSize);
+                    widgetPoint.transform.localScale = Vector3.one *
+                                                       (objSizeFactor * PlayModeManager.Instance.editorDataSO
+                                                           .widgetScaleSize);
 
                     var editPoint = widgetPoint.GetComponent<EditWidgetEditPoint>();
                     editPoint.playerEdit = this;
                     editPoint.handledPositionIndices = new List<List<int>> { shared.ToList() };
                     editPoint.assignedObject = selectedObject;
 
-                    
+
                     cornerMarkers[key] = editPoint;
                 }
             }
+            
         }
         private Vector3Int RoundedPositionKey(Vector3 pos, float precision = 0.001f)
         {

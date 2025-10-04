@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEditor;
@@ -242,26 +243,21 @@ namespace VRGreyboxing
             i_StickPressRight.Disable();
         }
 
+        /**
+         * Initial display of scene selection in spawn scene
+         */
         public void Start()
         {
             DisplaySceneSelectionMenu(new Vector3(0,1,0));
             leaningPossible = true;
         }
-
-
-        public bool _debugBool;
+        
         
         /**
          * Check for player inputs according to selected edit mode from main menu
          */
         private void Update()
         {
-
-            if (_debugBool)
-            {
-                _debugBool = false;
-                SwitchToScene("Spielwiese");
-            }
             
             //Grace Timer
             _graceTimeLeft = _leftHandSingleInput ? _graceTimeLeft - Time.deltaTime : _graceTimeLeft;
@@ -1666,6 +1662,7 @@ namespace VRGreyboxing
         private void StopPlaymode()
         {
             _playerTransformation.RemoveKeyFrameDisplays();
+            PlayModeManager.Instance.RefreshObjectStates();
             PlayModeManager.Instance.ResetWorldScale();
             EditorApplication.isPlaying = false;
         }
@@ -1688,22 +1685,19 @@ namespace VRGreyboxing
                 GameObject sceneButton = Instantiate(sceneSelectButtonPrefab, content.transform);
                 sceneButton.name = sceneName;
                 sceneButton.GetComponentInChildren<Text>().text = sceneName;
-                sceneButton.GetComponent<Button>().onClick.AddListener(delegate{SwitchToScene(sceneName);});
+                sceneButton.GetComponent<Button>().onClick.AddListener(delegate{PlayModeManager.Instance.SwitchToScene(sceneName);});
             }
         }
 
         private void CloseSceneSelectionMenu()
         {
+            Debug.Log("Close");
             if(_sceneMenuInstance == null) return;
             Destroy(_sceneMenuInstance);
             _sceneMenuInstance = null;
         }
 
-        private void SwitchToScene(string sceneName)
-        {
-            PlayModeManager.Instance.ResetWorldScale();
-            SceneManager.LoadScene(sceneName);
-        }
+
 
         #endregion
 
@@ -1961,18 +1955,6 @@ namespace VRGreyboxing
                     _playerEdit.DeselectObject();
                     break;
             }
-        }
-        
-        /**
-         * Copy component and apply all set fields from the original
-         */
-        public T CopyComponent<T>(T original, GameObject destination) where T : Component
-        {
-            var type = original.GetType();
-            var copy = destination.AddComponent(type);
-            var fields = type.GetFields();
-            foreach (var field in fields) field.SetValue(copy, field.GetValue(original));
-            return copy as T;
         }
         
         
