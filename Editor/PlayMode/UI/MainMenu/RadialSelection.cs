@@ -62,6 +62,7 @@ namespace VRGreyboxing
                     _radialParts[i].GetComponent<Image>().color = Color.yellow;
                     _radialParts[i].transform.localScale = 1.1f * Vector3.one;
                     mainMenuCanvas.GetComponentInChildren<TextMeshPro>().text = _optionNames[i];
+                    mainMenuCanvas.GetComponentInChildren<TextMeshPro>().renderer.sharedMaterial.color = Color.green;
                 }
                 else
                 {

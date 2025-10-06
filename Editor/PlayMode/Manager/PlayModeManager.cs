@@ -29,6 +29,7 @@ namespace VRGreyboxing
         private static readonly HashSet<Type> AllowedTypes = new HashSet<Type>
         {
             typeof(Transform),
+            typeof(RectTransform),
             typeof(MeshRenderer),
             typeof(SkinnedMeshRenderer),
             typeof(MeshFilter),
@@ -68,6 +69,9 @@ namespace VRGreyboxing
             }
         }
 
+        /**
+         * Remove components from specific gameobject
+         */
         public GameObject StripGameObject(GameObject root)
         {
             foreach (var t in root.GetComponentsInChildren<Transform>(true))

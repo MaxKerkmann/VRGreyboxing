@@ -282,7 +282,7 @@ namespace VRGreyboxing
             
             parentCollider.enabled = false;
             ResetDrawing();
-            PlayModeManager.Instance.RegisterObjectChange(drawing,false,-1,false,false,"","",new List<Vector3>(),false,drawingpoints,drawingOffsets,colliderCenters,colliderSizes,drawingColors,lineWidths);
+            PlayModeManager.Instance.RegisterObjectChange(drawing,markPoints: drawingpoints,drawingOffsets: drawingOffsets,colliderCenters: colliderCenters,colliderSizes: colliderSizes,colors: drawingColors,lineWidths: lineWidths);
         }
 
         /**

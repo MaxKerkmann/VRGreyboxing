@@ -534,13 +534,13 @@ namespace VRGreyboxing
                     if (_lastPrefabIndex == -1)
                     {
                         if(_lastDuplicationID != "")
-                            PlayModeManager.Instance.RegisterObjectChange(_leftHandSelectedXRObject, false, _lastPrefabIndex,false,false,_lastDuplicationID);
+                            PlayModeManager.Instance.RegisterObjectChange(_leftHandSelectedXRObject,prefabIndex: _lastPrefabIndex, basePersistentID: _lastDuplicationID);
                         else
                             PlayModeManager.Instance.RegisterObjectChange(_leftHandSelectedXRObject);
                     }
                     else
                     {
-                        PlayModeManager.Instance.RegisterObjectChange(_leftHandSelectedXRObject, false, _lastPrefabIndex);
+                        PlayModeManager.Instance.RegisterObjectChange(_leftHandSelectedXRObject,prefabIndex: _lastPrefabIndex);
                     }
                     _lastPrefabIndex = -1;
                     _playerTransformation.EndGrab(Handedness.Left);
@@ -553,7 +553,7 @@ namespace VRGreyboxing
                     {
                         SelectObject(Handedness.Left, _leftHandHoveredXRObject);
                         if(_playerTransformation.currentSelectedTransWidgetPoint == null && _leftHandHoveredXRObject.GetComponent<PersistentID>()!=null)
-                            PlayModeManager.Instance.RegisterObjectChange(_leftHandHoveredXRObject,true);
+                            PlayModeManager.Instance.RegisterObjectChange(_leftHandHoveredXRObject,firstSelection: true);
                         _triggerLeft = true;
                     }
 
@@ -585,13 +585,13 @@ namespace VRGreyboxing
                     if (_lastPrefabIndex == -1)
                     {
                         if(_lastDuplicationID != "")
-                            PlayModeManager.Instance.RegisterObjectChange(_rightHandSelectedXRObject, false, _lastPrefabIndex,false,false,_lastDuplicationID);
+                            PlayModeManager.Instance.RegisterObjectChange(_rightHandSelectedXRObject,prefabIndex: _lastPrefabIndex,basePersistentID: _lastDuplicationID);
                         else
                             PlayModeManager.Instance.RegisterObjectChange(_rightHandSelectedXRObject);
                     }
                     else
                     {
-                        PlayModeManager.Instance.RegisterObjectChange(_rightHandSelectedXRObject, false, _lastPrefabIndex);
+                        PlayModeManager.Instance.RegisterObjectChange(_rightHandSelectedXRObject,prefabIndex: _lastPrefabIndex);
                     }
                     _lastPrefabIndex = -1;
                     _playerTransformation.EndGrab(Handedness.Right);
@@ -604,7 +604,7 @@ namespace VRGreyboxing
                     {
                         SelectObject(Handedness.Right, _rightHandHoveredXRObject);
                         if(_playerTransformation.currentSelectedTransWidgetPoint == null && _rightHandHoveredXRObject.GetComponent<PersistentID>()!=null)
-                            PlayModeManager.Instance.RegisterObjectChange(_rightHandHoveredXRObject,true);
+                            PlayModeManager.Instance.RegisterObjectChange(_rightHandHoveredXRObject,firstSelection: true);
                         _triggerRight = true;
                     }
 
@@ -672,7 +672,7 @@ namespace VRGreyboxing
                     {
                         SelectObject(Handedness.Left, _leftHandHoveredXRObject);
                         if(_playerEdit.currentSelectedEditWidgetPoint == null && _leftHandHoveredXRObject.GetComponent<PersistentID>()!=null)
-                            PlayModeManager.Instance.RegisterObjectChange(_leftHandHoveredXRObject,true);
+                            PlayModeManager.Instance.RegisterObjectChange(_leftHandHoveredXRObject,firstSelection: true);
                         _triggerLeft = true;
                     }
                 }
@@ -691,7 +691,7 @@ namespace VRGreyboxing
                     {
                         SelectObject(Handedness.Right, _rightHandHoveredXRObject);
                         if(_playerEdit.currentSelectedEditWidgetPoint == null && _rightHandHoveredXRObject.GetComponent<PersistentID>()!=null)
-                            PlayModeManager.Instance.RegisterObjectChange(_rightHandHoveredXRObject,true);
+                            PlayModeManager.Instance.RegisterObjectChange(_rightHandHoveredXRObject,firstSelection: true);
                         _triggerRight = true;
                     }
                 }
@@ -739,7 +739,7 @@ namespace VRGreyboxing
                         if (_currentPolyShape.transform.parent != null)
                             parentID = _currentPolyShape.transform.parent.GetComponent<PersistentID>().uniqueId;
                         
-                        PlayModeManager.Instance.RegisterObjectChange(_currentPolyShape,false,-1,true,false,"",parentID,_currentPolyShapePoints.Select(p => p.transform.position).ToList(),_playerEdit.flipVertices);
+                        PlayModeManager.Instance.RegisterObjectChange(_currentPolyShape,objectCreation: true,parentPersitendID: parentID,basePositions: _currentPolyShapePoints.Select(p => p.transform.position).ToList(),flipVertices: _playerEdit.flipVertices);
                         _currentPolyShape = null;
                         _playerEdit.flipVertices = false;
                         foreach (var vertexEdit in _currentPolyShapePoints.ToList())      
@@ -772,7 +772,7 @@ namespace VRGreyboxing
                         string parentID = "";
                         if (_currentPolyShape.transform.parent != null)
                             parentID = _currentPolyShape.transform.parent.GetComponent<PersistentID>().uniqueId;
-                        PlayModeManager.Instance.RegisterObjectChange(_currentPolyShape,false,-1,true,false,"",parentID,_currentPolyShapePoints.Select(p => p.transform.position).ToList());
+                        PlayModeManager.Instance.RegisterObjectChange(_currentPolyShape,objectCreation: true,parentPersitendID: parentID,basePositions: _currentPolyShapePoints.Select(p => p.transform.position).ToList());
                         _currentPolyShape = null;
                         foreach (var vertexEdit in _currentPolyShapePoints.ToList())      
                         {
@@ -806,7 +806,7 @@ namespace VRGreyboxing
                         _playerTransformation.DeselectObject();
                     _playerTransformation.PerformGrab(Handedness.Left, _leftHandHoveredXRObject.GetComponent<XRGrabInteractable>());
                     if(_leftHandHoveredXRObject.GetComponent<PersistentID>()!=null)
-                        PlayModeManager.Instance.RegisterObjectChange(_leftHandHoveredXRObject,true);
+                        PlayModeManager.Instance.RegisterObjectChange(_leftHandHoveredXRObject,firstSelection: true);
                     _grabLeft = true;
                     if (_grabRight && _rightHandHoveredXRObject == _leftHandHoveredXRObject)
                     {
@@ -838,7 +838,7 @@ namespace VRGreyboxing
                         _playerTransformation.DeselectObject();
                     _playerTransformation.PerformGrab(Handedness.Right, _rightHandHoveredXRObject.GetComponent<XRGrabInteractable>());
                     if(_rightHandHoveredXRObject.GetComponent<PersistentID>()!=null)
-                        PlayModeManager.Instance.RegisterObjectChange(_rightHandHoveredXRObject,true);
+                        PlayModeManager.Instance.RegisterObjectChange(_rightHandHoveredXRObject,firstSelection: true);
                     _grabRight = true;
                     if (_grabLeft && _rightHandHoveredXRObject == _leftHandHoveredXRObject)
                     {
@@ -1770,7 +1770,7 @@ namespace VRGreyboxing
             });
         }
 
-        public void CloseKeyframeEditMenu()
+        private void CloseKeyframeEditMenu()
         {
             if(_keyFrameMenuInstance == null) return;
             Destroy(_keyFrameMenuInstance);

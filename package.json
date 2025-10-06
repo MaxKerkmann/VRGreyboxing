@@ -1,8 +1,8 @@
 {
   "name": "com.bcatstudio.vrgreyboxing",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "displayName": "VRGreyboxing",
-  "description": "This is an example package",
+  "description": "This package integrates Greyboxing functionality in VR directly into unity.\nIt builds upon the XR Interaction Toolkit to enable environment interaction.",
   "unity": "6000.0",
   "unityRelease": "25f1",
   "dependencies": {

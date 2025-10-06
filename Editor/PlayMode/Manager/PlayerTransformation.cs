@@ -45,6 +45,9 @@ namespace VRGreyboxing
         public XRInteractionManager xrInteractionManager;
         public GameObject transWidgetPrefab;
         public GameObject keyFrameDisplayPrefab;
+
+        public float keyFrameDefaultMovementTime = 2;
+        public float keyFrameDefaultRotationTime = 2;
         
         [HideInInspector]
         public TransWidgetEditPoint currentEditPoint;
@@ -166,7 +169,7 @@ namespace VRGreyboxing
 
         /**
         * Select currently hovered object.
-        * If it´s a transform point make the user grab, otherwise display the transform point widget around it.
+        * If it´s a transform point make the user grab it, otherwise display the transform point widget around it.
         */
         public void SelectObject(Handedness handedness,GameObject obj)
         {
@@ -275,7 +278,7 @@ namespace VRGreyboxing
         /**
         * Place the transform widget points the vertices, edges and faces of the selected object
         */
-        public void SetCurrentTransWidgetPositions()
+        private void SetCurrentTransWidgetPositions()
         {
             Quaternion originalRotation = selectedObject.transform.rotation;
             selectedObject.transform.rotation = _currentTransWidget.transform.rotation;
@@ -582,7 +585,7 @@ namespace VRGreyboxing
             {
                 CreatedObject createdState = baseState as CreatedObject;
                 Destroy(go.GetComponent<PersistentID>());
-                PlayModeManager.Instance.RegisterObjectChange(go,false,-1,true,false,"","",createdState.basePositions,createdState.flippedVertices);
+                PlayModeManager.Instance.RegisterObjectChange(go,objectCreation: true,basePositions: createdState.basePositions,flipVertices: createdState.flippedVertices);
                 return go;
             }
             Destroy(go.GetComponent<PersistentID>());
@@ -733,8 +736,8 @@ namespace VRGreyboxing
             {
                 cameraPosition = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position,
                 cameraRotation = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.rotation,
-                cameraMoveTime = 2f,
-                cameraRotateTime = 2f
+                cameraMoveTime = keyFrameDefaultMovementTime,
+                cameraRotateTime = keyFrameDefaultRotationTime
             };
             cameraKeyFrame.prevKeyFrame = cameraFigure.keyFrames.Count > 0 ? cameraFigure.keyFrames[^1] : null;
             cameraFigure.keyFrames.Add(cameraKeyFrame);

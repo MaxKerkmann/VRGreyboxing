@@ -1,42 +1,47 @@
 # User Manuel
 
-Hier eine kurze Anleitung zur Installation und Konfiguration des Tools 
+Hier eine kurze Anleitung zur Installation und Konfiguration des Tools. 
 
 ### Installation
 
-Das System wurde in der Unity Version 6000.0.25f1 erstellt und auch nur in diesem getestet. Es kann in einem leeren Projekt oder in einem bereits bestehenden Projekt installiert werden.
+Das System wurde in der Unity Version 6000.0.25f1 erstellt und auch nur in dieser getestet. Es kann in einem leeren Projekt oder in einem bereits bestehenden Projekt installiert werden.
 
-Innerhalb des Projekts kann das Package entweder über den Package Manager unter Window/Package Manager installiert werden oder direkt über die beigelegte .unitypackage Datei.
+Innerhalb des Projekts kann das Package entweder über den Package-Manager unter Window/Package Manager installiert werden oder direkt über die beigelegte .unitypackage Datei.
 
-Innerhalb des Package Managers kann über das Plus Symbol ein Package über eine git URL hinzugefügt werden: https://github.com/MaxKerkmann/VRGreyboxing.git
-Zur Verwendung der Package Datei muss diese in die Projekt Dateien innerhalb des Unity-Fensters gezogen werden. Dadurch öffnet sich ein Import Fenster, dass die Dateien innerhalb des Package-Ordners installiert.
+Innerhalb des Package-Managers kann über das Plus-Symbol ein Package über eine Git-URL hinzugefügt werden: https://github.com/MaxKerkmann/VRGreyboxing.git
 
-In beiden Fällen müssen außerdem die Starter Assets des XR Interaction Toolkits importiert werden. Dies erfolgt über den Package Manager mit der Auswahl des installiertem Package XR Interaction Toolkit im Reiter Samples.
-Dadurch sollten auch alle angezeigten Error Logs auf Konsole verschwinden.
+Zur Verwendung der Package-Datei muss diese in die Projektdateien innerhalb des Unity-Fensters gezogen werden. Dadurch öffnet sich ein Importfenster, das die Dateien innerhalb des Package-Ordners installiert.
 
-Die weitere Installation hängt von dem verwendeten Head-Mounted Display ab. Zur Entwicklung wurde die HTC Vive Focus Vision verwendet und die weitere Installationsbeschreibung ist auf dieses Gerät abgestimmt. Hierbei wird die Verbindung der VR-Brille zu Unity konfiguriert.
+In beiden Fällen müssen außerdem die Starter Assets des XR Interaction Toolkits importiert werden. Dies erfolgt über den Package-Manager mit der Auswahl des installierten Packages XR Interaction Toolkit im Reiter Samples.
+
+Dadurch sollten auch alle angezeigten Error-Logs auf der Konsole verschwinden.
+
+Die weitere Installation hängt von dem verwendeten Head-Mounted-Display ab. Zur Entwicklung wurde die HTC Vive Focus Vision verwendet und die weitere Installationsbeschreibung ist auf dieses Gerät abgestimmt. Hierbei wird die Verbindung der VR-Brille zu Unity konfiguriert.
+
 Unter VIVE/OpenXR Installer/Install or Update latest version wird das VIVE OpenXR Plugin Version 2.5.1 installiert (die Version nicht spezifisch angeben, dies führt zu Fehlern).
 
-Außerdem wird *TextMeshPro* benötigt. Die Installation erfolgt über Window/TextMeshPro/Import TMP Essential Resources
+Außerdem wird TextMeshPro benötigt. Die Installation erfolgt über Window/TextMeshPro/Import TMP Essential Resources.
 
 ### Konfiguration
 
 Innerhalb der Projects Settings unter Edit/Project Settings... müssen unterhalb der Kategorie XR Plug-in Management verschiedene Einstellungen vorgenommen werden:
 
-Direkt unter XR Plug-in Management muss bei Plug-in Providers ein Haken bei *OpenXR* gesetzt werden.
+Direkt unter XR Plug-in Management muss bei Plug-in Providers ein Haken bei OpenXR gesetzt werden.
 
-Unter Project Validation sollten zunächst alle angezeigten Probleme behoben werden. Die Verwendung des Fix-All-Buttons genügt. Unter dem Bereich OpenXR ein Interaction Profile hinzugefügt werden. Hier ist das Profil *VIVE Cosmos Controller Interaction* auszuwählen.
+Unter Project Validation sollten zunächst alle angezeigten Probleme behoben werden. Die Verwendung des Fix-All-Buttons genügt. Unter dem Bereich OpenXR ein Interaction Profile hinzugefügt werden. Hier ist das Profil VIVE Cosmos Controller Interaction auszuwählen.
+
 Damit sind die Project Settings abgeschlossen.
 
-Zur Verwendung und Konfiguration des VRGreyboxing Tools muss dazu das entsprechende Editor Fenster über  Tools/Greyboxing Editor geöffnet werden.
-Über dieses Fenster kann der Greyboxing Modus über den *Start Greyboxing*-Button gestartet werden. Es kann konfiguriert werden, ob alles Szenen im Projekt zur Auswahl innerhalb des Tools stehen sollen oder nur die, die innerhalb des Build Profiles definiert sind. Außerdem kann der Speicherort für Prefabs die innerhalb des Tools gespeichert festgelegt werden, sowie die Ordner aus denen Prefabs zur Platzierung innerhalb des Tools bezogen werden sollen. Ist die Liste leer werden alle Prefabs des Projekts verwendet.
+Zur Verwendung und Konfiguration des VRGreyboxing Tools muss dazu das entsprechende Editor-Fenster über  Tools/Greyboxing Editor geöffnet werden.
 
-Zuletzt besteht noch die Möglichkeit sich die Konfigurationsdatei anzuzeigen, in welcher die Daten des Tools gespeichert werden.
+Über dieses Fenster kann der Greyboxing Modus über den Start Greyboxing-Button gestartet werden. Es kann konfiguriert werden, ob alle Szenen im Projekt zur Auswahl innerhalb des Tools stehen sollen oder nur die, die innerhalb des Build Profiles definiert sind. Außerdem kann der Speicherort für Prefabs, die innerhalb des Tools gespeichert werden, festgelegt werden, sowie die Ordner, aus denen Prefabs zur Platzierung innerhalb des Tools bezogen werden sollen. Ist die Liste leer, werden alle Prefabs des Projekts verwendet.
+
+Zuletzt besteht noch die Möglichkeit, sich die Konfigurationsdatei anzeigen zu lassen, in welcher die Daten des Tools gespeichert werden.
 
 ### Verbindung zu PC (HTC VIVE HMD)
 Für die Verbindung von VR-Brille und PC werden, abhängig vom Hersteller, zusätzlich unterschiedliche Programme benötigt. Hier wird das genutzte Setup für die HTC Vive Focus Vision beschrieben: 
 Für die Verbindung wurden folgende Programme verwendet: VIVE Hub und SteamVR.
-Zur Verwendung müssen beide Programme auf dem PC auf dem auch Unity läuft gestartet werden. Anschließend kann das HMD mit dem PC verbunden werden. Dazu muss in den Einstellungen der Brille der PC entweder über WIFI oder Kabel ausgewählt werden. Um Unity im Play-Mode auf der VR-Brille zu zeigen, kann die App SteamVR auf der Brille verwendet werden.
+Zur Verwendung müssen beide Programme auf dem PC, auf dem auch Unity läuft, gestartet werden. Anschließend kann das HMD mit dem PC verbunden werden. Dazu muss in den Einstellungen der Brille der PC entweder über W-LAN oder Kabel ausgewählt werden. Um Unity im Play-Mode auf der VR-Brille zu zeigen, kann die App SteamVR auf der Brille verwendet werden.
 
 ## Steuerung
 
@@ -63,8 +68,8 @@ Zur Verwendung müssen beide Programme auf dem PC auf dem auch Unity läuft gest
 | Teleportation    |  (Trigger + Grip) (Halten) + Primary   |
 | Undo    | 2x Trigger (L)    |
 | Redo    | 2x Trigger (R)  |
-| Rotationsfunktion    | Trigger (L) + Trigger (R)    |
-| Skalierungsfunktion    | Grip (L) + Grip (R)    |
+| Rotationsfunktion    | Trigger (L) (Halten) + Trigger (R) (Halten)    |
+| Skalierungsfunktion    | Grip (L) (Halten) + Grip (R) (Halten)    |
 
 ###### Transform-Mode
 | Funktion    | Input |
