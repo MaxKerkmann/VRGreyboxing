@@ -94,7 +94,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e631e569c9e7b9d47a4ac6ad86f85b90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DebugBool: 0
   xROrigin: {fileID: 5141232883918866063}
   xrInteractionManager: {fileID: 4315868942664205295}
   menuOptionButtonPrefab: {fileID: 8048543734897224155, guid: 6e2d20d0acaf66844b42022083ec6435, type: 3}
@@ -102,7 +101,7 @@ MonoBehaviour:
   selectionMenuPrefab: {fileID: 5905599720372585868, guid: 17c4bc9dcbec09648bddb85db7b2b840, type: 3}
   selectionMenuDeletionIcon: {fileID: 21300000, guid: 5a904862f6216fd4ca2ffc700fb835ae, type: 3}
   selectionMenuSaveIcon: {fileID: 21300000, guid: caab167dd9beac243a8514d54905d316, type: 3}
-  seletionMenuDuplicateIcon: {fileID: 21300000, guid: 17d565bb4a7744b41b7e4dc7e3a09e35, type: 3}
+  selectionMenuDuplicateIcon: {fileID: 21300000, guid: 17d565bb4a7744b41b7e4dc7e3a09e35, type: 3}
   selectionMenuCameraIcon: {fileID: 21300000, guid: 87a5c1247ee01cc4fb28e6ac837a27db, type: 3}
   selectionMenuLoadingProgressPrefab: {fileID: 9033754499742086654, guid: ea9a8eebc31d2f140a1f8e211d06b8d7, type: 3}
   keyFrameMenuPrefab: {fileID: 5515986221704593658, guid: 4af339c5438b4e54fb4b2eb6eabc8f27, type: 3}
@@ -130,14 +129,12 @@ MonoBehaviour:
   scaleMenuPrefab: {fileID: 2281393362357322311, guid: a7a67921a6b881045bcf40b9caee8cd0, type: 3}
   movementOptionsMenuPrefab: {fileID: 3302308408210046888, guid: a40b5b5c867131447904c55f30178060, type: 3}
   leaningPossible: 0
-  sceneMenuAnchor: {fileID: 0}
   cameraFigureMovement: 0
   twoHandGrab: 0
   leftController: {fileID: 5804632511901089709}
   rightController: {fileID: 5804632510164762450}
   leftControllerRaycaster: {fileID: 7702477471218766981}
   rightControllerRaycaster: {fileID: 3613969189616478432}
-  shift: 0
 --- !u!114 &3452383629940005505
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -175,9 +172,10 @@ MonoBehaviour:
   xrInteractionManager: {fileID: 4315868942664205295}
   transWidgetPrefab: {fileID: 4534526504609624742, guid: b195ebbc0481a84489a56c849615719b, type: 3}
   keyFrameDisplayPrefab: {fileID: 593017024666216360, guid: 7edcfedfe9b08674eaf9ba4051e646ba, type: 3}
+  keyFrameDefaultMovementTime: 2
+  keyFrameDefaultRotationTime: 2
   currentEditPoint: {fileID: 0}
   selectedObject: {fileID: 0}
-  currentWidgetCenter: {x: 0, y: 0, z: 0}
   currentSelectedTransWidgetPoint: {fileID: 0}
   currentStartRotation: {x: 0, y: 0, z: 0, w: 0}
   leftgrabbedObject: {fileID: 0}
