@@ -1,21 +1,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.ProBuilder;
-using UnityEngine.SceneManagement;
 
 namespace VRGreyboxing
 {
     public class SpawnedObject : ObjectBaseState
     {
-        public int prefabIndex;
-        public List<CameraKeyFrame> keyFrames;
-        public string basePersistentID;
+        public int PrefabIndex;
+        public List<CameraKeyFrame> KeyFrames;
+        public string BasePersistentID;
 
         public SpawnedObject(GameObject gameObject, string persistentId,Vector3 position, Quaternion rotation, Vector3 scale,bool deleted,List<Vector3> positions, int prefabIndex, string originalScenePath,string basePersistentID) : base(gameObject,persistentId,position, rotation, scale,originalScenePath,positions)
         {
-            this.prefabIndex = prefabIndex;
+            this.PrefabIndex = prefabIndex;
             this.originalScenePath = originalScenePath;
-            this.basePersistentID = basePersistentID;
+            this.BasePersistentID = basePersistentID;
             this.deleted = deleted;
         }
 
@@ -59,7 +58,7 @@ namespace VRGreyboxing
                 pbm.ToMesh();
                 pbm.Refresh();
             }
-            keyFrames = spawnedPrevObject.keyFrames;
+            KeyFrames = spawnedPrevObject.KeyFrames;
             spawnedPrevObject.nextState = this;
             return prevState;
         }
@@ -105,7 +104,7 @@ namespace VRGreyboxing
                 pbm.ToMesh();
                 pbm.Refresh();
             }
-            keyFrames = spawnedNextState.keyFrames;
+            KeyFrames = spawnedNextState.KeyFrames;
             nextState.prevState = this;
             return nextState;
         }

@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor.ProBuilder;
 using UnityEngine;
 using UnityEngine.ProBuilder;
 using UnityEngine.ProBuilder.MeshOperations;
@@ -172,10 +170,8 @@ namespace VRGreyboxing
             
             GameObject editPoint = Instantiate(vertexEditPointPrefab, pos, Quaternion.identity);
             _placedVertexEditPoints.Add(editPoint);
-            Debug.Log("Placing New one");
             if (_lastSelectedEditPoint != null)
             { 
-                Debug.Log("Connecting new one");
                 _lastSelectedEditPoint.GetComponent<VertexEditPoint>().Connect(editPoint.GetComponent<VertexEditPoint>(), handedness,this);
                 _lastSelectedEditPoint.GetComponent<Renderer>().material.SetColor("_BaseColor",Color.white);
                 _lastSelectedEditPoint = editPoint;
@@ -438,7 +434,7 @@ namespace VRGreyboxing
             {
                 int index = shared[0];
                 Vector3 worldPos = pbm.transform.TransformPoint(pbm.positions[index]);
-                Vector3Int key = RoundedPositionKey(worldPos, 0.001f);
+                Vector3Int key = RoundedPositionKey(worldPos);
 
                 if (isFlat && cornerMarkers.TryGetValue(key, out var existing))
                 {

@@ -6,16 +6,16 @@ namespace VRGreyboxing
 {
     public class CreatedObject : ObjectBaseState
     {
-        public List<Vector3> basePositions;
-        public bool flippedVertices;
+        public List<Vector3> BasePositions;
+        public bool FlippedVertices;
         
 
         public CreatedObject(GameObject gameObject, string persisentID, Vector3 position, Quaternion rotation, Vector3 scale,bool deleted, List<Vector3> basePositions,List<Vector3> positions,bool flippedVertices, string originalScenePath, bool justCreated) : base(gameObject, persisentID, position, rotation, scale,originalScenePath,positions)
         {
-            this.basePositions = basePositions;
+            BasePositions = basePositions;
             this.originalScenePath = originalScenePath;
             this.justCreated = justCreated;
-            this.flippedVertices = flippedVertices;
+            FlippedVertices = flippedVertices;
             this.deleted = deleted;
         }
         

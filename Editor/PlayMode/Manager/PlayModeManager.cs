@@ -1,8 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -242,7 +240,7 @@ namespace VRGreyboxing
                     };
                 if (obj.GetComponent<CameraFigure>() != null)
                 {
-                    spawnedObj.keyFrames = obj.GetComponent<CameraFigure>().keyFrames;
+                    spawnedObj.KeyFrames = obj.GetComponent<CameraFigure>().keyFrames;
                 }
                 editorDataSO.objectStates.Add(spawnedObj);
                 _actionStack.Add(spawnedObj);
@@ -316,7 +314,7 @@ namespace VRGreyboxing
                             };
                             if (obj.GetComponent<CameraFigure>() != null)
                             {
-                                alteredObject.keyFrames = obj.GetComponent<CameraFigure>().keyFrames;
+                                alteredObject.KeyFrames = obj.GetComponent<CameraFigure>().keyFrames;
                             }
                             editorDataSO.objectStates[editorDataSO.objectStates.IndexOf(baseState)] = alteredObject;
                             if (baseState.untouched)
@@ -340,13 +338,13 @@ namespace VRGreyboxing
                         {
                             SpawnedObject spawnedState = baseState as SpawnedObject;
                             List<Vector3> positions = obj.GetComponent<ProBuilderMesh>() != null ? obj.GetComponent<ProBuilderMesh>().positions.ToList() : new List<Vector3>();
-                            var spawnedObject = new SpawnedObject(obj,baseState.persisentID, obj.transform.position, obj.transform.rotation, obj.transform.localScale,objectDeletion,positions, spawnedState.prefabIndex, SceneManager.GetActiveScene().path,spawnedState.basePersistentID)
+                            var spawnedObject = new SpawnedObject(obj,baseState.persisentID, obj.transform.position, obj.transform.rotation, obj.transform.localScale,objectDeletion,positions, spawnedState.PrefabIndex, SceneManager.GetActiveScene().path,spawnedState.BasePersistentID)
                             {
                                 prevState = baseState
                             };
                             if (obj.GetComponent<CameraFigure>() != null)
                             {
-                                spawnedObject.keyFrames = obj.GetComponent<CameraFigure>().keyFrames;
+                                spawnedObject.KeyFrames = obj.GetComponent<CameraFigure>().keyFrames;
                             }
                             editorDataSO.objectStates[editorDataSO.objectStates.IndexOf(baseState)] = spawnedObject;
                             if (baseState.untouched)
@@ -358,8 +356,8 @@ namespace VRGreyboxing
                         {
                             CreatedObject createdState = baseState as CreatedObject;
                             var createdObject = new CreatedObject(obj, createdState.persisentID, obj.transform.position,
-                                obj.transform.rotation, obj.transform.lossyScale,objectDeletion, createdState.basePositions,
-                                obj.GetComponent<ProBuilderMesh>().positions.ToList(),createdState.flippedVertices, SceneManager.GetActiveScene().path, false)
+                                obj.transform.rotation, obj.transform.lossyScale,objectDeletion, createdState.BasePositions,
+                                obj.GetComponent<ProBuilderMesh>().positions.ToList(),createdState.FlippedVertices, SceneManager.GetActiveScene().path, false)
                             {
                                 prevState = baseState
                             };
@@ -371,7 +369,7 @@ namespace VRGreyboxing
                         }
                         case MarkerObject:
                             MarkerObject markerState = baseState as MarkerObject;
-                            var markerObject = new MarkerObject(obj,baseState.persisentID, obj.transform.position, obj.transform.rotation, obj.transform.lossyScale,objectDeletion, new List<Vector3>(),SceneManager.GetActiveScene().path,markerState.markPoints,drawingOffsets,markerState.colliderCenters,markerState.colliderSizes,markerState.colors,markerState.lineWidths)
+                            var markerObject = new MarkerObject(obj,baseState.persisentID, obj.transform.position, obj.transform.rotation, obj.transform.lossyScale,objectDeletion, new List<Vector3>(),SceneManager.GetActiveScene().path,markerState.MarkPoints,drawingOffsets,markerState.ColliderCenters,markerState.ColliderSizes,markerState.Colors,markerState.LineWidths)
                             {
                                 prevState = baseState
                             };
@@ -391,7 +389,7 @@ namespace VRGreyboxing
                     };
                     if (obj.GetComponent<CameraFigure>() != null)
                     {
-                        alteredObject.keyFrames = obj.GetComponent<CameraFigure>().keyFrames;
+                        alteredObject.KeyFrames = obj.GetComponent<CameraFigure>().keyFrames;
                     }
                     editorDataSO.objectStates.Add(alteredObject);
                 }

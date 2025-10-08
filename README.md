@@ -1,6 +1,8 @@
 # User Manuel
 
-Hier eine kurze Anleitung zur Installation und Konfiguration des Tools. 
+Hier eine kurze Anleitung zur Installation und Konfiguration des Tools.
+
+Hinweis: Der Inhalt des Packages wurde von mir erstellt, mit Ausnahme des Inhalts des Ordners VRGreyboxing/Editor/VIVEInstaller. Dieser wurde zur Vereinfachung der Installation übernommen. Quelle: https://github.com/ViveSoftware/VIVE-OpenXR-Unity (besucht am 20.04.2025)
 
 ### Installation
 

@@ -1,5 +1,3 @@
-using UnityEngine;
-
 namespace VRGreyboxing
 {
     public enum EditMode

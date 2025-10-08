@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using TMPro;
 using UnityEditor;
-using UnityEditor.ProBuilder;
 using UnityEngine;
 using UnityEngine.ProBuilder;
 using UnityEngine.XR.Interaction.Toolkit;
@@ -207,10 +205,7 @@ namespace VRGreyboxing
             if (selectedObject != null)
                 DeselectObject();
             
-            if(obj.CompareTag("VRG_Mark"))
-                selectedObject = obj.transform.parent.gameObject;
-            else
-                selectedObject = obj;
+            selectedObject = obj.CompareTag("VRG_Mark") ? obj.transform.parent.gameObject : obj;
 
             if (selectedObject.GetComponent<CameraFigure>() != null && _keyFrameDisplays.Count == 0)
             {
@@ -585,7 +580,7 @@ namespace VRGreyboxing
             {
                 CreatedObject createdState = baseState as CreatedObject;
                 Destroy(go.GetComponent<PersistentID>());
-                PlayModeManager.Instance.RegisterObjectChange(go,objectCreation: true,basePositions: createdState.basePositions,flipVertices: createdState.flippedVertices);
+                PlayModeManager.Instance.RegisterObjectChange(go,objectCreation: true,basePositions: createdState.BasePositions,flipVertices: createdState.FlippedVertices);
                 return go;
             }
             Destroy(go.GetComponent<PersistentID>());
@@ -630,6 +625,10 @@ namespace VRGreyboxing
             {
                 Debug.Log("Successfully saved selected object");
                 PlayModeManager.Instance.editorDataSO.availablePrefabs.Add(selectedObject);
+            }
+            else
+            {
+                Debug.LogWarning("Failed to save selected object");
             }
 
             PersistentID persistentID = selectedObject.AddComponent<PersistentID>();
@@ -765,7 +764,7 @@ namespace VRGreyboxing
         /**
          * Display all camera keyframes of the selected camera figure in the area
          */
-        public void DisplayCameraKeyframes()
+        private void DisplayCameraKeyframes()
         {
             CameraFigure cameraFigure = selectedObject.GetComponent<CameraFigure>();
             currentCameraFigure = selectedObject;

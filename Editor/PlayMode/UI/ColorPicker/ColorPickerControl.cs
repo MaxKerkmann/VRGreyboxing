@@ -1,4 +1,3 @@
-using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -97,7 +96,7 @@ namespace VRGreyboxing
             _outputTexture.wrapMode = TextureWrapMode.Clamp;
             _outputTexture.name = "OutputTexture";
             
-            Color currentColor = Color.HSVToRGB(currentHue, (float)currentSaturation, (float)currentValue);
+            Color currentColor = Color.HSVToRGB(currentHue, currentSaturation, currentValue);
 
             for (int i = 0; i < _outputTexture.height; i++)
             {

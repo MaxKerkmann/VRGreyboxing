@@ -1,21 +1,19 @@
 using System.Collections.Generic;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace VRGreyboxing
 {
     /**
-     * Costum ui window for greyboxing configuration
+     * Costume ui window for greyboxing configuration
      */
     public class EditorWindow : UnityEditor.EditorWindow
     {
         
         [SerializeField] private List<DefaultAsset> prefabSourceDirectories = new List<DefaultAsset>();
 
-        private SerializedObject editorData;
-        private SerializedProperty foldersProperty;
+        private SerializedObject _editorData;
+        private SerializedProperty _foldersProperty;
         
         [MenuItem("Tools/Greyboxing Editor")]
         public static void ShowWindow()
@@ -37,15 +35,15 @@ namespace VRGreyboxing
             
             
             EditorManager.editorDataSo.prefabSaveDirectory = EditorGUILayout.ObjectField("Prefab Save directory", EditorManager.editorDataSo.prefabSaveDirectory, typeof(Object), false);
-            if (editorData == null || editorData.targetObject !=  EditorManager.editorDataSo)
+            if (_editorData == null || _editorData.targetObject !=  EditorManager.editorDataSo)
             {
-                editorData = new SerializedObject(EditorManager.editorDataSo);
-                foldersProperty = editorData.FindProperty("prefabSourceDirectories");
+                _editorData = new SerializedObject(EditorManager.editorDataSo);
+                _foldersProperty = _editorData.FindProperty("prefabSourceDirectories");
             }
-            editorData.Update();
+            _editorData.Update();
 
-            EditorGUILayout.PropertyField(foldersProperty, true);
-            editorData.ApplyModifiedProperties();
+            EditorGUILayout.PropertyField(_foldersProperty, true);
+            _editorData.ApplyModifiedProperties();
             EditorManager.editorDataSo.prefabSourceDirectories = prefabSourceDirectories;
             EditorGUILayout.Space(15f);
 

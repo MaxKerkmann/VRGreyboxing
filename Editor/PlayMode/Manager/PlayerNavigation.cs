@@ -1,11 +1,7 @@
-using System;
-using System.Collections;
-using System.Numerics;
 using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 using UnityEngine.XR.Interaction.Toolkit.Locomotion.Movement;
-using UnityEngine.XR.Interaction.Toolkit.Locomotion.Teleportation;
 using Quaternion = UnityEngine.Quaternion;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
@@ -45,7 +41,6 @@ namespace VRGreyboxing
         private Vector3 _lastTeleportPosition;
 
         private float _zoomMenuTimer;
-        private float _lineSizePlayerRatio;
         
         private Vector3 _anchorToCenter;
         private Transform _originTransform;
@@ -60,9 +55,6 @@ namespace VRGreyboxing
         private float _rotationTimer;
         private Vector3 _startPosition;
         
-        private Quaternion _savedChildWorldRotation;
-        private Quaternion _originalChildWorldRotation;
-        private Vector3 _originalChildWorldPosition;
         
         private int _keyFrameIndex;
 
@@ -78,9 +70,6 @@ namespace VRGreyboxing
             _rightTeleportLine = _rightController.GetComponent<LineRenderer>();
             currentCameraKeyFrame = null;
             _originTransform = ActionManager.Instance.xROrigin.transform;
-            _lineSizePlayerRatio =
-                ActionManager.Instance.xROrigin.GetComponentInChildren<LineRenderer>(true).startWidth /
-                ActionManager.Instance.xROrigin.transform.localScale.x;
         }
 
         private void Update()
@@ -503,8 +492,8 @@ namespace VRGreyboxing
                 usedLine.endColor = Color.white;
                 Gradient gradient = new Gradient();
                 gradient.SetKeys(
-                    new GradientColorKey[] { new GradientColorKey(Color.white, 0.0f), new GradientColorKey(Color.white, 1.0f) },
-                    new GradientAlphaKey[] { new GradientAlphaKey(0, 0.002f), new GradientAlphaKey(0.5f, 0.12f),new GradientAlphaKey(0.25f, 0.5f),new GradientAlphaKey(0, 0.85f) }
+                    new[] { new GradientColorKey(Color.white, 0.0f), new GradientColorKey(Color.white, 1.0f) },
+                    new[] { new GradientAlphaKey(0, 0.002f), new GradientAlphaKey(0.5f, 0.12f),new GradientAlphaKey(0.25f, 0.5f),new GradientAlphaKey(0, 0.85f) }
                 );
                 usedLine.colorGradient = gradient;
                 _lastTeleportPosition = Vector3.zero;
@@ -572,9 +561,6 @@ namespace VRGreyboxing
             _movementTimer = 0;
             _rotationTimer = 0;
             _startPosition = ActionManager.Instance.xROrigin.transform.position;
-            _savedChildWorldRotation = currentCameraKeyFrame.cameraRotation;
-            _originalChildWorldRotation = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.rotation;
-            _originalChildWorldPosition = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
         }
 
         /**
@@ -589,7 +575,6 @@ namespace VRGreyboxing
 
                 xrOrigin.transform.position = Vector3.Lerp(_startPosition,
                     currentCameraKeyFrame.cameraPosition - ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.localPosition,_movementTimer / currentCameraKeyFrame.cameraMoveTime);
-                _originalChildWorldPosition = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
                 
                 _movementTimer += Time.deltaTime;
             }
@@ -610,9 +595,6 @@ namespace VRGreyboxing
                     _movementTimer = 0;
                     _rotationTimer = 0;
                     _startPosition = ActionManager.Instance.xROrigin.transform.position;
-                    _savedChildWorldRotation = currentCameraKeyFrame.cameraRotation;
-                    _originalChildWorldRotation = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.rotation;
-                    _originalChildWorldPosition = ActionManager.Instance.xROrigin.GetComponentInChildren<Camera>().transform.position;
                 }
             }
         }

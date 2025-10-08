@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace VRGreyboxing
@@ -11,8 +10,7 @@ namespace VRGreyboxing
         public Transform pokePointTransform;
         public Handedness handedness;
         private GameObject _lastHit;
-        [HideInInspector]
-        public RaycastHit hit;
+        public RaycastHit Hit;
         public LayerMask uILayerMask;
         public LayerMask defaultLayerMask;
         
@@ -22,11 +20,11 @@ namespace VRGreyboxing
 
             if (hits.Length == 0)
             {
-                if (Physics.Raycast(transform.position, transform.forward, out hit, float.MaxValue, defaultLayerMask))
+                if (Physics.Raycast(transform.position, transform.forward, out Hit, float.MaxValue, defaultLayerMask))
                 {
-                    if (hit.collider != null && hit.collider.gameObject != _lastHit)
+                    if (Hit.collider != null && Hit.collider.gameObject != _lastHit)
                     {
-                        ActionManager.Instance.AssignHoverObject(hit.transform.gameObject, handedness);
+                        ActionManager.Instance.AssignHoverObject(Hit.transform.gameObject, handedness);
                     }
                 }
                 else

@@ -7,24 +7,24 @@ namespace VRGreyboxing
     public class MarkerObject : ObjectBaseState
     {
 
-        public List<List<Vector3>> markPoints;
-        public List<Vector3> drawingOffsets;
-        public List<Vector3> colliderCenters;
-        public List<Vector3> colliderSizes;
-        public List<Color> colors;
-        public List<float> lineWidths;
+        public List<List<Vector3>> MarkPoints;
+        public List<Vector3> DrawingOffsets;
+        public List<Vector3> ColliderCenters;
+        public List<Vector3> ColliderSizes;
+        public List<Color> Colors;
+        public List<float> LineWidths;
 
 
 
         public MarkerObject(GameObject gameObject, string persisentID, Vector3 position, Quaternion rotation, Vector3 scale,bool deleted, List<Vector3> alteredPositions,string originalScenePath, List<List<Vector3>> markPoints,List<Vector3> drawingOffsets, List<Vector3> colliderCenters, List<Vector3> colliderSizes,List<Color> colors,List<float> lineWidths) : base(gameObject, persisentID, position, rotation, scale, originalScenePath,alteredPositions)
         {
-            this.markPoints = markPoints;
-            this.colliderCenters = colliderCenters;
-            this.colliderSizes = colliderSizes;
+            MarkPoints = markPoints;
+            ColliderCenters = colliderCenters;
+            ColliderSizes = colliderSizes;
             this.originalScenePath = originalScenePath;
-            this.colors = colors;
-            this.lineWidths = lineWidths;
-            this.drawingOffsets = drawingOffsets;
+            Colors = colors;
+            LineWidths = lineWidths;
+            DrawingOffsets = drawingOffsets;
             this.deleted = deleted;
         }
 

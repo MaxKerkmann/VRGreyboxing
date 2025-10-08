@@ -8,7 +8,6 @@ using UnityEditor.PackageManager;
 using UnityEditor.ProBuilder;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.Experimental.GlobalIllumination;
 using UnityEngine.ProBuilder;
 using UnityEngine.ProBuilder.MeshOperations;
 using UnityEngine.SceneManagement;
@@ -26,7 +25,7 @@ namespace VRGreyboxing
     {
 
         private static List<string> _sceneIDs;
-        private static GameObject cam;
+        private static GameObject _cam;
         
         private static readonly HashSet<Type> AllowedPrefabTypes = new HashSet<Type>
         {
@@ -37,17 +36,17 @@ namespace VRGreyboxing
         
         public static EditorDataSO editorDataSo;
         
-        private static float startTime;
-        private static float currentRuntime;
-        private static float moveTime;
-        private static float rotateTime;
-        private static Vector3 originalPosition;
-        private static Quaternion originalRotation;
-        private static float originalDistance;
-        private static List<CameraKeyFrame> keyframes;
-        private static int keyframeIndex;
-        private static Vector3 camStartPos;
-        private static Quaternion camStartRot;
+        private static float _startTime;
+        private static float _currentRuntime;
+        private static float _moveTime;
+        private static float _rotateTime;
+        private static Vector3 _originalPosition;
+        private static Quaternion _originalRotation;
+        private static float _originalDistance;
+        private static List<CameraKeyFrame> _keyframes;
+        private static int _keyframeIndex;
+        private static Vector3 _camStartPos;
+        private static Quaternion _camStartRot;
         
 
         static EditorManager()
@@ -71,21 +70,21 @@ namespace VRGreyboxing
                     SerializedObject tagManager =
                         new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset")[0]);
                     SerializedProperty tagsProp = tagManager.FindProperty("tags");
-                    bool exsists = false;
+                    bool exists = false;
                     for (int i = 0; i < tagsProp.arraySize; i++)
                     {
                         SerializedProperty t = tagsProp.GetArrayElementAtIndex(i);
-                        if (t.stringValue.Equals(tag)) exsists = true;
+                        if (t.stringValue.Equals(tag)) exists = true;
                     }
 
-                    if (!exsists)
+                    if (!exists)
                     {
                         tagsProp.InsertArrayElementAtIndex(tagsProp.arraySize);
                         tagsProp.GetArrayElementAtIndex(tagsProp.arraySize - 1).stringValue = tag;
                         tagManager.ApplyModifiedProperties();
                     }
                 }
-                //editorDataSo.setupTags = true;
+                editorDataSo.setupTags = true;
             }
             
             //Initialize data
@@ -259,7 +258,7 @@ namespace VRGreyboxing
             foreach (Scene scene in scenes)
             {
                 SceneManager.LoadScene(scene.path,LoadSceneMode.Single);
-                List<ObjectBaseState> RemovedKeys = new List<ObjectBaseState>();
+                List<ObjectBaseState> removedKeys = new List<ObjectBaseState>();
                 foreach (var objectState in editorDataSo.objectStates)
                 {
                     bool found = false;
@@ -286,7 +285,7 @@ namespace VRGreyboxing
                     }
                     
                     if(found)
-                        RemovedKeys.Add(objectState);
+                        removedKeys.Add(objectState);
                 }
                 
                 foreach (GameObject obj in scene.GetRootGameObjects())
@@ -294,7 +293,7 @@ namespace VRGreyboxing
                     ApplyChangesRecursively(obj);   
                 }
                 
-                foreach (var removedKey in RemovedKeys)
+                foreach (var removedKey in removedKeys)
                 {
                     editorDataSo.objectStates.Remove(removedKey);
                 }
@@ -307,8 +306,8 @@ namespace VRGreyboxing
          */
         private static void SpawnObject(SpawnedObject spawnedObject, Scene scene)
         {
-            if (spawnedObject.prefabIndex == -1) return;
-            Transform obj = ((GameObject)PrefabUtility.InstantiatePrefab(editorDataSo.availablePrefabs[spawnedObject.prefabIndex],scene)).transform;
+            if (spawnedObject.PrefabIndex == -1) return;
+            Transform obj = ((GameObject)PrefabUtility.InstantiatePrefab(editorDataSo.availablePrefabs[spawnedObject.PrefabIndex],scene)).transform;
             PersistentID persistentID = obj.gameObject.AddComponent<PersistentID>();
             persistentID.uniqueId = spawnedObject.persisentID;
             obj.SetPositionAndRotation(spawnedObject.position, spawnedObject.rotation);
@@ -327,15 +326,15 @@ namespace VRGreyboxing
                 pbm.ToMesh();
                 pbm.Refresh();
             }
-            if (spawnedObject.keyFrames != null)
+            if (spawnedObject.KeyFrames != null)
             {
-                obj.gameObject.GetComponent<CameraFigure>().keyFrames = spawnedObject.keyFrames;
+                obj.gameObject.GetComponent<CameraFigure>().keyFrames = spawnedObject.KeyFrames;
                 EditorUtility.SetDirty( obj.gameObject.GetComponent<CameraFigure>());
             }
         }
 
         /**
-         * Create costum object by saved edge points
+         * Create costume object by saved edge points
          */
         private static void CreateObject(CreatedObject createdObject, Scene scene)
         {
@@ -348,7 +347,7 @@ namespace VRGreyboxing
             MeshCollider col = go.AddComponent<MeshCollider>();
             col.convex = true;
             ProBuilderMesh pbm = go.AddComponent<ProBuilderMesh>();
-            pbm.CreateShapeFromPolygon(createdObject.basePositions,1f,false);
+            pbm.CreateShapeFromPolygon(createdObject.BasePositions,1f,false);
             Vector3 center = Vector3.zero;
             foreach (Vector3 pos in createdObject.alteredPositions)
             {
@@ -362,7 +361,7 @@ namespace VRGreyboxing
             pbm.positions = createdObject.alteredPositions.ToArray();
             go.transform.position += center;
             go.GetComponent<MeshRenderer>().material = editorDataSo.createdObjectMaterial;
-            if (createdObject.flippedVertices)
+            if (createdObject.FlippedVertices)
             {
                 foreach (var face in pbm.faces)
                 {
@@ -395,7 +394,7 @@ namespace VRGreyboxing
             go.transform.localScale = markerObject.scale;
             BoxCollider containerCollider = go.AddComponent<BoxCollider>();
             List<BoxCollider> drawingColliders = new List<BoxCollider>();
-            for(int i = 0; i < markerObject.markPoints.Count; i++)
+            for(int i = 0; i < markerObject.MarkPoints.Count; i++)
             {
                 GameObject drawing = new GameObject("Drawing " + i+1);
                 drawing.tag = "VRG_Mark";
@@ -403,15 +402,15 @@ namespace VRGreyboxing
                 
                 LineRenderer lineRenderer = drawing.AddComponent<LineRenderer>();
                 lineRenderer.useWorldSpace = false;
-                lineRenderer.positionCount = markerObject.markPoints[i].Count;
-                lineRenderer.SetPositions(markerObject.markPoints[i].Select(v => v+markerObject.drawingOffsets[i]).ToArray());
+                lineRenderer.positionCount = markerObject.MarkPoints[i].Count;
+                lineRenderer.SetPositions(markerObject.MarkPoints[i].Select(v => v+markerObject.DrawingOffsets[i]).ToArray());
                 lineRenderer.sharedMaterial = editorDataSo.drawingMaterial;
-                lineRenderer.startColor = lineRenderer.endColor = markerObject.colors[i];
-                lineRenderer.startWidth = lineRenderer.endWidth = markerObject.lineWidths[i];
+                lineRenderer.startColor = lineRenderer.endColor = markerObject.Colors[i];
+                lineRenderer.startWidth = lineRenderer.endWidth = markerObject.LineWidths[i];
                 
                 BoxCollider boxCollider = drawing.AddComponent<BoxCollider>();
-                boxCollider.center = markerObject.colliderCenters[i]+markerObject.drawingOffsets[i];
-                boxCollider.size = markerObject.colliderSizes[i];
+                boxCollider.center = markerObject.ColliderCenters[i]+markerObject.DrawingOffsets[i];
+                boxCollider.size = markerObject.ColliderSizes[i];
                 drawingColliders.Add(boxCollider);
                 drawing.transform.localPosition = Vector3.zero;
 
@@ -439,7 +438,7 @@ namespace VRGreyboxing
             foreach (var key in editorDataSo.objectStates.Where(state => state is SpawnedObject && !state.disabled))
             {
                 SpawnedObject duplication = key as SpawnedObject;
-                if (duplication != null && duplication.basePersistentID == persistentID.uniqueId)
+                if (duplication != null && duplication.BasePersistentID == persistentID.uniqueId)
                 {
                     GameObject obj = Object.Instantiate(root);
                     PersistentID persID = obj.gameObject.AddComponent<PersistentID>();
@@ -460,9 +459,9 @@ namespace VRGreyboxing
                     {
                         obj.GetComponent<ProBuilderMesh>().positions = duplication.alteredPositions.ToArray();
                     }
-                    if (duplication.keyFrames != null)
+                    if (duplication.KeyFrames != null)
                     {
-                        obj.gameObject.GetComponent<CameraFigure>().keyFrames = duplication.keyFrames;
+                        obj.gameObject.GetComponent<CameraFigure>().keyFrames = duplication.KeyFrames;
                     }
                 }
             }
@@ -488,9 +487,9 @@ namespace VRGreyboxing
                     }
                     root.transform.SetPositionAndRotation(alteredObject.position, alteredObject.rotation);
                     root.transform.localScale = alteredObject.scale;
-                    if (alteredObject.keyFrames != null)
+                    if (alteredObject.KeyFrames != null)
                     {
-                        root.gameObject.GetComponent<CameraFigure>().keyFrames = alteredObject.keyFrames;
+                        root.gameObject.GetComponent<CameraFigure>().keyFrames = alteredObject.KeyFrames;
                         EditorUtility.SetDirty( root.gameObject.GetComponent<CameraFigure>());
                     }
                 }
@@ -637,46 +636,46 @@ namespace VRGreyboxing
         public static void StartCameraMovement(CameraFigure cameraFigure)
         {
             if(cameraFigure.keyFrames.Count == 0) return;
-            startTime = (float)EditorApplication.timeSinceStartup;
+            _startTime = (float)EditorApplication.timeSinceStartup;
             EditorApplication.update += Update;
-            keyframes = cameraFigure.keyFrames;
-            keyframeIndex = 0;
-            camStartPos = cameraFigure.transform.position;
-            camStartRot = cameraFigure.transform.rotation;
+            _keyframes = cameraFigure.keyFrames;
+            _keyframeIndex = 0;
+            _camStartPos = cameraFigure.transform.position;
+            _camStartRot = cameraFigure.transform.rotation;
                 
             SceneView sceneView = SceneView.lastActiveSceneView;
             if (sceneView == null) return;
                 
-            originalPosition = sceneView.pivot;
-            originalRotation = sceneView.rotation;
-            originalDistance = sceneView.size;
-            moveTime = keyframes[keyframeIndex].cameraMoveTime;
-            rotateTime = keyframes[keyframeIndex].cameraRotateTime;
-            currentRuntime = moveTime > rotateTime ? moveTime : rotateTime;
+            _originalPosition = sceneView.pivot;
+            _originalRotation = sceneView.rotation;
+            _originalDistance = sceneView.size;
+            _moveTime = _keyframes[_keyframeIndex].cameraMoveTime;
+            _rotateTime = _keyframes[_keyframeIndex].cameraRotateTime;
+            _currentRuntime = _moveTime > _rotateTime ? _moveTime : _rotateTime;
         }
         
         private static void Update()
         {
             float currentTime = (float)EditorApplication.timeSinceStartup;
-            float elapsedTime = currentTime - startTime;
+            float elapsedTime = currentTime - _startTime;
 
-            if (elapsedTime > currentRuntime)
+            if (elapsedTime > _currentRuntime)
             {
-                if (keyframeIndex == keyframes.Count - 1)
+                if (_keyframeIndex == _keyframes.Count - 1)
                 {
                     EditorApplication.update -= Update;
                     SceneView sceneView = SceneView.lastActiveSceneView;
-                    sceneView.LookAt(originalPosition, originalRotation, originalDistance, false, false);
+                    sceneView.LookAt(_originalPosition, _originalRotation, _originalDistance, false, false);
                     return;
                 }
 
-                camStartPos = keyframes[keyframeIndex].cameraPosition;
-                camStartRot = keyframes[keyframeIndex].cameraRotation;
-                keyframeIndex++;
-                moveTime = keyframes[keyframeIndex].cameraMoveTime;
-                rotateTime = keyframes[keyframeIndex].cameraRotateTime;
-                startTime = (float)EditorApplication.timeSinceStartup;
-                currentRuntime = moveTime > rotateTime ? moveTime : rotateTime;
+                _camStartPos = _keyframes[_keyframeIndex].cameraPosition;
+                _camStartRot = _keyframes[_keyframeIndex].cameraRotation;
+                _keyframeIndex++;
+                _moveTime = _keyframes[_keyframeIndex].cameraMoveTime;
+                _rotateTime = _keyframes[_keyframeIndex].cameraRotateTime;
+                _startTime = (float)EditorApplication.timeSinceStartup;
+                _currentRuntime = _moveTime > _rotateTime ? _moveTime : _rotateTime;
             }
             
             UpdateCameraMovement(elapsedTime);
@@ -687,8 +686,8 @@ namespace VRGreyboxing
          */
         private static void UpdateCameraMovement(float elapsedTime)
         {
-            Vector3 cameraPosition = Vector3.Lerp(camStartPos,keyframes[keyframeIndex].cameraPosition,elapsedTime/currentRuntime);
-            Quaternion cameraRotation = Quaternion.Slerp(camStartRot,keyframes[keyframeIndex].cameraRotation,elapsedTime/currentRuntime);
+            Vector3 cameraPosition = Vector3.Lerp(_camStartPos,_keyframes[_keyframeIndex].cameraPosition,elapsedTime/_currentRuntime);
+            Quaternion cameraRotation = Quaternion.Slerp(_camStartRot,_keyframes[_keyframeIndex].cameraRotation,elapsedTime/_currentRuntime);
 
             SceneView sceneView = SceneView.lastActiveSceneView;
             if (sceneView == null) return;

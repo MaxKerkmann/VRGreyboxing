@@ -1,7 +1,6 @@
 using System;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace VRGreyboxing
 {
@@ -27,7 +26,6 @@ namespace VRGreyboxing
             if (isEnter)
             {
                 OnSubmitted?.Invoke(this, EventArgs.Empty);
-                Debug.Log("Submitted");
                 return;
             }
 

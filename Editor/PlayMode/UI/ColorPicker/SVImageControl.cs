@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -13,15 +12,13 @@ namespace VRGreyboxing
     {
 
         public RawImage pickerImage;
-        private RawImage SVImage;
-        private ColorPickerControl pickerControl;
+        private ColorPickerControl _pickerControl;
         private RectTransform _rectTransform;
         private RectTransform _pickerTransform;
 
         private void Awake()
         {
-            SVImage = GetComponent<RawImage>();
-            pickerControl = GetComponentInParent<ColorPickerControl>();
+            _pickerControl = GetComponentInParent<ColorPickerControl>();
             _rectTransform = GetComponent<RectTransform>();
             
             _pickerTransform = pickerImage.GetComponent<RectTransform>();
@@ -62,7 +59,7 @@ namespace VRGreyboxing
             _pickerTransform.localPosition = pos;
             pickerImage.color = Color.HSVToRGB(0,0,1-yNorm);
             
-            pickerControl.SetSV(xNorm, yNorm);
+            _pickerControl.SetSV(xNorm, yNorm);
         }
 
         public void OnDrag(PointerEventData eventData)

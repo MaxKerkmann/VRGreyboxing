@@ -1,16 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine.ProBuilder;
-using UnityEngine.ProBuilder.MeshOperations;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit;
@@ -19,7 +16,6 @@ using UnityEngine.XR.Interaction.Toolkit.Interactors;
 using UnityEngine.XR.Interaction.Toolkit.Locomotion.Movement;
 using UnityEngine.XR.Interaction.Toolkit.Transformers;
 using UnityEngine.XR.Interaction.Toolkit.UI;
-using Object = UnityEngine.Object;
 
 #if UNITY_EDITOR
 
@@ -45,7 +41,7 @@ namespace VRGreyboxing
         public GameObject selectionMenuPrefab;
         public Sprite selectionMenuDeletionIcon;
         public Sprite selectionMenuSaveIcon;
-        public Sprite seletionMenuDuplicateIcon;
+        public Sprite selectionMenuDuplicateIcon;
         public Sprite selectionMenuCameraIcon;
         private GameObject _selectionMenuInstance;
         public GameObject selectionMenuLoadingProgressPrefab;
@@ -1039,14 +1035,14 @@ namespace VRGreyboxing
             
             if (i_triggerLeft.IsPressed() && i_triggerRight.IsPressed() && !_grabLeft && !_grabRight && _leftHandHoveredXRObject != null && _rightHandHoveredXRObject != null)
             {
-                _playerNavigation.PerformZoomRotation(leftControllerRaycaster.hit, rightControllerRaycaster.hit,true);
+                _playerNavigation.PerformZoomRotation(leftControllerRaycaster.Hit, rightControllerRaycaster.Hit,true);
                 ResetGraceTime(Handedness.None);
                 return true;
             }
 
             if (i_grabLeft.IsPressed() && i_grabRight.IsPressed() && !_grabLeft && !_grabRight)
             {
-                _playerNavigation.PerformZoomRotation(leftControllerRaycaster.hit, rightControllerRaycaster.hit,false);
+                _playerNavigation.PerformZoomRotation(leftControllerRaycaster.Hit, rightControllerRaycaster.Hit,false);
                 ResetGraceTime(Handedness.None);
                 return true;
             }
@@ -1288,8 +1284,8 @@ namespace VRGreyboxing
          * Methods to open and close ui elements. Additionally, methods to trigger logic from the ui
          */
         #region UI
-        
-        public Vector3 GetUIPosition()
+
+        private Vector3 GetUIPosition()
         {
             return xROrigin.GetComponentInChildren<Camera>().transform.position+xROrigin.GetComponentInChildren<Camera>().transform.forward * (2);
         }
@@ -1308,14 +1304,14 @@ namespace VRGreyboxing
         
         #region Inventory
 
-        public void DisplayInventory()
+        private void DisplayInventory()
         {
             _inventoryInstance = Instantiate(inventoryMenuPrefab,GetUIPosition(), Quaternion.identity);
             _inventoryInstance.transform.forward = xROrigin.GetComponentInChildren<Camera>().gameObject.transform.forward;
             _inventoryInstance.GetComponent<InventoryMenu>().FillInventoryMenu();
         }
-   
-        public void CloseInventory()
+
+        private void CloseInventory()
         {
             if(_inventoryInstance == null) return;
             Destroy(_inventoryInstance);
@@ -1344,7 +1340,7 @@ namespace VRGreyboxing
 
         #region MovementOptions
 
-        public void DisplayMovementOptions()
+        private void DisplayMovementOptions()
         {
             _movementOptionsMenuInstance = Instantiate(movementOptionsMenuPrefab,GetUIPosition(), Quaternion.identity);
             _movementOptionsMenuInstance.transform.forward = xROrigin.GetComponentInChildren<Camera>().gameObject.transform.forward;
@@ -1372,7 +1368,7 @@ namespace VRGreyboxing
 
         }
 
-        public void CloseMovementOptions()
+        private void CloseMovementOptions()
         {
             if(_movementOptionsMenuInstance == null) return;
             Destroy(_movementOptionsMenuInstance);
@@ -1400,7 +1396,7 @@ namespace VRGreyboxing
             GameObject duplicationButton = Instantiate(menuOptionButtonPrefab, content.transform);
             duplicationButton.name = "Duplicate";
             duplicationButton.GetComponentInChildren<Text>().text = "Duplicate";
-            duplicationButton.GetComponentInChildren<Image>().sprite = seletionMenuDuplicateIcon;
+            duplicationButton.GetComponentInChildren<Image>().sprite = selectionMenuDuplicateIcon;
             duplicationButton.AddComponent<ObjectDuplicationButton>();
             
             //CameraFigure
@@ -1442,7 +1438,7 @@ namespace VRGreyboxing
             _selectionMenuInstance = null;
         }
 
-        public void DisplaySelectionLoadingProgress(float currentTime,float maxTime)
+        private void DisplaySelectionLoadingProgress(float currentTime,float maxTime)
         {
             if (_selectionMenuLoadingProgressInstance == null)
             {
@@ -1452,7 +1448,7 @@ namespace VRGreyboxing
             _selectionMenuLoadingProgressInstance.GetComponent<SelectionMenuLoadingInfo>().DisplayLoadingProgress(currentTime,maxTime);
         }
 
-        public void CloseSelectionLoadingProgress()
+        private void CloseSelectionLoadingProgress()
         {
             if(_selectionMenuLoadingProgressInstance == null) return;
             Destroy(_selectionMenuLoadingProgressInstance);
@@ -1550,7 +1546,6 @@ namespace VRGreyboxing
 
         private void SubmitText(object sender, EventArgs e)
         {
-            Debug.Log("SubmitText");
             _textSubmitted = true;
         }
 
@@ -1691,7 +1686,6 @@ namespace VRGreyboxing
 
         private void CloseSceneSelectionMenu()
         {
-            Debug.Log("Close");
             if(_sceneMenuInstance == null) return;
             Destroy(_sceneMenuInstance);
             _sceneMenuInstance = null;

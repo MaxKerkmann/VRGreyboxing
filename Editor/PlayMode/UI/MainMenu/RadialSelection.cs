@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -32,7 +31,7 @@ namespace VRGreyboxing
         /**
          * Check controller movement to select hovered part of menu
          */
-        public void GetSelectedRadialParts()
+        private void GetSelectedRadialParts()
         {
             Vector3 centerToHand = _handTransform.position - mainMenuCanvas.position;
             Vector3 centerToHandProjected = Vector3.ProjectOnPlane(centerToHand, mainMenuCanvas.forward);
@@ -62,7 +61,6 @@ namespace VRGreyboxing
                     _radialParts[i].GetComponent<Image>().color = Color.yellow;
                     _radialParts[i].transform.localScale = 1.1f * Vector3.one;
                     mainMenuCanvas.GetComponentInChildren<TextMeshPro>().text = _optionNames[i];
-                    mainMenuCanvas.GetComponentInChildren<TextMeshPro>().renderer.sharedMaterial.color = Color.green;
                 }
                 else
                 {

@@ -48,7 +48,7 @@ namespace VRGreyboxing
         }
 
         /**
-         * Set state of object to saved next state to redo already made changes
+         * Set state of object to previously saved next state to redo already made changes
          */
         public virtual ObjectBaseState RedoChange()
         {
