@@ -141,28 +141,7 @@ MonoBehaviour:
   drawingMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
   sceneCleanUpPrefab: {fileID: 6608961106011826283, guid: a5bc67c07d0321d419192b2cdd856d23, type: 3}
   lastOpenScene: Assets/Scenes/Spielwiese.unity
-  sceneNames:
-  - Spielwiese
-  - Unity_Chris
-  - Unity_Dominic
-  - Unity_Dominik
-  - Unity_Jasmin
-  - Unity_Kira
-  - Unity_Lea
-  - Unity_Nils
-  - Unity_Papa
-  - Unity_Rebecca
-  - VR_Chris
-  - VR_Dominic
-  - VR_Dominik
-  - VR_Jasmin
-  - VR_Kira
-  - VR_Lea
-  - VR_Nils
-  - VR_Papa
-  - VR_Rebecca
-  - Demo_Character
-  - DemoScene
+  sceneNames: []
   objectStates: []
   zoomMode: 0
   rotationMode: 0
